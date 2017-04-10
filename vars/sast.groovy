@@ -9,9 +9,8 @@ def call(body) {
     node {
       stage ('SAST Tests') {
 
-        dir('scm') {
-          checkout scm
-        }
+        // checkout the branch that triggered the build
+        checkout scm
 
         def CHECKMARX_TEAM = /CxServer\\SP\\GE\\GE_PowerWater\\mdi_12782/
         def CHECKMARX_APP = "\\${config.appName}-${env.BRANCH_NAME}"
@@ -28,7 +27,7 @@ def call(body) {
             -CxPassword '$CHECKMARX_PASSWORD'   \
             -preset 'Default 2014'    \
             -locationtype folder      \
-            -locationpath '$WORKSPACE/scm'
+            -locationpath '$WORKSPACE'
             /opt/CxConsolePlugin/runCxConsole.sh scan -v    \
             -ProjectName "${PROJECT_NAME}"    \
             -CxServer 'https://checkmarx.security.ge.com'     \
@@ -36,9 +35,11 @@ def call(body) {
             -CxPassword '$CHECKMARX_PASSWORD'   \
             -preset 'Default 2014'    \
             -locationtype folder      \
-            -locationpath '$WORKSPACE/scm'
+            -locationpath '$WORKSPACE'
           """
         }
+
+        currentBuild.result = 'SUCCESS'
       }
 
     }
