@@ -1,4 +1,16 @@
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 def call(config) {
+    if (config.sastBranches) {
+      def sastBranchesPattern = config.sastBranches
+      Pattern pattern = Pattern.compile(sastBranchesPattern)
+
+      if (!(BRANCH_NAME ==~ pattern)) {
+        echo "${BRANCH_NAME} does not match the sastBranches pattern. Skipping SAST"
+        return
+      }
+    }
 
     // now build, based on the configuration provided
     stage ('SAST Tests') {
