@@ -36,7 +36,7 @@ def call(body) {
 
     if (config.publish) {
       try {
-
+        publish(config)
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
