@@ -32,7 +32,7 @@ def call(config) {
         BUILD_SCRIPT_FILE = "./" + BUILD_SCRIPT_FILE
       }
 
-      println "Running build..."
+      println "Running buildScript..."
       println "var: ${WORKSPACE}/${BUILD_SCRIPT_FILE}"
 
       sh """#!/bin/bash

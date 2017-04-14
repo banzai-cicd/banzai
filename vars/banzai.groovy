@@ -14,7 +14,6 @@ def call(body) {
     // checkout the branch that triggered the build
     checkout scm
 
-    // run SAST
     if (config.sast) {
       try {
         sast(config)
@@ -25,7 +24,6 @@ def call(body) {
       }
     }
 
-    // run build
     if (config.build) {
       try {
         build(config)
@@ -36,8 +34,7 @@ def call(body) {
       }
     }
 
-    // if branch == tag/* or develop buld package image and push
-    if (config.deploy) {
+    if (config.publish) {
       try {
 
       } catch (err) {
