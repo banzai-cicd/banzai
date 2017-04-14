@@ -21,7 +21,7 @@ def call(body) {
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
-        return
+        throw err
       }
     }
 
@@ -32,7 +32,7 @@ def call(body) {
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
-        return
+        throw err
       }
     }
 
@@ -43,7 +43,7 @@ def call(body) {
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
-        return
+        throw err
       }
     }
 
