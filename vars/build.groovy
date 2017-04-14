@@ -1,5 +1,7 @@
+#!/usr/bin/env groovy
+
 def call(config) {
-  
+
     // now build, based on the configuration provided
     stage ('Build') {
       def BUILD_SCRIPT_FILE = config.buildScriptFile
