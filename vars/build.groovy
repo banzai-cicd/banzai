@@ -4,11 +4,21 @@ def call(config) {
 
     // now build, based on the configuration provided
     stage ('Build') {
+      if (config.buildBranches) {
+        def buildBranchesPattern = config.buildBranches
+        Pattern pattern = Pattern.compile(buildBranchesPattern)
+
+        if (!(BRANCH_NAME ==~ pattern)) {
+          echo "${BRANCH_NAME} does not match the buildBranches pattern. Skipping Build"
+          return
+        }
+      }
+
       def BUILD_SCRIPT_FILE = config.buildScriptFile
 
       //Variable Error Handeling
       if(!BUILD_SCRIPT_FILE){
-        throw new IllegalArgumentException("Jenkinsfile Variable must be configured: BUILD_SCRIPT_FILE")
+        throw new IllegalArgumentException("Jenkinsfile Variable must be configured: buildScriptFile")
       }
 
       //Modify Variable to ensure path starts with "./"
