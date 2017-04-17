@@ -7,6 +7,8 @@ def call(body) {
   body.delegate = config
   body()
 
+  env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
+
   node {
     currentBuild.result = 'SUCCESS'
     echo "My branch is: ${BRANCH_NAME}"
@@ -14,12 +16,12 @@ def call(body) {
     // checkout the branch that triggered the build
     checkoutSCM(config)
     // for some reason SCM marks PR as complete so we have to ovveride
-    githubNotify description: 'Checkout Complete',  status: 'PENDING', credentialsId: 'ge-git', account: 'ConfigReviewer'
+    githubNotify description: 'Checkout Complete',  status: 'PENDING', credentialsId: 'ge-git', account: 'ConfigReviewer', gitApiUrl: GITHUB_API_URL
 
     if (config.sast) {
       try {
         sast(config)
-        githubNotify description: 'SAST Complete',  status: 'PENDING', credentialsId: 'ge-git', account: 'ConfigReviewer'
+        githubNotify description: 'SAST Complete',  status: 'PENDING', credentialsId: 'ge-git', account: 'ConfigReviewer', gitApiUrl: GITHUB_API_URL
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
@@ -30,7 +32,7 @@ def call(body) {
     if (config.build) {
       try {
         build(config)
-        githubNotify description: 'Build Complete',  status: 'PENDING', credentialsId: 'ge-git', account: 'ConfigReviewer'
+        githubNotify description: 'Build Complete',  status: 'PENDING', credentialsId: 'ge-git', account: 'ConfigReviewer', gitApiUrl: GITHUB_API_URL
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
