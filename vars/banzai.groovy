@@ -12,7 +12,7 @@ def call(body) {
     echo "My branch is: ${BRANCH_NAME}"
 
     // checkout the branch that triggered the build
-    checkout(config)
+    checkoutSCM(config)
 
     if (config.sast) {
       try {
