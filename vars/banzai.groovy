@@ -14,12 +14,12 @@ def call(body) {
     // checkout the branch that triggered the build
     checkoutSCM(config)
     // for some reason SCM marks PR as complete so we have to ovveride
-    githubNotify description: 'Checkout Complete',  status: 'PENDING'
+    githubNotify description: 'Checkout Complete',  status: 'PENDING', credentialsId: 'ge-git'
 
     if (config.sast) {
       try {
         sast(config)
-        githubNotify description: 'SAST Complete',  status: 'PENDING'
+        githubNotify description: 'SAST Complete',  status: 'PENDING', credentialsId: 'ge-git'
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
@@ -30,7 +30,7 @@ def call(body) {
     if (config.build) {
       try {
         build(config)
-        githubNotify description: 'Build Complete',  status: 'PENDING'
+        githubNotify description: 'Build Complete',  status: 'PENDING', credentialsId: 'ge-git'
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
