@@ -8,8 +8,11 @@ def call(body) {
   body()
 
   env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
+  env.JENKINS_EMAIL = 'Service.SweeneyJenkins@ge.com'
+  env.DOCKER_REPO_URL = 'VDCALD05143.ics.cloud.ge.com:5000'
 
   node {
+    // TODO notify Flowdock build starting
     currentBuild.result = 'SUCCESS'
     echo "My branch is: ${BRANCH_NAME}"
 
@@ -24,7 +27,8 @@ def call(body) {
         notifyGit(config, 'SAST Complete', 'SUCCESS')
       } catch (err) {
         echo "Caught: ${err}"
-        currentBuild.result = 'FAILURE'
+        currentBuild.result = 'UNSTABLE'
+        notifyGit(config, 'Build Failure', 'ERROR')
         throw err
       }
     }
@@ -37,6 +41,8 @@ def call(body) {
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
+        notifyGit(config, 'Build Failure', 'FAILURE')
+        // TODO notify Flowdock
         throw err
       }
     }
@@ -44,9 +50,11 @@ def call(body) {
     if (config.publish) {
       try {
         publish(config)
+        // TODO notify Flowdock
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
+        // TODO notify Flowdock
         throw err
       }
     }
