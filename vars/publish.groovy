@@ -35,9 +35,17 @@ def call(config) {
       println "Running publishScript..."
       println "var: ${WORKSPACE}/${PUBLISH_SCRIPT_FILE}"
 
+      // determine if we should push a 'latest' tag
+      def devBranchPattern = config.developBranch
+      Pattern devPattern = Pattern.compile(devBranchPattern)
+      def publishLatestTag = false
+      if ((BRANCH_NAME ==~ devPattern)) {
+        publishLatestTag = true
+      }
+
       sh """#!/bin/bash
         if [ -f "${WORKSPACE}/${PUBLISH_SCRIPT_FILE}" ] ; then
-          /bin/sh ${WORKSPACE}/${PUBLISH_SCRIPT_FILE} ${DOCKER_REPO_URL} ${config.appName}
+          /bin/sh ${WORKSPACE}/${PUBLISH_SCRIPT_FILE} ${DOCKER_REPO_URL} ${config.appName} ${publishLatestTag}
         else
           echo "'${WORKSPACE}/${PUBLISH_SCRIPT_FILE}' does not exist!"
           exit 0
