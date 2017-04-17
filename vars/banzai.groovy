@@ -16,12 +16,12 @@ def call(body) {
     // checkout the branch that triggered the build
     checkoutSCM(config)
     // for some reason SCM marks PR as complete so we have to ovveride
-    githubNotify description: 'Checkout Complete',  status: 'PENDING', credentialsId: 'ge-git', account: 'ConfigReviewer', gitApiUrl: GITHUB_API_URL
 
     if (config.sast) {
       try {
+        notifyGit(config, 'SAST Pending', 'PENDING')
         sast(config)
-        githubNotify description: 'SAST Complete',  status: 'PENDING', credentialsId: 'ge-git', account: 'ConfigReviewer', gitApiUrl: GITHUB_API_URL
+        notifyGit(config, 'SAST Complete', 'SUCCESS')
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
@@ -31,8 +31,9 @@ def call(body) {
 
     if (config.build) {
       try {
+        notifyGit(config, 'Build Pending', 'PENDING')
         build(config)
-        githubNotify description: 'Build Complete',  status: 'PENDING', credentialsId: 'ge-git', account: 'ConfigReviewer', gitApiUrl: GITHUB_API_URL
+        notifyGit(config, 'Build Complete', 'SUCCESS')
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
@@ -49,6 +50,8 @@ def call(body) {
         throw err
       }
     }
+
+
 
   } // node
 
