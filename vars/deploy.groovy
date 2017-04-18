@@ -6,7 +6,7 @@ import java.util.regex.Pattern
 def call(config) {
 
   // determine if on develop branch
-  def devBranchPattern = config.developDeployBranch
+  def devBranchPattern = config.developBranch
   Pattern devPattern = Pattern.compile(devBranchPattern)
   if ((BRANCH_NAME ==~ devPattern)) {
 
