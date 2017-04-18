@@ -59,7 +59,17 @@ def call(body) {
       }
     }
 
-
+    if (config.deploy) {
+      try {
+        deploy(config)
+        // TODO notify Flowdock
+      } catch (err) {
+        echo "Caught: ${err}"
+        currentBuild.result = 'FAILURE'
+        // TODO notify Flowdock
+        throw err
+      }
+    }
 
   } // node
 

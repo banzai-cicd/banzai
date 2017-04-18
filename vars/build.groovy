@@ -37,7 +37,7 @@ def call(config) {
 
       sh """#!/bin/bash
         if [ -f "${WORKSPACE}/${BUILD_SCRIPT_FILE}" ] ; then
-          /bin/sh '${WORKSPACE}/${BUILD_SCRIPT_FILE}'
+          /bin/bash '${WORKSPACE}/${BUILD_SCRIPT_FILE}'
         else
           echo "'${WORKSPACE}/${BUILD_SCRIPT_FILE}' does not exist!"
           exit 0

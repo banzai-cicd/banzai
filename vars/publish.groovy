@@ -43,9 +43,10 @@ def call(config) {
         publishLatestTag = true
       }
 
+      // run publish file
       sh """#!/bin/bash
         if [ -f "${WORKSPACE}/${PUBLISH_SCRIPT_FILE}" ] ; then
-          /bin/sh ${WORKSPACE}/${PUBLISH_SCRIPT_FILE} ${DOCKER_REPO_URL} ${config.appName} ${publishLatestTag}
+          /bin/bash ${WORKSPACE}/${PUBLISH_SCRIPT_FILE} ${DOCKER_REPO_URL} ${config.appName} ${publishLatestTag}
         else
           echo "'${WORKSPACE}/${PUBLISH_SCRIPT_FILE}' does not exist!"
           exit 0
