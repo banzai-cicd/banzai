@@ -43,6 +43,8 @@ def call(config) {
         publishLatestTag = true
       }
 
+      println "publishLatestTag: ${publishLatestTag}"
+
       // run publish file
       sh """#!/bin/bash
         if [ -f "${WORKSPACE}/${PUBLISH_SCRIPT_FILE}" ] ; then
