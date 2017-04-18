@@ -11,7 +11,7 @@ def call(config) {
   if ((BRANCH_NAME ==~ devPattern)) {
 
     sshagent([config.developDeployCredId]) {
-       sh "ssh -vvv -o StrictHostKeyChecking=no ${config.developDeployUser}@${config.developDeployServer} ${config.developDeployCmd}"
+       sh "ssh -o StrictHostKeyChecking=no ${config.developDeployUser}@${config.developDeployServer} '${config.developDeployCmd}'"
     }
 
   }
