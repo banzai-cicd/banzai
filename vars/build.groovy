@@ -70,11 +70,3 @@ def runShellScript(BUILD_SCRIPT_FILE) {
     fi
   """
 }
-
-def runGroovyScript(BUILD_SCRIPT_FILE, config) {
-  def binding = new Binding();
-  binding.setProperty('sh', sh);
-  binding.setProperty('config', config)
-  GroovyShell shell = new GroovyShell(binding);
-  shell.evaluate(BUILD_SCRIPT_FILE);
-}
