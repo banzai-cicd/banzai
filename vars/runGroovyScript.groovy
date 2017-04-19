@@ -5,7 +5,7 @@ def call(scriptFile, config) {
     GroovyClassLoader loader = new GroovyClassLoader(getClass().getClassLoader())
     Class groovyClass = loader.parseClass(scriptFile)
 		BuildScript buildScript = (BuildScript) groovyClass.newInstance()
-    buildScript.run(&sh)
+    buildScript.invokeMethod("run", &sh)
   } catch (GroovyRuntimeException e) {
     throw e.getCause()
   }
