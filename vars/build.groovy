@@ -3,9 +3,10 @@
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-buildScriptDefault = 'buildScript'
+
 
 def call(config) {
+    def BUILD_SCRIPT_DEFAULT = 'buildScript'
 
     // now build, based on the configuration provided
     stage ('Build') {
@@ -23,12 +24,12 @@ def call(config) {
       if(!config.buildScriptFile) {
         println "no buildScript specified in config"
         // try and load defaults
-        def groovyScript = new File("${WORKSPACE}/${buildScriptDefault}.groovy")
+        def groovyScript = new File("${WORKSPACE}/${BUILD_SCRIPT_DEFAULT}.groovy")
         if (groovyScript.exists()) {
           println "buildScript.groovy detected"
           runGroovyScript(groovyScript.getAbsolutePath(), config)
         } else {
-          def shellScript = new File("${WORKSPACE}/./${buildScriptDefault}.sh")
+          def shellScript = new File("${WORKSPACE}/./${BUILD_SCRIPT_DEFAULT}.sh")
           if (shellScript.exists()) {
             println "buildScript.sh detected"
             runShellScript(shellScript.getAbsolutePath())
