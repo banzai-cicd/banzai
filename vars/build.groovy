@@ -42,7 +42,7 @@ def call(config) {
           runShellScript(BUILD_SCRIPT_FILE)
         } else if (BUILD_SCRIPT_FILE.endsWith(".groovy")) {
           def ourSh = { String s -> sh(s) }
-          runGroovyScript(new File("${WORKSPACE}/${BUILD_SCRIPT_FILE}"), config, &ourSh)
+          runGroovyScript(new File("${WORKSPACE}/${BUILD_SCRIPT_FILE}"), config, ourSh)
         } else {
           throw new IllegalArgumentException("buildScriptFile must be of type .groovy or .sh")
         }
