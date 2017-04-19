@@ -6,5 +6,9 @@ def call(scriptFile, config) {
   binding.setProperty('sh', myShell);
   binding.setProperty('config', config)
   GroovyShell shell = new GroovyShell(binding);
-  shell.evaluate(scriptFile);
+  try {
+    shell.evaluate(scriptFile);
+  } catch (GroovyRuntimeException e) {
+    throw e.getCause()
+  }
 }
