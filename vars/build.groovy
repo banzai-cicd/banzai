@@ -3,8 +3,11 @@
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+
+
 def call(config) {
     def BUILD_SCRIPT_DEFAULT = 'buildScript'
+    def scriptBinding = this.binding;
 
     // now build, based on the configuration provided
     stage ('Build') {
@@ -25,7 +28,7 @@ def call(config) {
         def groovyScript = new File("${WORKSPACE}/${BUILD_SCRIPT_DEFAULT}.groovy")
         if (groovyScript.exists()) {
           println "buildScript.groovy detected"
-          runGroovyScript(groovyScript, config)
+          runGroovyScript(groovyScript, config, scriptBinding)
         } else {
           def shellScript = new File("${WORKSPACE}/./${BUILD_SCRIPT_DEFAULT}.sh")
           if (shellScript.exists()) {
@@ -41,7 +44,7 @@ def call(config) {
         if (BUILD_SCRIPT_FILE.endsWith(".sh")) {
           runShellScript(BUILD_SCRIPT_FILE)
         } else if (BUILD_SCRIPT_FILE.endsWith(".groovy")) {
-          runGroovyScript(new File("${WORKSPACE}/${BUILD_SCRIPT_FILE}"), config)
+          runGroovyScript(new File("${WORKSPACE}/${BUILD_SCRIPT_FILE}"), config, scriptBinding)
         } else {
           throw new IllegalArgumentException("buildScriptFile must be of type .groovy or .sh")
         }
@@ -71,9 +74,9 @@ def runShellScript(BUILD_SCRIPT_FILE) {
   """
 }
 
-def runGroovyScript(BUILD_SCRIPT_FILE, config) {
+def runGroovyScript(BUILD_SCRIPT_FILE, config, scriptBinding) {
   Binding binding = new Binding();
-  GroovyShell shell = new GroovyShell(this.binding);
+  GroovyShell shell = new GroovyShell(scriptBinding);
   binding.setProperty('config', config);
   shell.evaluate(BUILD_SCRIPT_FILE);
 }
