@@ -24,10 +24,11 @@ def call(config) {
       if(!config.buildScriptFile) {
         println "no buildScript specified in config"
         // try and load defaults
-        def groovyScript = new File("${WORKSPACE}/${BUILD_SCRIPT_DEFAULT}.groovy")
+        def groovyFilePath = "${WORKSPACE}/${BUILD_SCRIPT_DEFAULT}.groovy"
+        def groovyScript = new File(groovyFilePath)
         if (groovyScript.exists()) {
           println "buildScript.groovy detected"
-          runGroovyScript(groovyScript.getAbsolutePath(), config)
+          runGroovyScript(groovyFilePath, config)
         } else {
           def shellScript = new File("${WORKSPACE}/./${BUILD_SCRIPT_DEFAULT}.sh")
           if (shellScript.exists()) {
