@@ -1,8 +1,9 @@
 
+
 def call(scriptFile, config) {
   def binding = new Binding();
-  binding.setProperty('sh', sh);
-  binding.setProperty('config', config)
+  binding.setVariable('sh', sh);
+  binding.setVariable('config', config)
   GroovyShell shell = new GroovyShell(binding);
   shell.evaluate(scriptFile);
 }
