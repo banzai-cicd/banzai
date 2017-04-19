@@ -2,8 +2,6 @@
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import groovy.transform.Field
-import static groovy.json.JsonOutput.*
 
 def call(config) {
     def BUILD_SCRIPT_DEFAULT = 'buildScript'
@@ -74,6 +72,9 @@ def runShellScript(BUILD_SCRIPT_FILE) {
 }
 
 def runGroovyScript(BUILD_SCRIPT_FILE, config) {
-  GroovyShell shell = new GroovyShell(this.getBinding());
+  def binding = new Binding();
+  binding.setProperty('sh', sh);
+  binding.setProperty('config', config)
+  GroovyShell shell = new GroovyShell(binding);
   shell.evaluate(BUILD_SCRIPT_FILE);
 }
