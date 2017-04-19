@@ -24,15 +24,14 @@ def call(config) {
       if(!config.buildScriptFile) {
         println "no buildScript specified in config"
         // try and load defaults
-        def groovyFilePath = "${WORKSPACE}/${BUILD_SCRIPT_DEFAULT}.groovy"
-        def groovyScript = new File(groovyFilePath)
+        def groovyScript = new File("${WORKSPACE}/${BUILD_SCRIPT_DEFAULT}.groovy")
         if (groovyScript.exists()) {
-          println "buildScript.groovy detected: ${groovyFilePath}"
-          runGroovyScript(groovyFilePath, config)
+          println "buildScript.groovy detected"
+          runGroovyScript(groovyScript, config)
         } else {
           def shellScript = new File("${WORKSPACE}/./${BUILD_SCRIPT_DEFAULT}.sh")
           if (shellScript.exists()) {
-            println "buildScript.sh detected: ${shellScript.getAbsolutePath()}"
+            println "buildScript.sh detected"
             runShellScript(shellScript.getAbsolutePath())
           } else {
             throw new IllegalArgumentException("no buildScriptFile[.sh|.groovy] exists!")
@@ -44,7 +43,7 @@ def call(config) {
         if (BUILD_SCRIPT_FILE.endsWith(".sh")) {
           runShellScript(BUILD_SCRIPT_FILE)
         } else if (BUILD_SCRIPT_FILE.endsWith(".groovy")) {
-          runGroovyScript(BUILD_SCRIPT_FILE, config)
+          runGroovyScript(new File("${WORKSPACE}/${BUILD_SCRIPT_FILE}"), config)
         } else {
           throw new IllegalArgumentException("buildScriptFile must be of type .groovy or .sh")
         }
@@ -75,8 +74,8 @@ def runShellScript(BUILD_SCRIPT_FILE) {
 }
 
 def runGroovyScript(BUILD_SCRIPT_FILE, config) {
-  GroovyScriptEngine engine = new GroovyScriptEngine(BUILD_SCRIPT_FILE);
   Binding binding = new Binding();
+  GroovyShell shell = new GroovyShell(binding);
   binding.setProperty('config', config);
-  engine.run("UserSelectedComponents.groovy", binding);
+  shell.evaluate(BUILD_SCRIPT_FILE);
 }
