@@ -1,4 +1,4 @@
-
+import org.codehaus.groovy.control.CompilerConfiguration
 
 def call(scriptFile, config) {
   def compilerConfiguration = new CompilerConfiguration()
