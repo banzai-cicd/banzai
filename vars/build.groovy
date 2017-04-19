@@ -2,12 +2,12 @@
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import groovy.transform.Field
 
-
+@Field Binding scriptBinding = this.binding;
 
 def call(config) {
     def BUILD_SCRIPT_DEFAULT = 'buildScript'
-    def scriptBinding = this.binding;
 
     // now build, based on the configuration provided
     stage ('Build') {
