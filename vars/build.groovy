@@ -3,6 +3,8 @@
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+buildScriptDefault = 'buildScript'
+
 def call(config) {
 
     // now build, based on the configuration provided
@@ -17,31 +19,58 @@ def call(config) {
         }
       }
 
-      def BUILD_SCRIPT_FILE = config.buildScriptFile
-
       //Variable Error Handeling
-      if(!BUILD_SCRIPT_FILE){
-        throw new IllegalArgumentException("Jenkinsfile Variable must be configured: buildScriptFile")
+      if(!config.buildScriptFile) {
+        // try and load defaults
+        def groovyScript = new File("${WORKSPACE}/./${buildScriptDefault}.groovy")
+        if (groovyScript.exists()) {
+          runGroovyScript(groovyScript.getAbsolutePath(), config)
+        } else {
+          def shellScript = new File("${WORKSPACE}/./${buildScriptDefault}.sh")
+          if (shellScript.exists()) {
+            runShellScript(shellScript.getAbsolutePath())
+          } else {
+            throw new IllegalArgumentException("no buildScriptFile[.sh|.groovy] exists!")
+          }
+        }
+      } else {
+        def BUILD_SCRIPT_FILE = config.buildScriptFile;
+        if (BUILD_SCRIPT_FILE.endsWith(".sh")) {
+          runShellScript(BUILD_SCRIPT_FILE)
+        } else if (BUILD_SCRIPT_FILE.endsWith(".groovy")) {
+          runGroovyScript(BUILD_SCRIPT_FILE, config)
+        } else {
+          throw new IllegalArgumentException("buildScriptFile must be of type .groovy or .sh")
+        }
       }
-
-      //Modify Variable to ensure path starts with "./"
-      if(BUILD_SCRIPT_FILE.charAt(0) == "/"){
-        BUILD_SCRIPT_FILE = "." + BUILD_SCRIPT_FILE
-      }
-      if(BUILD_SCRIPT_FILE.charAt(0) != "."){
-        BUILD_SCRIPT_FILE = "./" + BUILD_SCRIPT_FILE
-      }
-
-      println "Running buildScript..."
-      println "var: ${WORKSPACE}/${BUILD_SCRIPT_FILE}"
-
-      sh """#!/bin/bash
-        if [ -f "${WORKSPACE}/${BUILD_SCRIPT_FILE}" ] ; then
-          /bin/bash '${WORKSPACE}/${BUILD_SCRIPT_FILE}'
-        else
-          echo "'${WORKSPACE}/${BUILD_SCRIPT_FILE}' does not exist!"
-          exit 0
-        fi
-      """
     }
+}
+
+def runShellScript(BUILD_SCRIPT_FILE) {
+  //Modify Variable to ensure path starts with "./"
+  if(BUILD_SCRIPT_FILE.charAt(0) == "/"){
+    BUILD_SCRIPT_FILE = "." + BUILD_SCRIPT_FILE
+  }
+  if(BUILD_SCRIPT_FILE.charAt(0) != "."){
+    BUILD_SCRIPT_FILE = "./" + BUILD_SCRIPT_FILE
+  }
+
+  println "Running buildScript ${BUILD_SCRIPT_FILE}"
+  println "Cmd: ${WORKSPACE}/${BUILD_SCRIPT_FILE} ${BRANCH_NAME}"
+
+  sh """#!/bin/bash
+    if [ -f "${WORKSPACE}/${BUILD_SCRIPT_FILE}" ] ; then
+      /bin/bash ${WORKSPACE}/${BUILD_SCRIPT_FILE} ${BRANCH_NAME}
+    else
+      echo "'${WORKSPACE}/${BUILD_SCRIPT_FILE}' does not exist!"
+      exit 0
+    fi
+  """
+}
+
+def runGroovyScript(BUILD_SCRIPT_FILE, config) {
+  GroovyScriptEngine engine = new GroovyScriptEngine(BUILD_SCRIPT_FILE);
+  Binding binding = new Binding();
+  binding.setProperty('config', config);
+  engine.run("UserSelectedComponents.groovy", binding);
 }
