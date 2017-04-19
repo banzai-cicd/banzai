@@ -31,7 +31,7 @@ def call(config) {
           def shellScript = new File("${WORKSPACE}/./${BUILD_SCRIPT_DEFAULT}.sh")
           if (shellScript.exists()) {
             println "buildScript.sh detected"
-            runShellScript(shellScript.getAbsolutePath())
+            runShellScript(shellScript.name)
           } else {
             throw new IllegalArgumentException("no buildScriptFile[.sh|.groovy] exists!")
           }
