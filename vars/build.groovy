@@ -73,7 +73,7 @@ def runShellScript(BUILD_SCRIPT_FILE) {
 
 def runGroovyScript(BUILD_SCRIPT_FILE, config) {
   Binding binding = new Binding();
-  GroovyShell shell = new GroovyShell(this.class.classLoader);
+  GroovyShell shell = new GroovyShell(this.binding);
   binding.setProperty('config', config);
   shell.evaluate(BUILD_SCRIPT_FILE);
 }
