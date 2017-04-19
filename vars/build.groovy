@@ -21,13 +21,16 @@ def call(config) {
 
       //Variable Error Handeling
       if(!config.buildScriptFile) {
+        println "no buildScript specified in config"
         // try and load defaults
-        def groovyScript = new File("${WORKSPACE}/./${buildScriptDefault}.groovy")
+        def groovyScript = new File("${WORKSPACE}/${buildScriptDefault}.groovy")
         if (groovyScript.exists()) {
+          println "buildScript.groovy detected"
           runGroovyScript(groovyScript.getAbsolutePath(), config)
         } else {
           def shellScript = new File("${WORKSPACE}/./${buildScriptDefault}.sh")
           if (shellScript.exists()) {
+            println "buildScript.sh detected"
             runShellScript(shellScript.getAbsolutePath())
           } else {
             throw new IllegalArgumentException("no buildScriptFile[.sh|.groovy] exists!")
