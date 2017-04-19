@@ -37,6 +37,7 @@ def call(config) {
           }
         }
       } else {
+        println "buildScript detected in config"
         def BUILD_SCRIPT_FILE = config.buildScriptFile;
         if (BUILD_SCRIPT_FILE.endsWith(".sh")) {
           runShellScript(BUILD_SCRIPT_FILE)
