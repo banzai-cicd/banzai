@@ -1,6 +1,7 @@
 import org.codehaus.groovy.control.CompilerConfiguration
 
 def call(scriptFile, config) {
+  @NonCPS
   def compilerConfiguration = new CompilerConfiguration()
   compilerConfiguration.scriptBaseClass = DelegatingScript.class.name
   // Configure the GroovyShell and pass the compiler configuration.
