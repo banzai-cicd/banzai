@@ -27,7 +27,7 @@ def call(config) {
         def groovyScript = new File("${WORKSPACE}/${BUILD_SCRIPT_DEFAULT}.groovy")
         if (groovyScript.exists()) {
           println "buildScript.groovy detected"
-          runGroovyScript(groovyScript, config, this.getBinding().getVariables())
+          runGroovyScript(groovyScript, config)
         } else {
           def shellScript = new File("${WORKSPACE}/./${BUILD_SCRIPT_DEFAULT}.sh")
           if (shellScript.exists()) {
@@ -43,7 +43,7 @@ def call(config) {
         if (BUILD_SCRIPT_FILE.endsWith(".sh")) {
           runShellScript(BUILD_SCRIPT_FILE)
         } else if (BUILD_SCRIPT_FILE.endsWith(".groovy")) {
-          runGroovyScript(new File("${WORKSPACE}/${BUILD_SCRIPT_FILE}"), config, this.getBinding().getVariables())
+          runGroovyScript(new File("${WORKSPACE}/${BUILD_SCRIPT_FILE}"), config)
         } else {
           throw new IllegalArgumentException("buildScriptFile must be of type .groovy or .sh")
         }
@@ -73,8 +73,7 @@ def runShellScript(BUILD_SCRIPT_FILE) {
   """
 }
 
-def runGroovyScript(BUILD_SCRIPT_FILE, config, bindingVars) {
-  println prettyPrint(toJson(bindingVars))
-  GroovyShell shell = new GroovyShell(new Binding(bindingVars));
+def runGroovyScript(BUILD_SCRIPT_FILE, config) {
+  GroovyShell shell = new GroovyShell(this.getBinding());
   shell.evaluate(BUILD_SCRIPT_FILE);
 }
