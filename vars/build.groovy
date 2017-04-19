@@ -28,7 +28,6 @@ def call(config) {
         if (groovyScript.exists()) {
           println "buildScript.groovy detected"
           GroovyShell shell = new GroovyShell(this.class.classLoader);
-          binding.setProperty('config', config);
           shell.evaluate(BUILD_SCRIPT_FILE);
           //runGroovyScript(groovyScript, config)
         } else {
