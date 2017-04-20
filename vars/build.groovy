@@ -18,6 +18,6 @@ def call(config) {
         }
       }
 
-      runScript(config, "buildScriptFile", "buildScript")
+      runScript(config, "buildScriptFile", "buildScript", [BRANCH_NAME])
     }
 }
