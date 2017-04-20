@@ -5,7 +5,7 @@ import org.codehaus.groovy.runtime.MethodClosure;
   - SCRIPT_DEFAULT - the default name of the script to look for if on isn't specified in the config
 */
 def call(config, configFilePropName, SCRIPT_DEFAULT, args=null) {
-  //Variable Error Handeling
+  // test config for provided scriptFile ie) buildScriptFile = 'myBuildScript.sh'
   if(!config[configFilePropName]) {
     println "no ${configFilePropName} specified in config"
     // try and load defaults
