@@ -26,6 +26,6 @@ def call(config) {
       }
 
       def scriptArgs = [DOCKER_REPO_URL, config.appName, publishLatestTag]
-      runScript(config, "publishScriptFile", "publishScript", args)
+      runScript(config, "publishScriptFile", "publishScript", scriptArgs)
     }
 }
