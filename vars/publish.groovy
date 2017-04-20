@@ -17,25 +17,7 @@ def call(config) {
         }
       }
 
-      def PUBLISH_SCRIPT_FILE = config.publishScriptFile
-
-      //Variable Error Handeling
-      if(!PUBLISH_SCRIPT_FILE){
-        throw new IllegalArgumentException("Jenkinsfile Variable must be configured: publishScriptFile")
-      }
-
-      //Modify Variable to ensure path starts with "./"
-      if(PUBLISH_SCRIPT_FILE.charAt(0) == "/"){
-        PUBLISH_SCRIPT_FILE = "." + PUBLISH_SCRIPT_FILE
-      }
-      if(PUBLISH_SCRIPT_FILE.charAt(0) != "."){
-        PUBLISH_SCRIPT_FILE = "./" + PUBLISH_SCRIPT_FILE
-      }
-
-      println "Running publishScript..."
-      println "var: ${WORKSPACE}/${PUBLISH_SCRIPT_FILE}"
-
-      // determine if we should push a 'latest' tag
+      // determine if we should push a 'latest' tag based on the current branch
       def devBranchPattern = config.developBranch
       Pattern devPattern = Pattern.compile(devBranchPattern)
       def publishLatestTag = false
@@ -43,16 +25,7 @@ def call(config) {
         publishLatestTag = true
       }
 
-      println "publishLatestTag: ${publishLatestTag}"
-
-      // run publish file
-      sh """#!/bin/bash
-        if [ -f "${WORKSPACE}/${PUBLISH_SCRIPT_FILE}" ] ; then
-          /bin/bash ${WORKSPACE}/${PUBLISH_SCRIPT_FILE} ${DOCKER_REPO_URL} ${config.appName} ${publishLatestTag}
-        else
-          echo "'${WORKSPACE}/${PUBLISH_SCRIPT_FILE}' does not exist!"
-          exit 0
-        fi
-      """
+      def scriptArgs = [DOCKER_REPO_URL, config.appName, publishLatestTag]
+      runScript(config, "publishScriptFile", "publishScript", args)
     }
 }
