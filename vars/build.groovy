@@ -18,57 +18,6 @@ def call(config) {
         }
       }
 
-      //Variable Error Handeling
-      if(!config.buildScriptFile) {
-        println "no buildScript specified in config"
-        // try and load defaults
-        def groovyScript = new File("${WORKSPACE}/${BUILD_SCRIPT_DEFAULT}.groovy")
-        if (groovyScript.exists()) {
-          println "buildScript.groovy detected"
-          def ourSh = { String s -> sh(s) }
-          runGroovyScript(groovyScript, config, ourSh)
-        } else {
-          def shellScript = new File("${WORKSPACE}/./${BUILD_SCRIPT_DEFAULT}.sh")
-          if (shellScript.exists()) {
-            println "buildScript.sh detected"
-            runShellScript(shellScript.name)
-          } else {
-            throw new IllegalArgumentException("no buildScriptFile[.sh|.groovy] exists!")
-          }
-        }
-      } else {
-        println "buildScript detected in config"
-        def BUILD_SCRIPT_FILE = config.buildScriptFile;
-        if (BUILD_SCRIPT_FILE.endsWith(".sh")) {
-          runShellScript(BUILD_SCRIPT_FILE)
-        } else if (BUILD_SCRIPT_FILE.endsWith(".groovy")) {
-          def ourSh = { String s -> sh(s) }
-          runGroovyScript(new File("${WORKSPACE}/${BUILD_SCRIPT_FILE}"), config, ourSh)
-        } else {
-          throw new IllegalArgumentException("buildScriptFile must be of type .groovy or .sh")
-        }
-      }
+      runScript(config, "buildScriptFile", "buildScript")
     }
-}
-
-def runShellScript(BUILD_SCRIPT_FILE) {
-  //Modify Variable to ensure path starts with "./"
-  if(BUILD_SCRIPT_FILE.charAt(0) == "/"){
-    BUILD_SCRIPT_FILE = "." + BUILD_SCRIPT_FILE
-  }
-  if(BUILD_SCRIPT_FILE.charAt(0) != "."){
-    BUILD_SCRIPT_FILE = "./" + BUILD_SCRIPT_FILE
-  }
-
-  println "Running buildScript ${BUILD_SCRIPT_FILE}"
-  println "Cmd: ${WORKSPACE}/${BUILD_SCRIPT_FILE} ${BRANCH_NAME}"
-
-  sh """#!/bin/bash
-    if [ -f "${WORKSPACE}/${BUILD_SCRIPT_FILE}" ] ; then
-      /bin/bash ${WORKSPACE}/${BUILD_SCRIPT_FILE} ${BRANCH_NAME}
-    else
-      echo "'${WORKSPACE}/${BUILD_SCRIPT_FILE}' does not exist!"
-      exit 0
-    fi
-  """
 }
