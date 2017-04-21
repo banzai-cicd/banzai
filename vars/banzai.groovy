@@ -76,7 +76,6 @@ def call(body) {
       }
     }
 
-    deleteDir()
   } // node
 
 }
