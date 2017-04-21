@@ -18,6 +18,7 @@ def call(body) {
 
     // checkout the branch that triggered the build if not explicitly skipped
     if (config.startFresh) {
+      println "Starting Fresh"
       sh """#!/bin/bash
         cd $WORKSPACE
         rm -rf *
