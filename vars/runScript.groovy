@@ -22,10 +22,8 @@ def call(config, configFilePropName, SCRIPT_DEFAULT, args=null) {
 
     println "SCRIPT_FILE.getClass(): ${SCRIPT_FILE.getClass()}"
     if (SCRIPT_FILE.getClass() == MethodClosure) {
-      println "running closure"
       SCRIPT_FILE.call(config)
     } else if (SCRIPT_FILE.endsWith(".sh")) {
-      println "running specific shell script"
       runShellScript(SCRIPT_FILE, args)
     } else {
       throw new IllegalArgumentException("${configFilePropName} must be of type .groovy or .sh")
