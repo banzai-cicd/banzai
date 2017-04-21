@@ -17,7 +17,7 @@ def call(body) {
     echo "My branch is: ${BRANCH_NAME}"
 
     // checkout the branch that triggered the build if not explicitly skipped
-    if (!skipSCM) {
+    if (!config.skipSCM) {
       checkoutSCM(config)
     }
 
