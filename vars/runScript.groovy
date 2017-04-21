@@ -9,7 +9,7 @@ def call(config, configFilePropName, SCRIPT_DEFAULT, args=null) {
   if(!config[configFilePropName]) {
     println "no ${configFilePropName} specified in config"
     // try and load defaults
-    def shellScript = new File("${WORKSPACE}/./${SCRIPT_DEFAULT}.sh")
+    def shellScript = new File("${WORKSPACE}/${SCRIPT_DEFAULT}.sh")
     if (shellScript.exists()) {
       println "${SCRIPT_DEFAULT}.sh detected"
       runShellScript(shellScript.name, args)
