@@ -17,6 +17,12 @@ def call(body) {
     echo "My branch is: ${BRANCH_NAME}"
 
     // checkout the branch that triggered the build if not explicitly skipped
+    if (config.startFresh) {
+      sh """#!/bin/bash
+        cd $WORKSPACE
+        rm -rf *
+      """
+    }
     if (!config.skipSCM) {
       checkoutSCM(config)
     }
