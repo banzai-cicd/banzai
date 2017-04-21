@@ -17,13 +17,15 @@ def call(config, configFilePropName, SCRIPT_DEFAULT, args=null) {
       throw new IllegalArgumentException("no ${SCRIPT_DEFAULT}[.sh|.groovy] exists!")
     }
   } else {
-    println "${configFilePropName} detected in config: ${config[configFilePropName]}"
+    // A config can specify an .sh file OR pass a Groovy Closure
+    println "${configFilePropName} detected in config"
     def SCRIPT_FILE = config[configFilePropName];
 
-    println "SCRIPT_FILE.getClass(): ${SCRIPT_FILE.getClass()}"
     if (SCRIPT_FILE.getClass() == MethodClosure) {
+      println "Calling config MethodClosure"
       SCRIPT_FILE.call(config)
     } else if (SCRIPT_FILE.endsWith(".sh")) {
+      println "Running ${config[configFilePropName]}"
       runShellScript(SCRIPT_FILE, args)
     } else {
       throw new IllegalArgumentException("${configFilePropName} must be of type .groovy or .sh")
