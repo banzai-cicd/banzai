@@ -16,9 +16,10 @@ def call(body) {
     currentBuild.result = 'SUCCESS'
     echo "My branch is: ${BRANCH_NAME}"
 
-    // checkout the branch that triggered the build
-    checkoutSCM(config)
-    // for some reason SCM marks PR as complete so we have to ovveride
+    // checkout the branch that triggered the build if not explicitly skipped
+    if (!skipSCM) {
+      checkoutSCM(config)
+    }
 
     if (config.sast) {
       try {
