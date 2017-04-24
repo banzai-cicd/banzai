@@ -20,8 +20,7 @@ def call(body) {
     if (config.startFresh) {
       println "Starting Fresh"
       sh """#!/bin/bash
-        cd $WORKSPACE
-        rm -rf *
+        rm -rf $WORKSPACE/*
       """
     }
     if (!config.skipSCM) {

@@ -18,6 +18,7 @@ def call(config) {
       }
 
       // determine if we should push a 'latest' tag based on the current branch
+      // may remove this later and just let this happen in the .sh
       def devBranchPattern = config.developBranch
       Pattern devPattern = Pattern.compile(devBranchPattern)
       def publishLatestTag = false
