@@ -11,8 +11,8 @@ def call(config) {
       def deployBranchesPattern = config.deployBranches
       Pattern pattern = Pattern.compile(deployBranchesPattern)
 
-      if ((BRANCH_NAME ==~ deployBranchesPattern)) {
-        println "${BRANCH_NAME} does not match the publishBranches pattern. Skipping Deploy"
+      if ((BRANCH_NAME ==~ pattern)) {
+        println "${BRANCH_NAME} does not match the deployBranchesPattern pattern. Skipping Deploy"
         return
       }
     }
