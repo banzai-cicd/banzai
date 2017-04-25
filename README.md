@@ -1,4 +1,4 @@
-![Banzai](https://www.dolphinsandyou.com/wp-content/uploads/2016/12/Banzai-pipeline.jpg =350x)
+![Banzai](https://www.dolphinsandyou.com/wp-content/uploads/2016/12/Banzai-pipeline.jpg)
 
 Banzai
 ========
