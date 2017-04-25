@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 import groovy.json.JsonOutput
 import java.net.URLEncoder
 import hudson.model.Result
@@ -14,7 +16,7 @@ def call(config, message, status) {
     def flowdockURL = "https://api.flowdock.com/v1/messages/team_inbox/${apiToken}"
     def payload = JsonOutput.toJson([source : "Jenkins",
                                      project : env.JOB_BASE_NAME,
-                                     from_address: env.JENKINS_EMAIL,
+                                     from_address: conf.flowdockEmail,
                                      from_name: 'CI',
                                      subject: subject,
                                      content: content,

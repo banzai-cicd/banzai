@@ -1,3 +1,4 @@
+#!/usr/bin/env groovy
 
 def call(SCRIPT_FILE_NAME, args=null ) {
   //Modify Variable to ensure path starts with "./"

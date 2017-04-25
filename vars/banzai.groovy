@@ -8,8 +8,6 @@ def call(body) {
   body()
 
   env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
-  env.JENKINS_EMAIL = 'Service.SweeneyJenkins@ge.com'
-  env.DOCKER_REPO_URL = 'VDCALD05143.ics.cloud.ge.com:5000'
 
   node {
     // TODO notify Flowdock build starting

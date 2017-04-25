@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 import org.codehaus.groovy.runtime.MethodClosure;
 
 /*

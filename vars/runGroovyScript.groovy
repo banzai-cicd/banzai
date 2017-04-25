@@ -1,5 +1,8 @@
+#!/usr/bin/env groovy
+
 import groovy.lang.GroovyClassLoader
 
+/* currently not used, work in progress */
 def call(scriptFile, config, ourSh) {
   try {
     @NonCPS
