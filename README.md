@@ -3,6 +3,7 @@
 Banzai
 ========
 
+```
 banzai {
     appName = 'config-reviewer-server'
     gitCredId = 'sweeney-git'
@@ -18,3 +19,4 @@ banzai {
     deployBranches = /^tag\/\w*|develop/
     deploySSHCredId = 'dev-ssh'
 }
+```
