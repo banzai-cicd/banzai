@@ -10,13 +10,13 @@ banzai {
     gitCredId = 'sweeney-git'
     gitAccount = 'ConfigReviewer'
     sast = true
-    sastBranches = /^tag\/\w*|develop/
+    sastBranches = /^tag\/|develop/
     sastCredId = 'ge-checkmarx'
     build = true
     publish = true
-    publishBranches = /^tag\/\w*|develop/
+    publishBranches = /^tag\/|develop/
     deploy = true
-    deployBranches = /^tag\/\w*|develop/
+    deployBranches = /^tag\/|develop/
     deploySSHCredId = 'dev-ssh'
 }
 ```
@@ -31,16 +31,16 @@ banzai {
     startFresh = true                           // wipe workspace before each build
     skipSCM = true                              // skip pulling down the branch that kicked off the build
     sast = true
-    sastBranches = /^tag\/\w*|develop/          // regex to determine which branches to run SAST against
+    sastBranches = /^tag\/|develop/          // regex to determine which branches to run SAST against
     sastCredId = 'ge-checkmarx'                 // which credId in Jenkins to use for SAST login
     build = true
-    buildBranches = /^tag\/\w*|develop/         // regex to determine which branches to build
+    buildBranches = /^tag\/|develop/         // regex to determine which branches to build
     buildScriptFile = 'buildScript.sh'          // location of buildScript. defaults to buildScript.sh
     publish = true
-    publishBranches = /^tag\/\w*|develop/       // regex to determine which branches to publish
+    publishBranches = /^tag\/|develop/       // regex to determine which branches to publish
     publishScriptFile = 'publishScriptFile.sh'  // location of publishScript. defaults to publishScript.sh
     deploy = true
-    deployBranches = /^tag\/\w*|develop/        // regex to determine which branches to deploy
+    deployBranches = /^tag\/|develop/        // regex to determine which branches to deploy
     deployScriptFile = 'deployScript.sh'        // location of deployScript. defaults to deployScript.sh
     deploySSHCredId = 'dev-ssh'                 // if deploying over ssh, the credId in Jenkins to use for ssh
 }
