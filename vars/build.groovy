@@ -8,9 +8,9 @@ def call(config) {
 
     // now build, based on the configuration provided
     stage ('Build') {
+
       if (config.buildBranches) {
-        def buildBranchesPattern = config.buildBranches
-        Pattern pattern = Pattern.compile(buildBranchesPattern)
+        Pattern pattern = Pattern.compile(config.buildBranches)
 
         if (!(BRANCH_NAME ==~ pattern)) {
           println "${BRANCH_NAME} does not match the buildBranches pattern. Skipping Build"

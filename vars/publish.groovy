@@ -7,9 +7,9 @@ def call(config) {
 
     // now build, based on the configuration provided
     stage ('Publish') {
+
       if (config.publishBranches) {
-        def publishBranchesPattern = config.publishBranches
-        Pattern pattern = Pattern.compile(publishBranchesPattern)
+        Pattern pattern = Pattern.compile(config.publishBranches)
 
         if (!(BRANCH_NAME ==~ pattern)) {
           println "${BRANCH_NAME} does not match the publishBranches pattern. Skipping Publish"

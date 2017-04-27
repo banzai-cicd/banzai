@@ -8,8 +8,7 @@ def call(config) {
   stage ('Deploy') {
 
     if (config.deployBranches) {
-      def deployBranchesPattern = config.deployBranches
-      Pattern pattern = Pattern.compile(deployBranchesPattern)
+      Pattern pattern = Pattern.compile(config.deployBranches)
 
       if (!(BRANCH_NAME ==~ pattern)) {
         println "${BRANCH_NAME} does not match the deployBranchesPattern pattern. Skipping Deploy"
