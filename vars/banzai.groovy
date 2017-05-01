@@ -9,7 +9,7 @@ def call(body) {
 
   env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
-  node {
+  node() {
     // TODO notify Flowdock build starting
     currentBuild.result = 'SUCCESS'
     echo "My branch is: ${BRANCH_NAME}"
@@ -34,7 +34,6 @@ def call(body) {
         echo "Caught: ${err}"
         currentBuild.result = 'UNSTABLE'
         notifyGit(config, 'Build Failure', 'ERROR')
-        deleteDir()
         throw err
       }
     }
@@ -49,7 +48,6 @@ def call(body) {
         currentBuild.result = 'FAILURE'
         notifyGit(config, 'Build Failure', 'FAILURE')
         // TODO notify Flowdock
-        deleteDir()
         throw err
       }
     }
@@ -62,7 +60,6 @@ def call(body) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
         // TODO notify Flowdock
-        deleteDir()
         throw err
       }
     }
@@ -75,7 +72,6 @@ def call(body) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
         // TODO notify Flowdock
-        deleteDir()
         throw err
       }
     }
