@@ -9,6 +9,7 @@ banzai {
     appName = 'config-reviewer-server'
     gitCredId = 'sweeney-git'
     gitAccount = 'ConfigReviewer'
+    mergeBranches = /tag\-(.*)|develop/
     sast = true
     sastBranches = /tag\-(.*)|develop/
     sastCredId = 'ge-checkmarx'
@@ -29,6 +30,7 @@ banzai {
     gitCredId = 'sweeney-git'                   // which credId in Jenkins to use for git.
     gitAccount = 'ConfigReviewer'               // the owner of the repo this pipeline is building for
     startFresh = true                           // wipe workspace before each build
+    mergeBranches = /tag\-(.*)|develop/         // helps the pipeline determine the difference between a merge and a pr
     skipSCM = true                              // skip pulling down the branch that kicked off the build
     flowdock = true
     flowdockCredId = 'flowdock-cred'
