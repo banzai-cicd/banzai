@@ -10,11 +10,11 @@ def call(body) {
   env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
   node() {
-    currentBuild.result = 'PENDING'
+    currentBuild.result = "PENDING"
 
     // TODO notify Flowdock build starting
     echo "My branch is: ${BRANCH_NAME}"
-    
+
     // checkout the branch that triggered the build if not explicitly skipped
     if (config.startFresh) {
       println "Starting Fresh"
