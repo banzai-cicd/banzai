@@ -11,10 +11,6 @@ def call(body) {
 
   node() {
     // TODO notify Flowdock build starting
-    if (config.flowdock) {
-      notifyFlowdock2(config, 'Testing', 'PENDING')
-    }
-
     currentBuild.result = 'SUCCESS'
     echo "My branch is: ${BRANCH_NAME}"
 
@@ -31,26 +27,26 @@ def call(body) {
 
     if (config.sast) {
       try {
-        notifyGit(config, 'SAST Pending', 'PENDING')
+        notify(config, 'SAST', 'Pending', 'PENDING')
         sast(config)
-        notifyGit(config, 'SAST Complete', 'SUCCESS')
+        notify(config, 'SAST', 'Successful', 'SUCCESS')
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'UNSTABLE'
-        notifyGit(config, 'Build Failure', 'ERROR')
+        notify(config, 'Build', 'Failed', 'FAILURE')
         throw err
       }
     }
 
     if (config.build) {
       try {
-        notifyGit(config, 'Build Pending', 'PENDING')
+        notify(config, 'Build', 'Pending', 'PENDING')
         build(config)
-        notifyGit(config, 'Build Complete', 'SUCCESS')
+        notify(config, 'Build', 'Successful', 'SUCCESS')
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
-        notifyGit(config, 'Build Failure', 'FAILURE')
+        notify(config, 'Build', 'Failed', 'FAILURE')
         // TODO notify Flowdock
         throw err
       }
@@ -58,11 +54,13 @@ def call(body) {
 
     if (config.publish) {
       try {
+        notify(config, 'Publish', 'Pending', 'PENDING', true)
         publish(config)
-        // TODO notify Flowdock
+        notify(config, 'Publish', 'Successful', 'SUCCESS', true)
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
+        notify(config, 'Publish', 'Failed', 'FAILURE', true)
         // TODO notify Flowdock
         throw err
       }
@@ -70,12 +68,14 @@ def call(body) {
 
     if (config.deploy) {
       try {
+        notify(config, 'Deploy', 'Pending', 'PENDING', true)
         deploy(config)
+        notify(config, 'Deploy', 'Successful', 'SUCCESS', true)
         // TODO notify Flowdock
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
-        // TODO notify Flowdock
+        notify(config, 'Deploy', 'Failed', 'FAILURE', true)
         throw err
       }
     }
