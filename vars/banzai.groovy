@@ -51,6 +51,9 @@ def call(body) {
       }
     }
 
+    /*
+      all notify calls past the build stage will skip notifcations to github
+    */
     if (config.publish) {
       try {
         notify(config, 'Publish', 'Pending', 'PENDING', true)
