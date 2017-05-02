@@ -11,7 +11,6 @@ def call(body) {
 
   node() {
     // TODO notify Flowdock build starting
-    currentBuild.result = 'SUCCESS'
     echo "My branch is: ${BRANCH_NAME}"
 
     // checkout the branch that triggered the build if not explicitly skipped
@@ -79,6 +78,8 @@ def call(body) {
         throw err
       }
     }
+
+    currentBuild.result = 'SUCCESS'
 
   } // node
 

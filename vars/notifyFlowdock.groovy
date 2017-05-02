@@ -32,9 +32,9 @@ def call(config, stage, message, status) {
        }
 
        def color = "green"
-       if (status == "PENDING") {
+       if (currentBuild.result == "PENDING") {
          color = "yellow"
-       } else if (status == "FAILURE") {
+       } else if (currentBuild.result == "FAILURE" || currentBuild.result = "UNSTABLE") {
          color = "red"
        }
 
@@ -49,7 +49,7 @@ def call(config, stage, message, status) {
           title: title,
           status: [
             color: color,
-            value: status
+            value: currentBuild.result
           ]
          ],
          link: env.BUILD_URL
