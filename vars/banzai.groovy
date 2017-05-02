@@ -11,6 +11,8 @@ def call(body) {
 
   node() {
     // TODO notify Flowdock build starting
+    notifyFlowdock(config, 'Testing', 'PENDING')
+
     currentBuild.result = 'SUCCESS'
     echo "My branch is: ${BRANCH_NAME}"
 
