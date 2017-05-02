@@ -10,7 +10,7 @@ def call(body) {
   env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
   node() {
-    currentBuild.result = "PENDING"
+    currentBuild.result = "STARTED"
 
     // TODO notify Flowdock build starting
     echo "My branch is: ${BRANCH_NAME}"
