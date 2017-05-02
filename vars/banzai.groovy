@@ -9,6 +9,17 @@ def call(body) {
 
   env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
+  def steps = [config.sast, config.build, config.publish, config.deploy].findAll { it == true }
+  def passedSteps = 0
+
+  def passStep = { ->
+    passedSteps += 1
+    println "BANZAI: ${passedSteps}/${steps.size} STEPS PASSED"
+    if (passedSteps >= steps.size) {
+      currentBuild.result = 'SUCCESS'
+    }
+  }
+
   node() {
     // TODO notify Flowdock build starting
     echo "My branch is: ${BRANCH_NAME}"
@@ -28,7 +39,7 @@ def call(body) {
       try {
         notify(config, 'SAST', 'Pending', 'PENDING')
         sast(config)
-        currentBuild.result = 'SUCCESS'
+        passStep()
         notify(config, 'SAST', 'Successful', 'SUCCESS')
       } catch (err) {
         echo "Caught: ${err}"
@@ -42,7 +53,7 @@ def call(body) {
       try {
         notify(config, 'Build', 'Pending', 'PENDING')
         build(config)
-        currentBuild.result = 'SUCCESS'
+        passStep()
         notify(config, 'Build', 'Successful', 'SUCCESS')
       } catch (err) {
         echo "Caught: ${err}"
@@ -60,7 +71,7 @@ def call(body) {
       try {
         notify(config, 'Publish', 'Pending', 'PENDING', true)
         publish(config)
-        currentBuild.result = 'SUCCESS'
+        passStep()
         notify(config, 'Publish', 'Successful', 'SUCCESS', true)
       } catch (err) {
         echo "Caught: ${err}"
@@ -75,7 +86,7 @@ def call(body) {
       try {
         notify(config, 'Deploy', 'Pending', 'PENDING', true)
         deploy(config)
-        currentBuild.result = 'SUCCESS'
+        passStep()
         notify(config, 'Deploy', 'Successful', 'SUCCESS', true)
         // TODO notify Flowdock
       } catch (err) {
