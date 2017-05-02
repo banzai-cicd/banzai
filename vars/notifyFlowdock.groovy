@@ -49,7 +49,7 @@ def call(config, stage, message, status) {
           title: title,
           status: [
             color: color,
-            value: currentBuild.result
+            value: currentBuild.result ? currentBuild.result : "PENDING"
           ]
          ],
          link: env.BUILD_URL
