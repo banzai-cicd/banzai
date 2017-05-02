@@ -28,6 +28,7 @@ def call(body) {
       try {
         notify(config, 'SAST', 'Pending', 'PENDING')
         sast(config)
+        currentBuild.result = 'SUCCESS'
         notify(config, 'SAST', 'Successful', 'SUCCESS')
       } catch (err) {
         echo "Caught: ${err}"
@@ -41,6 +42,7 @@ def call(body) {
       try {
         notify(config, 'Build', 'Pending', 'PENDING')
         build(config)
+        currentBuild.result = 'SUCCESS'
         notify(config, 'Build', 'Successful', 'SUCCESS')
       } catch (err) {
         echo "Caught: ${err}"
@@ -58,6 +60,7 @@ def call(body) {
       try {
         notify(config, 'Publish', 'Pending', 'PENDING', true)
         publish(config)
+        currentBuild.result = 'SUCCESS'
         notify(config, 'Publish', 'Successful', 'SUCCESS', true)
       } catch (err) {
         echo "Caught: ${err}"
