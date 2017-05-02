@@ -5,16 +5,24 @@ import java.net.URLEncoder
 import hudson.model.Result
 
 def call(config, stage, message, status) {
-    // build status of null means successful
-    // StringBuilder content = new StringBuilder();
-    // content.append("<h3>").append(env.JOB_BASE_NAME).append("</h3>");
-    // content.append("Build: ").append(currentBuild.displayName).append("<br />");
-    // content.append("Result: <strong>").append(status).append("</strong><br />");
-    // content.append("URL: <a href=\"").append(env.BUILD_URL).append("\">").append(currentBuild.fullDisplayName).append("</a>").append("<br />");
+    if (!config.mergeBranches || !config.flowdockFlowToken || !config.flowdockAuthor) {
+      println "'mergeBranches', 'flowdockFlowToken' and 'flowdockAuthor' are required in your Jenkinsfile when 'flowdock' = true"
+      return
+    }
 
     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: config.flowdockFlowToken,
                                usernameVariable: 'FLOWDOCK_USER', passwordVariable: 'FLOWDOCK_PASSWORD']]) {
        def flowdockURL = "https://api.flowdock.com/messages"
+
+       // determine if this is a merge or pr (should use diff threads)
+       Pattern mergePattern = Pattern.compile(config.mergeBranches)
+       def threadId = "${config.appName}+${env.JOB_BASE_NAME}"
+       def title = env.JOB_BASE_NAME
+       if ((BRANCH_NAME ==~ mergePattern)) {
+         title = "${title} Merge"
+       } else {
+         threadId = "${threadId}+merge"
+       }
 
        def color = "green"
        if (status == "PENDING") {
@@ -27,11 +35,11 @@ def call(config, stage, message, status) {
          flow_token: FLOWDOCK_PASSWORD,
          event: "activity",
          author: config.flowdockAuthor,
-         title: "${config.appName} : <a href='${BUILD_URL}'>${stage} ${status}</a>",
-         body: "<b>${currentBuild.displayName.replaceAll("#", "")}</b> - ${message}",
-         external_thread_id: "${config.appName}+${env.JOB_BASE_NAME}".bytes.encodeBase64().toString(),
+         title: "${config.appName} : ${stage}",
+         body: "<a href='${BUILD_URL}'><b>${currentBuild.displayName.replaceAll("#", "")}</b> - ${message}</a>",
+         external_thread_id: threadId.bytes.encodeBase64().toString(),
          thread: [
-          title: env.JOB_BASE_NAME,
+          title: title,
           status: [
             color: color,
             value: status
