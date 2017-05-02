@@ -69,6 +69,7 @@ def call(body) {
       try {
         notify(config, 'Deploy', 'Pending', 'PENDING', true)
         deploy(config)
+        currentBuild.result = 'SUCCESS'
         notify(config, 'Deploy', 'Successful', 'SUCCESS', true)
         // TODO notify Flowdock
       } catch (err) {
@@ -78,8 +79,6 @@ def call(body) {
         throw err
       }
     }
-
-    currentBuild.result = 'SUCCESS'
 
   } // node
 
