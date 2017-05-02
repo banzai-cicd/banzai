@@ -9,7 +9,14 @@ def call(body) {
 
   env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
-  def steps = [config.sast, config.build, config.publish, config.deploy].findAll { it == true }
+  /*
+    Determine the total number of steps in the pipeline that are activated
+    Jenkins Pipelines don't allow many groovy methods (CPS issues) like .findAll...hence the nastiness
+  */
+  def steps = []
+  [config.sast, config.build, config.publish, config.deploy].each {
+    if (it == true) { steps.push(true) }
+  }
   def passedSteps = 0
 
   def passStep = { ->
