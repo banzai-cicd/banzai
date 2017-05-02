@@ -19,9 +19,9 @@ def call(config, stage, message) {
        // determine if this is a merge or pr (should use diff threads)
        Pattern mergePattern = Pattern.compile(config.mergeBranches)
        def threadId = "${config.appName}+${env.JOB_BASE_NAME}"
-       def title = env.JOB_BASE_NAME
+       def title = "${config.appName} : ${env.JOB_BASE_NAME}"
        if ((BRANCH_NAME ==~ mergePattern)) {
-         title = "${title} Merge"
+         title = "${title} : merge"
        } else {
          if (!config.flowdockNotifyPRs) {
            // by default, we don't want to bug people in flowdock with PR's
@@ -42,7 +42,7 @@ def call(config, stage, message) {
          flow_token: FLOWDOCK_PASSWORD,
          event: "activity",
          author: config.flowdockAuthor,
-         title: "${config.appName} : ${stage}",
+         title: "${stage}",
          body: "<a href='${BUILD_URL}'><b>${currentBuild.displayName.replaceAll("#", "")}</b> - ${message}</a>",
          external_thread_id: threadId.bytes.encodeBase64().toString(),
          thread: [
