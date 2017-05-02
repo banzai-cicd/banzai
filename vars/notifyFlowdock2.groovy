@@ -35,7 +35,7 @@ def call(config, message, status) {
          external_thread_id: threadId,
          thread: [
           title: title,
-          body: "this is a test body"
+          body: "this is a test body",
           status: [
             color: color,
             value: status
