@@ -29,7 +29,7 @@ def call(config, stage, message, status) {
          author: config.flowdockAuthor,
          title: "${config.appName} : <a href='${BUILD_URL}'>${stage} ${status}</a>",
          body: "<b>${currentBuild.displayName.replaceAll("#", "")}</b> - ${message}",
-         external_thread_id: "${conf.appName}+${env.JOB_BASE_NAME}".bytes.encodeBase64().toString(),
+         external_thread_id: "${config.appName}+${env.JOB_BASE_NAME}".bytes.encodeBase64().toString(),
          thread: [
           title: env.JOB_BASE_NAME,
           status: [
