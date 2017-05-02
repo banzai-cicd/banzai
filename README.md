@@ -1,4 +1,4 @@
-![Banzai](http://i.imgur.com/QKdnoZ4.png)
+![Banzai](https://i.imgur.com/QKdnoZ4.png)
 
 Banzai
 ========
