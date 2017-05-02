@@ -7,7 +7,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 def call(config, stage, message, status) {
-    if (!config.mergeBranches || !config.flowdockFlowToken || !config.flowdockAuthor) {
+    if (!config.mergeBranches || !config.flowdockCredId || !config.flowdockAuthor) {
       println "'mergeBranches', 'flowdockFlowToken' and 'flowdockAuthor' are required in your Jenkinsfile when 'flowdock' = true"
       return
     }
