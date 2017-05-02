@@ -1,4 +1,4 @@
-![Banzai](https://www.dolphinsandyou.com/wp-content/uploads/2016/12/Banzai-pipeline.jpg)
+![Banzai](http://i.imgur.com/QKdnoZ4.png)
 
 Banzai
 ========
@@ -30,7 +30,7 @@ banzai {
     gitCredId = 'sweeney-git'                   // which credId in Jenkins to use for git.
     gitAccount = 'ConfigReviewer'               // the owner of the repo this pipeline is building for
     startFresh = true                           // wipe workspace before each build
-    mergeBranches = /tag\-(.*)|develop/         // helps the pipeline determine the difference between a merge and a pr
+    mergeBranches = /tag\-(.*)|develop/         // helps the pipeline dete
     skipSCM = true                              // skip pulling down the branch that kicked off the build
     flowdock = true
     flowdockCredId = 'flowdock-cred'
