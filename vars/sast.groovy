@@ -24,7 +24,7 @@ def call(config) {
         println "SAST: No sastCredsId specified: Skipping SAST"
         return
       }
-      
+
       withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: config.sastCredsId,
                                  usernameVariable: 'CHECKMARX_USER', passwordVariable: 'CHECKMARX_PASSWORD']]) {
         sh """#!/bin/bash

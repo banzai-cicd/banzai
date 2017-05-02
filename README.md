@@ -25,11 +25,19 @@ banzai {
 full list of Jenkins options
 ```
 banzai {
-    appName = 'config-reviewer-server'          // currently used only by SAST for determining the namespace to publish to.
+    appName = 'config-reviewer-server'          // **required** currently used only by SAST for determining the namespace to publish to.
     gitCredId = 'sweeney-git'                   // which credId in Jenkins to use for git.
     gitAccount = 'ConfigReviewer'               // the owner of the repo this pipeline is building for
     startFresh = true                           // wipe workspace before each build
     skipSCM = true                              // skip pulling down the branch that kicked off the build
+    flowdock = true
+    flowdockCredId = 'flowdock-cred'
+    flowdockAuthor = [
+      name: 'Jenkins',
+      avatar: 'https://github.build.ge.com/avatars/u/23999?s=466',
+      email: 'Service.MyJenkins@ge.com'
+    ]
+    flowdockNotifyPRs = false                   // *default = false* whether or not to notify Flowdock with pr status changes
     sast = true
     sastBranches = /tag\-(.*)|develop/          // regex to determine which branches to run SAST against
     sastCredId = 'ge-checkmarx'                 // which credId in Jenkins to use for SAST login

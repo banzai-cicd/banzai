@@ -3,6 +3,8 @@
 import groovy.json.JsonOutput
 import java.net.URLEncoder
 import hudson.model.Result
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 def call(config, stage, message, status) {
     if (!config.mergeBranches || !config.flowdockFlowToken || !config.flowdockAuthor) {
@@ -10,7 +12,7 @@ def call(config, stage, message, status) {
       return
     }
 
-    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: config.flowdockFlowToken,
+    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: config.flowdockCredId,
                                usernameVariable: 'FLOWDOCK_USER', passwordVariable: 'FLOWDOCK_PASSWORD']]) {
        def flowdockURL = "https://api.flowdock.com/messages"
 
@@ -21,6 +23,11 @@ def call(config, stage, message, status) {
        if ((BRANCH_NAME ==~ mergePattern)) {
          title = "${title} Merge"
        } else {
+         if (!config.flowdockNotifyPRs) {
+           // by default, we don't want to bug people in flowdock with PR's
+           return
+         }
+
          threadId = "${threadId}+merge"
        }
 
