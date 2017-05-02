@@ -17,7 +17,7 @@ def call(config, message, status) {
     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: config.flowdockCredId,
                                usernameVariable: 'FLOWDOCK_USER', passwordVariable: 'FLOWDOCK_PASSWORD']]) {
 
-       def flowdockURL = "https://${FLOWDOCK_PASSWORD}@api.flowdock.com/flows/${config.flowdockOrg}/${config.flowdockFlow}"
+       def flowdockURL = "https://${FLOWDOCK_PASSWORD}@api.flowdock.com/flows/${config.flowdockOrg}/${config.flowdockFlow}/messages"
        def payload = JsonOutput.toJson([event: "message",
                                         content: content,
                                         tags: ["@team", "#build"],
