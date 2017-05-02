@@ -34,7 +34,7 @@ def call(config, stage, message, status) {
        def color = "green"
        if (currentBuild.result == "PENDING") {
          color = "yellow"
-       } else if (currentBuild.result == "FAILURE" || currentBuild.result = "UNSTABLE") {
+       } else if (currentBuild.result == "FAILURE" || currentBuild.result == "UNSTABLE") {
          color = "red"
        }
 
