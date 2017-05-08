@@ -57,8 +57,10 @@ def call(config, stage, message) {
 
        def payload = JsonOutput.toJson(payloadMap)
 
-       println(payload)
-
+       if (config.debug) {
+         println(payload)
+       }
+       
        sh """#!/bin/bash
          echo "Sending Flowdock notification..."
          curl -H \"Content-Type: application/json\" -X POST -s -d \'${payload}\' ${flowdockURL}

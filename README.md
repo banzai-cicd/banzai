@@ -27,6 +27,7 @@ full list of Jenkins options
 ```
 banzai {
     appName = 'config-reviewer-server'          // **required** currently used only by SAST for determining the namespace to publish to.
+    debug = false                               // provides additional debug messaging
     gitCredId = 'sweeney-git'                   // which credId in Jenkins to use for git.
     gitAccount = 'ConfigReviewer'               // the owner of the repo this pipeline is building for
     startFresh = true                           // wipe workspace before each build

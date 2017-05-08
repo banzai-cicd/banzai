@@ -9,6 +9,14 @@ def call(body) {
 
   env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
+  if (config.debug) {
+    println "ENVIRONMENT VARIABLES:"
+    sh "env > $WORKSPACE/env.txt"
+    for (String i : readFile("$WORKSPACE/env.txt").split("\r?\n")) {
+        println i
+    }
+  }
+
   /*
     Determine the total number of steps in the pipeline that are activated
     Jenkins Pipelines don't allow many groovy methods (CPS issues) like .findAll...hence the nastiness
