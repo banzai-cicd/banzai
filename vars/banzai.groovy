@@ -9,10 +9,10 @@ def call(body) {
 
   env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
-  if (config.debug) {
-    println "ENVIRONMENT VARIABLES:"
-    echo sh(returnStdout: true, script: 'env')
-  }
+  // if (config.debug) {
+  //   println "ENVIRONMENT VARIABLES:"
+  //   echo sh(returnStdout: true, script: 'env')
+  // }
 
   /*
     Determine the total number of steps in the pipeline that are activated
