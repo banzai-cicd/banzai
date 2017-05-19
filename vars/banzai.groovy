@@ -11,10 +11,7 @@ def call(body) {
 
   if (config.debug) {
     println "ENVIRONMENT VARIABLES:"
-    sh "env > ${WORKSPACE}/env.txt"
-    for (String i : readFile("${WORKSPACE}/env.txt").split("\r?\n")) {
-        println i
-    }
+    echo sh(returnStdout: true, script: 'env')
   }
 
   /*
