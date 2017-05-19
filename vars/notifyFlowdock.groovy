@@ -57,13 +57,13 @@ def call(config, stage, message) {
 
        if (message == "githubdown") {
          payloadMap.event = "file"
-         payloadMap.attachments = [
-           [
-            file_name: "ge_github_is_down.png",
-            data: geGithubIsDown(),
-            content_type: "image/png"
-           ]
-         ]
+        //  payloadMap.attachments = [
+        //    [
+        //     file_name: "ge_github_is_down.png",
+        //     data: geGithubIsDown(),
+        //     content_type: "image/png"
+        //    ]
+        //  ]
          payloadMap.content = [
           file_name: "ge_github_is_down.png",
           data: geGithubIsDown(),
