@@ -22,7 +22,7 @@ def call(body) {
     Jenkins Pipelines don't allow many groovy methods (CPS issues) like .findAll...hence the nastiness
   */
   def steps = []
-  for (entry in [config.sast, config.build, config.publish, config.deploy]) {
+  for (entry in [!config.skipSCM, config.sast, config.build, config.publish, config.deploy]) {
     if (entry == true) { steps.push(entry) }
   }
   def passedSteps = 0
@@ -33,6 +33,10 @@ def call(body) {
     if (passedSteps >= steps.size) {
       currentBuild.result = 'SUCCESS'
     }
+  }
+
+  def isGithubError = { err ->
+    return err.message.contains("The suplied credentials are invalid to login") ? true : false;
   }
 
   node() {
@@ -47,7 +51,21 @@ def call(body) {
       """
     }
     if (!config.skipSCM) {
-      checkoutSCM(config)
+      try {
+        notify(config, 'Checkout', 'Pending', 'PENDING')
+        checkoutSCM(config)
+        passStep()
+        notify(config, 'Checkout', 'Successful', 'SUCCESS')
+      } catch (err) {
+        echo "Caught: ${err}"
+        currentBuild.result = 'UNSTABLE'
+        if (isGithubError(err)) {
+          notify(config, 'Checkout', 'githubdown', 'FAILURE', true)
+        } else {
+          notify(config, 'Checkout', 'Failed', 'FAILURE')
+        }
+        throw err
+      }
     }
 
     if (config.sast) {
@@ -73,8 +91,11 @@ def call(body) {
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
-        notify(config, 'Build', 'Failed', 'FAILURE')
-        // TODO notify Flowdock
+        if (isGithubError(err)) {
+          notify(config, 'Build', 'githubdown', 'FAILURE', true)
+        } else {
+          notify(config, 'Build', 'Failed', 'FAILURE')
+        }
         throw err
       }
     }
@@ -91,8 +112,11 @@ def call(body) {
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
-        notify(config, 'Publish', 'Failed', 'FAILURE', true)
-        // TODO notify Flowdock
+        if (isGithubError(err)) {
+          notify(config, 'Publish', 'githubdown', 'FAILURE', true)
+        } else {
+          notify(config, 'Publish', 'Failed', 'FAILURE', true)
+        }
         throw err
       }
     }

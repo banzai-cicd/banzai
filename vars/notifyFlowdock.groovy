@@ -55,12 +55,30 @@ def call(config, stage, message) {
          link: env.BUILD_URL
        ]
 
+       if (message == "githubdown") {
+         payloadMap.event = "file"
+         payloadMap.attachments = [
+           [
+            file_name: "ge_github_is_down.png",
+            data: geGithubIsDown(),
+            content_type: "image/png"
+           ]
+         ]
+         payloadMap.content = [
+          file_name: "ge_github_is_down.png",
+          data: geGithubIsDown(),
+          content_type: "image/png"
+         ]
+         payloadMap.tags = [":file"]
+         payloadMap.remove("body")
+       }
+
        def payload = JsonOutput.toJson(payloadMap)
 
        if (config.debug) {
          println(payload)
        }
-       
+
        sh """#!/bin/bash
          echo "Sending Flowdock notification..."
          curl -H \"Content-Type: application/json\" -X POST -s -d \'${payload}\' ${flowdockURL}
