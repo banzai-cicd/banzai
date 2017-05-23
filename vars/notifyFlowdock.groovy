@@ -23,12 +23,12 @@ def call(config, stage, message) {
        if ((BRANCH_NAME ==~ mergePattern)) {
          title = "${title} : merge"
        } else {
-         if (!config.flowdockNotifyPRs) {
+         if (!config.flowdockNotifyPRs && message != "githubdown") {
            // by default, we don't want to bug people in flowdock with PR's
            return
          }
 
-         threadId = "${threadId}+merge"
+         threadId = "${threadId}+pr"
        }
 
        def color = "green"
