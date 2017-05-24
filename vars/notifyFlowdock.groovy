@@ -56,21 +56,23 @@ def call(config, stage, message) {
        ]
 
        if (message == "githubdown") {
-         payloadMap.event = "file"
-        //  payloadMap.attachments = [
-        //    [
-        //     file_name: "ge_github_is_down.png",
-        //     data: geGithubIsDown(),
-        //     content_type: "image/png"
-        //    ]
+         payloadMap.body = "https://image.ibb.co/bUkDfv/the_ge_github_is_down.png"
+        // TODO REVISIT WITH A SOLUTION TO geGithubIsDown() string exceeding max chars
+        //  payloadMap.event = "file"
+        // //  payloadMap.attachments = [
+        // //    [
+        // //     file_name: "ge_github_is_down.png",
+        // //     data: geGithubIsDown(),
+        // //     content_type: "image/png"
+        // //    ]
+        // //  ]
+        //  payloadMap.content = [
+        //   file_name: "ge_github_is_down.png",
+        //   data: geGithubIsDown(),
+        //   content_type: "image/png"
         //  ]
-         payloadMap.content = [
-          file_name: "ge_github_is_down.png",
-          data: geGithubIsDown(),
-          content_type: "image/png"
-         ]
-         payloadMap.tags = [":file"]
-         payloadMap.remove("body")
+        //  payloadMap.tags = [":file"]
+        //  payloadMap.remove("body")
        }
 
        def payload = JsonOutput.toJson(payloadMap)
