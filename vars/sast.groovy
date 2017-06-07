@@ -20,12 +20,12 @@ def call(config) {
       def CHECKMARX_APP = "\\${config.appName}-${env.BRANCH_NAME}"
       def PROJECT_NAME = "${CHECKMARX_TEAM}${CHECKMARX_APP}"
 
-      if (!config.sastCredsId) {
-        println "SAST: No sastCredsId specified: Skipping SAST"
+      if (!config.sastCredId) {
+        println "SAST: No sastCredId specified: Skipping SAST"
         return
       }
 
-      withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: config.sastCredsId,
+      withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: config.sastCredId,
                                  usernameVariable: 'CHECKMARX_USER', passwordVariable: 'CHECKMARX_PASSWORD']]) {
         sh """#!/bin/bash
           echo Performing /opt/CxConsolePlugin/runCxConsole.sh scan -v    \
