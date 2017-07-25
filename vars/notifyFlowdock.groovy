@@ -23,7 +23,7 @@ def call(config, stage, message) {
        if ((BRANCH_NAME ==~ mergePattern)) {
          title = "${title} : merge"
        } else {
-         if (!config.flowdockNotifyPRs && message != "githubdown") {
+         if (!config.flowdockNotifyPRs && message != "githubdown" && stage != "IT") {
            // by default, we don't want to bug people in flowdock with PR's
            return
          }
