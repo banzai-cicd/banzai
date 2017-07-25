@@ -19,7 +19,7 @@ def call(body) {
     Jenkins Pipelines don't allow many groovy methods (CPS issues) like .findAll...hence the nastiness
   */
   def steps = []
-  for (entry in [!config.skipSCM, config.sast, config.build, config.publish, config.deploy, config.it]) {
+  for (entry in [!config.skipSCM, config.sast, config.build, config.publish, config.deploy, config.integrationTests]) {
     if (entry == true) { steps.push(entry) }
   }
   def passedSteps = 0
@@ -133,10 +133,10 @@ def call(body) {
       }
     }
 
-    if (config.it) {
+    if (config.integrationTests) {
       try {
         notify(config, 'IT', 'Pending', 'PENDING', true)
-        it(config)
+        integrationTests(config)
         passStep('IT')
         notify(config, 'IT', 'Successful', 'SUCCESS', true)
       } catch (err) {
