@@ -24,9 +24,9 @@ def call(body) {
   }
   def passedSteps = 0
 
-  def passStep = { ->
+  def passStep = { step ->
     passedSteps += 1
-    println "BANZAI: ${passedSteps}/${steps.size} STEPS PASSED"
+    println "BANZAI: ${step} PASSED : ${passedSteps}/${steps.size} STEPS COMPLETE"
     if (passedSteps >= steps.size) {
       currentBuild.result = 'SUCCESS'
     }
@@ -51,7 +51,7 @@ def call(body) {
       try {
         notify(config, 'Checkout', 'Pending', 'PENDING')
         checkoutSCM(config)
-        passStep()
+        passStep('CHECKOUT')
         notify(config, 'Checkout', 'Successful', 'SUCCESS')
       } catch (err) {
         echo "Caught: ${err}"
@@ -69,7 +69,7 @@ def call(body) {
       try {
         notify(config, 'SAST', 'Pending', 'PENDING')
         sast(config)
-        passStep()
+        passStep('SAST')
         notify(config, 'SAST', 'Successful', 'SUCCESS')
       } catch (err) {
         echo "Caught: ${err}"
@@ -83,7 +83,7 @@ def call(body) {
       try {
         notify(config, 'Build', 'Pending', 'PENDING')
         build(config)
-        passStep()
+        passStep('BUILD')
         notify(config, 'Build', 'Successful', 'SUCCESS')
       } catch (err) {
         echo "Caught: ${err}"
@@ -104,7 +104,7 @@ def call(body) {
       try {
         notify(config, 'Publish', 'Pending', 'PENDING', true)
         publish(config)
-        passStep()
+        passStep('PUBLISH')
         notify(config, 'Publish', 'Successful', 'SUCCESS', true)
       } catch (err) {
         echo "Caught: ${err}"
@@ -122,7 +122,7 @@ def call(body) {
       try {
         notify(config, 'Deploy', 'Pending', 'PENDING', true)
         deploy(config)
-        passStep()
+        passStep('DEPLOY')
         notify(config, 'Deploy', 'Successful', 'SUCCESS', true)
         // TODO notify Flowdock
       } catch (err) {
@@ -137,12 +137,12 @@ def call(body) {
       try {
         notify(config, 'IT', 'Pending', 'PENDING', true)
         it(config)
-        passStep()
+        passStep('IT')
         notify(config, 'IT', 'Successful', 'SUCCESS', true)
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
-        notify(config, 'Build', 'Failed', 'FAILURE', true)
+        notify(config, 'IT', 'Failed', 'FAILURE', true)
         throw err
       }
     }
