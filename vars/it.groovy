@@ -4,9 +4,6 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 def call(config) {
-    def BUILD_SCRIPT_DEFAULT = 'itScript'
-
-    // now build, based on the configuration provided
     stage ('IT') {
 
       if (config.itBranches) {

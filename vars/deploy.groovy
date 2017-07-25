@@ -4,7 +4,6 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 def call(config) {
-
   stage ('Deploy') {
 
     if (config.deployBranches) {

@@ -4,8 +4,6 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 def call(config) {
-
-    // now build, based on the configuration provided
     stage ('Publish') {
 
       if (config.publishBranches) {
