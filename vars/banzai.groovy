@@ -142,7 +142,7 @@ def call(body) {
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
-        notify(config, 'Build', 'Failed', 'FAILURE' true)
+        notify(config, 'Build', 'Failed', 'FAILURE', true)
         throw err
       }
     }
