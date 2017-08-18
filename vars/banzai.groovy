@@ -41,12 +41,11 @@ def call(body) {
     echo "My branch is: ${BRANCH_NAME}"
 
     // checkout the branch that triggered the build if not explicitly skipped
-    if (config.startFresh) {
+    if (config.preCleanup) {
       println "Starting Fresh"
-      sh """#!/bin/bash
-        rm -rf $WORKSPACE/*
-      """
+      step([$class: 'WsCleanup'])
     }
+
     if (!config.skipSCM) {
       try {
         notify(config, 'Checkout', 'Pending', 'PENDING')
@@ -145,6 +144,11 @@ def call(body) {
         notify(config, 'IT', 'Failed', 'FAILURE', true)
         throw err
       }
+    }
+
+    if (config.postCleanup) {
+      println "Cleaning up"
+      step([$class: 'WsCleanup'])
     }
 
   } // node
