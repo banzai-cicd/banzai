@@ -135,7 +135,7 @@ def call(body) {
     if (config.integrationTests) {
       try {
         notify(config, 'IT', 'Pending', 'PENDING', true)
-        wrap([$class: 'Xvfb']) {
+        wrap([$class: 'Xvfb', screen: '1800x900x24']) {
           integrationTests(config)
         }
         passStep('IT')
