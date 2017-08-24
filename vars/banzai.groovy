@@ -135,9 +135,17 @@ def call(body) {
     if (config.integrationTests) {
       try {
         notify(config, 'IT', 'Pending', 'PENDING', true)
-        wrap([$class: 'Xvfb', screen: '1800x900x24']) {
+
+        if (config.xvfb) {
+          def screen = config.xvfbScreen ?: '1800x900x24';
+
+          wrap([$class: 'Xvfb', screen: screen]) {
+            integrationTests(config)
+          }
+        } else {
           integrationTests(config)
         }
+
         passStep('IT')
         notify(config, 'IT', 'Successful', 'SUCCESS', true)
       } catch (err) {
