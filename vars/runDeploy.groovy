@@ -15,9 +15,7 @@ def call(config) {
         return
       }
 
-      sshagent([config.deploySSHCredId]) {
-         sh "ssh -o StrictHostKeyChecking=no ${config.deployUser}@${config.deployServer} '${config.deployCmd}'"
-      }
+      sh "ssh -o StrictHostKeyChecking=no ${config.deployUser}@${config.deployServer} '${config.deployCmd}'"
     } else {
       /* run deployCmd without ssh creds */
       sh "${config.deployCmd}"

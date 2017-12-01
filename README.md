@@ -6,6 +6,7 @@ Banzai
 example Jenkinsfile
 ```
 banzai {
+    sshCreds = ['dev-ssh']
     appName = 'config-reviewer-server'
     gitCredId = 'sweeney-git'
     gitAccount = 'ConfigReviewer'
@@ -18,7 +19,6 @@ banzai {
     publishBranches = /tag\-(.*)|develop/
     deploy = true
     deployBranches = /tag\-(.*)|develop/
-    deploySSHCredId = 'dev-ssh'
 }
 ```
 
@@ -26,6 +26,7 @@ banzai {
 full list of Jenkins options
 ```
 banzai {
+    sshCreds                                    // a list of any ssh creds that may be needed in your pipeline
     appName = 'config-reviewer-server'          // **required** currently used only by SAST for determining the namespace to publish to.
     debug = false                               // provides additional debug messaging
     gitCredId = 'sweeney-git'                   // which credId in Jenkins to use for git.
@@ -53,6 +54,5 @@ banzai {
     deploy = true
     deployBranches = /tag\-(.*)|develop/        // regex to determine which branches to deploy
     deployScriptFile = 'deployScript.sh'        // location of deployScript. defaults to deployScript.sh
-    deploySSHCredId = 'dev-ssh'                 // if deploying over ssh, the credId in Jenkins to use for ssh
 }
 ```

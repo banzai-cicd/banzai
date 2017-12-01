@@ -37,129 +37,133 @@ def call(body) {
   }
 
   node() {
-    // TODO notify Flowdock build starting
-    echo "My branch is: ${BRANCH_NAME}"
 
-    // checkout the branch that triggered the build if not explicitly skipped
-    if (config.preCleanup) {
-      println "Starting Fresh"
-      step([$class: 'WsCleanup'])
-    }
+    sshagent (credentials: config.sshCreds) {
+      // TODO notify Flowdock build starting
+      echo "My branch is: ${BRANCH_NAME}"
 
-    if (!config.skipSCM) {
-      try {
-        notify(config, 'Checkout', 'Pending', 'PENDING')
-        checkoutSCM(config)
-        passStep('CHECKOUT')
-        notify(config, 'Checkout', 'Successful', 'SUCCESS')
-      } catch (err) {
-        echo "Caught: ${err}"
-        currentBuild.result = 'UNSTABLE'
-        if (isGithubError(err)) {
-          notify(config, 'Checkout', 'githubdown', 'FAILURE', true)
-        } else {
-          notify(config, 'Checkout', 'Failed', 'FAILURE')
+      // checkout the branch that triggered the build if not explicitly skipped
+      if (config.preCleanup) {
+        println "Starting Fresh"
+        step([$class: 'WsCleanup'])
+      }
+
+      if (!config.skipSCM) {
+        try {
+          notify(config, 'Checkout', 'Pending', 'PENDING')
+          checkoutSCM(config)
+          passStep('CHECKOUT')
+          notify(config, 'Checkout', 'Successful', 'SUCCESS')
+        } catch (err) {
+          echo "Caught: ${err}"
+          currentBuild.result = 'UNSTABLE'
+          if (isGithubError(err)) {
+            notify(config, 'Checkout', 'githubdown', 'FAILURE', true)
+          } else {
+            notify(config, 'Checkout', 'Failed', 'FAILURE')
+          }
+          throw err
         }
-        throw err
       }
-    }
 
-    if (config.sast) {
-      try {
-        notify(config, 'SAST', 'Pending', 'PENDING')
-        sast(config)
-        passStep('SAST')
-        notify(config, 'SAST', 'Successful', 'SUCCESS')
-      } catch (err) {
-        echo "Caught: ${err}"
-        currentBuild.result = 'UNSTABLE'
-        notify(config, 'Build', 'Failed', 'FAILURE')
-        throw err
-      }
-    }
-
-    if (config.build) {
-      try {
-        notify(config, 'Build', 'Pending', 'PENDING')
-        build(config)
-        passStep('BUILD')
-        notify(config, 'Build', 'Successful', 'SUCCESS')
-      } catch (err) {
-        echo "Caught: ${err}"
-        currentBuild.result = 'FAILURE'
-        if (isGithubError(err)) {
-          notify(config, 'Build', 'githubdown', 'FAILURE', true)
-        } else {
+      if (config.sast) {
+        try {
+          notify(config, 'SAST', 'Pending', 'PENDING')
+          sast(config)
+          passStep('SAST')
+          notify(config, 'SAST', 'Successful', 'SUCCESS')
+        } catch (err) {
+          echo "Caught: ${err}"
+          currentBuild.result = 'UNSTABLE'
           notify(config, 'Build', 'Failed', 'FAILURE')
+          throw err
         }
-        throw err
       }
-    }
 
-    /*
-      all notify calls past the build stage will skip notifcations to github
-    */
-    if (config.publish) {
-      try {
-        notify(config, 'Publish', 'Pending', 'PENDING', true)
-        publish(config)
-        passStep('PUBLISH')
-        notify(config, 'Publish', 'Successful', 'SUCCESS', true)
-      } catch (err) {
-        echo "Caught: ${err}"
-        currentBuild.result = 'FAILURE'
-        if (isGithubError(err)) {
-          notify(config, 'Publish', 'githubdown', 'FAILURE', true)
-        } else {
-          notify(config, 'Publish', 'Failed', 'FAILURE', true)
+      if (config.build) {
+        try {
+          notify(config, 'Build', 'Pending', 'PENDING')
+          build(config)
+          passStep('BUILD')
+          notify(config, 'Build', 'Successful', 'SUCCESS')
+        } catch (err) {
+          echo "Caught: ${err}"
+          currentBuild.result = 'FAILURE'
+          if (isGithubError(err)) {
+            notify(config, 'Build', 'githubdown', 'FAILURE', true)
+          } else {
+            notify(config, 'Build', 'Failed', 'FAILURE')
+          }
+          throw err
         }
-        throw err
       }
-    }
 
-    if (config.deploy) {
-      try {
-        notify(config, 'Deploy', 'Pending', 'PENDING', true)
-        deploy(config)
-        passStep('DEPLOY')
-        notify(config, 'Deploy', 'Successful', 'SUCCESS', true)
-        // TODO notify Flowdock
-      } catch (err) {
-        echo "Caught: ${err}"
-        currentBuild.result = 'FAILURE'
-        notify(config, 'Deploy', 'Failed', 'FAILURE', true)
-        throw err
+      /*
+        all notify calls past the build stage will skip notifcations to github
+      */
+      if (config.publish) {
+        try {
+          notify(config, 'Publish', 'Pending', 'PENDING', true)
+          publish(config)
+          passStep('PUBLISH')
+          notify(config, 'Publish', 'Successful', 'SUCCESS', true)
+        } catch (err) {
+          echo "Caught: ${err}"
+          currentBuild.result = 'FAILURE'
+          if (isGithubError(err)) {
+            notify(config, 'Publish', 'githubdown', 'FAILURE', true)
+          } else {
+            notify(config, 'Publish', 'Failed', 'FAILURE', true)
+          }
+          throw err
+        }
       }
-    }
 
-    if (config.integrationTests) {
-      try {
-        notify(config, 'IT', 'Pending', 'PENDING', true)
+      if (config.deploy) {
+        try {
+          notify(config, 'Deploy', 'Pending', 'PENDING', true)
+          deploy(config)
+          passStep('DEPLOY')
+          notify(config, 'Deploy', 'Successful', 'SUCCESS', true)
+          // TODO notify Flowdock
+        } catch (err) {
+          echo "Caught: ${err}"
+          currentBuild.result = 'FAILURE'
+          notify(config, 'Deploy', 'Failed', 'FAILURE', true)
+          throw err
+        }
+      }
 
-        if (config.xvfb) {
-          def screen = config.xvfbScreen ?: '1800x900x24';
+      if (config.integrationTests) {
+        try {
+          notify(config, 'IT', 'Pending', 'PENDING', true)
 
-          wrap([$class: 'Xvfb', screen: screen]) {
+          if (config.xvfb) {
+            def screen = config.xvfbScreen ?: '1800x900x24';
+
+            wrap([$class: 'Xvfb', screen: screen]) {
+              integrationTests(config)
+            }
+          } else {
             integrationTests(config)
           }
-        } else {
-          integrationTests(config)
+
+          passStep('IT')
+          notify(config, 'IT', 'Successful', 'SUCCESS', true)
+        } catch (err) {
+          echo "Caught: ${err}"
+          currentBuild.result = 'FAILURE'
+          notify(config, 'IT', 'Failed', 'FAILURE', true)
+          throw err
         }
-
-        passStep('IT')
-        notify(config, 'IT', 'Successful', 'SUCCESS', true)
-      } catch (err) {
-        echo "Caught: ${err}"
-        currentBuild.result = 'FAILURE'
-        notify(config, 'IT', 'Failed', 'FAILURE', true)
-        throw err
       }
-    }
 
-    if (config.postCleanup) {
-      println "Cleaning up"
-      step([$class: 'WsCleanup'])
-    }
+      if (config.postCleanup) {
+        println "Cleaning up"
+        step([$class: 'WsCleanup'])
+      }
+
+    } // ssh-agent
 
   } // node
 
