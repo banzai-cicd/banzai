@@ -26,6 +26,7 @@ banzai {
 full list of Jenkins options
 ```
 banzai {
+    throttle = 'my-project'                     // comma-delimited list of throttle categories to apply. (https://github.com/jenkinsci/throttle-concurrent-builds-plugin)
     sshCreds                                    // a list of any ssh creds that may be needed in your pipeline
     appName = 'config-reviewer-server'          // **required** currently used only by SAST for determining the namespace to publish to.
     debug = false                               // provides additional debug messaging

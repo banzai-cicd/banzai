@@ -7,12 +7,17 @@ def call(body) {
   body.delegate = config
   body()
 
-  env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
+  if (config.throttle) {
+    throttle (config.throttle.tokenize(',')) {
+      runPipeline(config)
+    }
+  } else {
+    runPipeline(config)
+  }
+}
 
-  // if (config.debug) {
-  //   println "ENVIRONMENT VARIABLES:"
-  //   echo sh(returnStdout: true, script: 'env')
-  // }
+def runPipeline(config) {
+  env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
   /*
     Determine the total number of steps in the pipeline that are activated
@@ -166,5 +171,4 @@ def call(body) {
     } // ssh-agent
 
   } // node
-
 }
