@@ -31,8 +31,8 @@ def runPipeline(config) {
 
   def passStep = { step ->
     passedSteps += 1
-    println "BANZAI: ${step} PASSED : ${passedSteps}/${steps.size} STEPS COMPLETE"
-    if (passedSteps >= steps.size) {
+    println "BANZAI: ${step} PASSED : ${passedSteps}/${steps.size()} STEPS COMPLETE"
+    if (passedSteps >= steps.size()) {
       currentBuild.result = 'SUCCESS'
     }
   }
