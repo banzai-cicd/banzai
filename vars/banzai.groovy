@@ -43,6 +43,12 @@ def runPipeline(config) {
 
   node() {
 
+    // support for jenkins 'tools'
+    if (config.jdk) {
+      jdk = tool name: config.jdk
+      env.JAVA_HOME = "${jdk}"
+    }
+
     sshagent (credentials: config.sshCreds) {
       // TODO notify Flowdock build starting
       echo "My branch is: ${BRANCH_NAME}"
