@@ -46,7 +46,7 @@ def call(config) {
               username: CHECKMARX_USER,
               vulnerabilityThresholdResult: 'FAILURE',
               waitForResultsEnabled: true
-            )
+        ])
 
       }
 
