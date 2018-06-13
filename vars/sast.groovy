@@ -24,27 +24,30 @@ def call(config) {
         println "SAST: No sastCredId specified: Skipping SAST"
         return
       }
+      
 
       withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: config.sastCredId,
                                  usernameVariable: 'CHECKMARX_USER', passwordVariable: 'CHECKMARX_PASSWORD']]) {
-        sh """#!/bin/bash
-          echo Performing /opt/CxConsolePlugin/runCxConsole.sh scan -v    \
-          -ProjectName "${PROJECT_NAME}"    \
-          -CxServer 'https://checkmarx.security.ge.com'     \
-          -CxUser '$CHECKMARX_USER'   \
-          -CxPassword '$CHECKMARX_PASSWORD'   \
-          -preset 'Default 2014'    \
-          -locationtype folder      \
-          -locationpath '$WORKSPACE'
-          /opt/CxConsolePlugin/runCxConsole.sh scan -v    \
-          -ProjectName "${PROJECT_NAME}"    \
-          -CxServer 'https://checkmarx.security.ge.com'     \
-          -CxUser '$CHECKMARX_USER'   \
-          -CxPassword '$CHECKMARX_PASSWORD'   \
-          -preset 'Default 2014'    \
-          -locationtype folder      \
-          -locationpath '$WORKSPACE'
-        """
+
+        step([$class: 'CxScanBuilder',
+              comment: '',
+              excludeFolders: '', 
+              excludeOpenSourceFolders: '',
+              filterPattern: '',
+              fullScanCycle: 10,
+              groupId: CHECKMARX_TEAM,
+              includeOpenSourceFolders: '',
+              jobStatusOnError: 'UNSTABLE',
+              password: CHECKMARX_PASSWORD,
+              preset: 'Default 2014',
+              projectName: PROJECT_NAME,
+              serverUrl: 'https://checkmarx.security.ge.com',
+              sourceEncoding: '1',
+              username: CHECKMARX_USER,
+              vulnerabilityThresholdResult: 'FAILURE',
+              waitForResultsEnabled: true
+            )
+
       }
 
     }
