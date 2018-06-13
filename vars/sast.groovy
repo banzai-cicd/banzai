@@ -17,6 +17,7 @@ def call(config) {
     // now build, based on the configuration provided
     stage ('SAST Tests') {
       def PROJECT_NAME = "${config.appName}-${env.BRANCH_NAME}"
+      def PRESET = config.sastPreset ?: 17
 
       if (!config.sastCredId) {
         println "SAST: No sastCredId specified: Skipping SAST"
@@ -37,7 +38,7 @@ def call(config) {
               includeOpenSourceFolders: '',
               jobStatusOnError: 'UNSTABLE',
               password: "${CHECKMARX_PASSWORD}",
-              preset: 'Default 2014',
+              preset: PRESET,
               projectName: "${PROJECT_NAME}",
               serverUrl: 'https://checkmarx.security.ge.com',
               sourceEncoding: '1',
