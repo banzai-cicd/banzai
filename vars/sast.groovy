@@ -17,7 +17,7 @@ def call(config) {
     // now build, based on the configuration provided
     stage ('SAST Tests') {
       def PROJECT_NAME = "${config.appName}-${env.BRANCH_NAME}"
-      def PRESET = config.sastPreset ?: 17
+      def PRESET = config.sastPreset ?: '17'
 
       if (!config.sastCredId) {
         println "SAST: No sastCredId specified: Skipping SAST"
