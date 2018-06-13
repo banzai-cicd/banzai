@@ -16,9 +16,7 @@ def call(config) {
 
     // now build, based on the configuration provided
     stage ('SAST Tests') {
-      def CHECKMARX_TEAM = /CxServer\\SP\\GE\\GE_PowerWater\\mdi_12782/
-      def CHECKMARX_APP = "\\${config.appName}-${env.BRANCH_NAME}"
-      def PROJECT_NAME = "${CHECKMARX_TEAM}${CHECKMARX_APP}"
+      def PROJECT_NAME = "${config.appName}-${env.BRANCH_NAME}"
 
       if (!config.sastCredId) {
         println "SAST: No sastCredId specified: Skipping SAST"
