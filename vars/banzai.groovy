@@ -48,6 +48,13 @@ def runPipeline(config) {
       jdk = tool name: config.jdk
       env.JAVA_HOME = "${jdk}"
     }
+    
+    if (config.node) {
+      def nodeVersion = "node ${config.node}"
+      env.NODEJS_HOME = "${tool nodeVersion}"
+      // on linux / mac
+      env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
+    }
 
     sshagent (credentials: config.sshCreds) {
       // TODO notify Flowdock build starting
