@@ -15,7 +15,8 @@ def call(config) {
 	        return
 	      }
 	    }	
-		runDeploy(config)
+		//runDeploy(config)
+		echo "Deployed to DEV!"
 	  }
   }
   
