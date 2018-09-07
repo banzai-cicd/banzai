@@ -19,8 +19,8 @@ def call(config) {
 	  }
   }
   
-  def devBranchName = /develop/
-  if (BRANCH_NAME ==~ devBranchName){
+  tagRegex="^tag"
+  if (BRANCH_NAME ==~ tagRegex){
 	  // Request QA deploy
 	  echo "Requesting QA deployment"
 	  stage ('Promote to QA ?'){
