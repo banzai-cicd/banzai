@@ -20,8 +20,9 @@ def call(config) {
 	  }
   }
   
-  tagRegex="^tag"
-  if (BRANCH_NAME ==~ tagRegex){
+  tagRegex=/tag\-(.*)/
+  Pattern tagPattern = Pattern.compile(tagRegex)
+  if (BRANCH_NAME ==~ tagPattern){
 	  // Request QA deploy
 	  echo "Requesting QA deployment"
 	  stage ('Promote to QA ?'){
