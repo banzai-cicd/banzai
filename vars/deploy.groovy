@@ -68,10 +68,12 @@ def call(config) {
 		  //submitter: '210026212' //Roger's SSO // ,Roger.Laurence@ge.com
 		  //"Roger.Laurence@ge.com"
 		  echo "You want to request PROD deployment!"
-		  stage ('Promote to QA ?'){
-			  mail to: "ramesh.ganapathi@ge.com",
-					  subject: "Config Reviewer awaiting PROD deployment approval",
-					  body: "${env.BUILD_URL} input is waiting for PROD approval"
+		  stage ('Promote to PROD ?'){
+			  mail from: "JenkinsAdmin@ge.com",
+			  	   to: "ramesh.ganapathi@ge.com",			
+				          
+				   subject: "Config Reviewer awaiting PROD deployment approval",
+				   body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' is waiting for PROD approval.<BR/>Please click the link below to proceed.<BR/>${env.BUILD_URL}/input/"
 	
 			  env.DEPLOY_OPTION = ''
 			  timeout(time: 7, unit: 'DAYS') {
