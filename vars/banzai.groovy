@@ -24,7 +24,7 @@ def runPipeline(config) {
 	Jenkins Pipelines don't allow many groovy methods (CPS issues) like .findAll...hence the nastiness
   */
   def steps = []
-  for (entry in [!config.skipSCM, config.sast, config.build, config.publish, config.deploy, config.integrationTests]) {
+  for (entry in [!config.skipSCM, config.sast, config.build, config.publish, config.deploy, config.integrationTests, config.promote]) {
 	if (entry == true) { steps.push(entry) }
   }
   def passedSteps = 0
@@ -60,7 +60,7 @@ def runPipeline(config) {
 
 	sshagent (credentials: config.sshCreds) {
 	  // TODO notify Flowdock build starting
-	  echo "My branch is: ${BRANCH_NAME}"
+	  echo "My branch is: ${env.BRANCH_NAME}"
 
 	  // checkout the branch that triggered the build if not explicitly skipped
 	  if (config.preCleanup) {
@@ -177,13 +177,34 @@ def runPipeline(config) {
 		  throw err
 		}
 	  }
-
+	  
+	  if (config.postCleanup) {
+		  println "Cleaning up"
+		  step([$class: 'WsCleanup'])
+	  }
+	} // ssh-agent
+	} // node
+	
+	sshagent (credentials: config.sshCreds) {
+	if (config.promote) {
+		try {
+		  notify(config, 'Promote', 'Pending', 'PENDING', true)
+		  promote(config)
+		  passStep('PROMOTE')
+		  notify(config, 'Promote', 'Successful', 'SUCCESS', true)
+		  // TODO notify Flowdock
+		} catch (err) {
+		  echo "Caught: ${err}"
+		  currentBuild.result = 'FAILURE'
+		  notify(config, 'Promote', 'Failed', 'FAILURE', true)
+		  throw err
+		}
+	 }
+	}
+	 /*node() {
 	  if (config.postCleanup) {
 		println "Cleaning up"
 		step([$class: 'WsCleanup'])
-	  }
-
-	} // ssh-agent
-
-  } // node
+		  }
+	  }*/ // node
 }
