@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-banzai {
+banzai ({
     appName = 'config-reviewer-service'
     jdk = 'jdk 10.0.1'
     sshCreds = ['dev-ssh', 'sweeney-git-ssh']
@@ -27,4 +27,4 @@ banzai {
     promoteBranches = /tag\-(.*)/
     promoteRepo = 'git@github.build.ge.com:502061514/config-reviewer-deployment.git'
     stackName = config-reviewer
-}
+})
