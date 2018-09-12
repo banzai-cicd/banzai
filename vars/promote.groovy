@@ -17,6 +17,10 @@ def call(config) {
 			}
 		}
 	}
+	if (env.ENV_OPTION == 'Skip') {
+		echo "You want to skip deployment!"
+		return
+	}
 	
 	if (env.ENV_OPTION.contains('QA')) {
 	// Request QA deploy
