@@ -184,7 +184,7 @@ def runPipeline(config) {
       }
 	} // node
 	
-	/*if (config.promote) {
+	if (config.promote) {
 		try {
 		  notify(config, 'Promote', 'Pending', 'PENDING', true)
 		  promote(config)
@@ -198,7 +198,7 @@ def runPipeline(config) {
 		  throw err
 		}
 	 }
-	 node() {
+	 /*node() {
       if (config.postCleanup) {
         println "Cleaning up"
         step([$class: 'WsCleanup'])

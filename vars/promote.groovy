@@ -3,8 +3,22 @@
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-//def call() {	
+def call(config) {	
 	
+	echo "Environment Selection"
+	stage ('Environment Selection'){
+		
+		env.ENV_OPTION = ''
+		timeout(time: 3, unit: 'DAYS') {
+			script {
+				env.ENV_OPTION = input message: "Select the Environment for Deployment",
+						ok: 'Submit',
+						parameters: [choice(name: 'Where do you want to deploy the application ?', choices: "QA&PROD\nQA\nPROD\nSkip", description: 'What would you like to do?')]
+			}
+		}
+	}
+	
+	if (env.ENV_OPTION.contains('QA')) {
 	// Request QA deploy
 	echo "Requesting QA deployment"
 	stage ('Promote to QA ?'){
@@ -40,6 +54,9 @@ import java.util.regex.Pattern
 			}
 		}
 	}
+	}
+	
+	if (env.ENV_OPTION.contains('PROD')) {
 	// Request PROD deploy
 	echo "Requesting PROD deployment"
 	stage ('Request PROD Deployment ?'){
@@ -94,7 +111,6 @@ import java.util.regex.Pattern
 				}
 			}
 		}
-	 }	
-	 
-	 //call()
-//}
+	 }
+	} // if
+}
