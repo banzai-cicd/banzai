@@ -182,8 +182,10 @@ def runPipeline(config) {
           println "Cleaning up"
           step([$class: 'WsCleanup'])
       }
+	} // ssh-agent
 	} // node
 	
+	sshagent (credentials: config.sshCreds) {
 	if (config.promote) {
 		try {
 		  notify(config, 'Promote', 'Pending', 'PENDING', true)
@@ -198,11 +200,11 @@ def runPipeline(config) {
 		  throw err
 		}
 	 }
+	}
 	 /*node() {
       if (config.postCleanup) {
         println "Cleaning up"
         step([$class: 'WsCleanup'])
       	}
-	  }*/ // node
-    } // ssh-agent  
+	  }*/ // node    
 }
