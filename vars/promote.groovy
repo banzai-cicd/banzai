@@ -89,7 +89,7 @@ def call(config) {
 				 to: "ramesh.ganapathi@ge.com",
 				 cc: "ramesh.ganapathi@ge.com",
 				 subject: "Config Reviewer Service awaiting PROD deployment approval",
-				 body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' is waiting for PROD approval.\n\nPlease click the link below to proceed.\n${env.BUILD_URL}/input/"
+				 body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' is waiting for PROD approval.\n\nPlease click the link below to proceed.\n${env.BUILD_URL}input/"
   
 			env.DEPLOY_OPTION = ''
 			timeout(time: 7, unit: 'DAYS') {
@@ -97,7 +97,7 @@ def call(config) {
 					env.DEPLOY_OPTION = input message: "Deploy Config Reviewer to PROD?",
 							ok: 'Deploy to PROD!',
 							parameters: [choice(name: 'Deployment Action', choices: "Deploy\nSkip", description: 'What would you like to do?')],
-							submitter: '502061514' //Roger's SSO 210026212
+							submitter: '502061515' //Roger's SSO 210026212
 				}
 			}
 		}
