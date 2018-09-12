@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-@Library("Build-Promotion-Test@script") _
+@Library("CommonPipeline") _
 banzai {
     appName = 'config-reviewer-service'
     jdk = 'jdk 10.0.1'
