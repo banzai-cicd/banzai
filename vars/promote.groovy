@@ -3,7 +3,7 @@
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-def call() {	
+//def call() {	
 	
 	// Request QA deploy
 	echo "Requesting QA deployment"
@@ -96,5 +96,5 @@ def call() {
 		}
 	 }	
 	 
-	 call()
-}
+	 //call()
+//}
