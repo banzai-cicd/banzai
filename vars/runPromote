@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 banzai {
     appName = 'config-reviewer-service'
     jdk = 'jdk 10.0.1'
