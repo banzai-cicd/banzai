@@ -47,10 +47,12 @@ def call(config) {
 	}
 	else if(env.DEPLOY_OPTION == 'Deploy') {
 		echo "You want to deploy in QA!"
-		node{
-			stage ("QA Deployment") {
-			  //runDeploy(config, 'QA') // Add QA param
-			  echo "Deployed to QA!"
+		node(){
+			sshagent (credentials: config.sshCreds) {
+				stage ("QA Deployment") {
+				  //runDeploy(config, 'QA') // Add QA param
+				  echo "Deployed to QA!"
+				}
 			}
 		}
 	}
@@ -104,10 +106,12 @@ def call(config) {
   
 			// If approved, deploy to PROD
 			echo "You want to deploy in PROD!"
-			node{
-				stage ("PROD Deployment") {
-				  //runDeploy(config, 'PROD') // Add QA param
-				  echo "Deployed to PROD!"
+			node(){
+				sshagent (credentials: config.sshCreds) {
+					stage ("PROD Deployment") {
+					  //runDeploy(config, 'PROD') // Add QA param
+					  echo "Deployed to PROD!"
+					}
 				}
 			}
 		}
