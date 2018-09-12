@@ -8,11 +8,11 @@ def call(body) {
   body()
 
   if (config.throttle) {
-    throttle (config.throttle.tokenize(',')) {
-      runPipeline(config)
-    }
+	throttle (config.throttle.tokenize(',')) {
+	  runPipeline(config)
+	}
   } else {
-    runPipeline(config)
+	runPipeline(config)
   }
 }
 
@@ -20,191 +20,170 @@ def runPipeline(config) {
   env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
   /*
-    Determine the total number of steps in the pipeline that are activated
-    Jenkins Pipelines don't allow many groovy methods (CPS issues) like .findAll...hence the nastiness
+	Determine the total number of steps in the pipeline that are activated
+	Jenkins Pipelines don't allow many groovy methods (CPS issues) like .findAll...hence the nastiness
   */
   def steps = []
-  for (entry in [!config.skipSCM, config.sast, config.build, config.publish, config.deploy, config.integrationTests, config.promote]) {
-    if (entry == true) { steps.push(entry) }
+  for (entry in [!config.skipSCM, config.sast, config.build, config.publish, config.deploy, config.integrationTests]) {
+	if (entry == true) { steps.push(entry) }
   }
   def passedSteps = 0
 
   def passStep = { step ->
-    passedSteps += 1
-    println "BANZAI: ${step} PASSED : ${passedSteps}/${steps.size()} STEPS COMPLETE"
-    if (passedSteps >= steps.size()) {
-      currentBuild.result = 'SUCCESS'
-    }
+	passedSteps += 1
+	println "BANZAI: ${step} PASSED : ${passedSteps}/${steps.size()} STEPS COMPLETE"
+	if (passedSteps >= steps.size()) {
+	  currentBuild.result = 'SUCCESS'
+	}
   }
 
   def isGithubError = { err ->
-    return err.message.contains("The suplied credentials are invalid to login") ? true : false;
+	return err.message.contains("The suplied credentials are invalid to login") ? true : false;
   }
 
   node() {
-    // clean up old builds (experimental, not sure if this is actually working or not. time will tell)
-    properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10'))])
-    
-    // support for jenkins 'tools'
-    if (config.jdk) {
-      jdk = tool name: config.jdk
-      env.JAVA_HOME = "${jdk}"
-    }
-    
-    if (config.node) {
-      def nodeVersion = "node ${config.node}"
-      env.NODEJS_HOME = "${tool nodeVersion}"
-      // on linux / mac
-      env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
-    }
-
-    sshagent (credentials: config.sshCreds) {
-      // TODO notify Flowdock build starting
-      echo "My branch is: ${BRANCH_NAME}"
-
-      // checkout the branch that triggered the build if not explicitly skipped
-      if (config.preCleanup) {
-        println "Starting Fresh"
-        step([$class: 'WsCleanup'])
-      }
-
-      if (!config.skipSCM) {
-        try {
-          notify(config, 'Checkout', 'Pending', 'PENDING')
-          checkoutSCM(config)
-          passStep('CHECKOUT')
-          notify(config, 'Checkout', 'Successful', 'SUCCESS')
-        } catch (err) {
-          echo "Caught: ${err}"
-          currentBuild.result = 'UNSTABLE'
-          if (isGithubError(err)) {
-            notify(config, 'Checkout', 'githubdown', 'FAILURE', true)
-          } else {
-            notify(config, 'Checkout', 'Failed', 'FAILURE')
-          }
-          throw err
-        }
-      }
-
-      if (config.sast) {
-        try {
-          notify(config, 'SAST', 'Pending', 'PENDING')
-          sast(config)
-          passStep('SAST')
-          notify(config, 'SAST', 'Successful', 'SUCCESS')
-        } catch (err) {
-          echo "Caught: ${err}"
-          currentBuild.result = 'UNSTABLE'
-          notify(config, 'Build', 'Failed', 'FAILURE')
-          throw err
-        }
-      }
-
-      if (config.build) {
-        try {
-          notify(config, 'Build', 'Pending', 'PENDING')
-          build(config)
-          passStep('BUILD')
-          notify(config, 'Build', 'Successful', 'SUCCESS')
-        } catch (err) {
-          echo "Caught: ${err}"
-          currentBuild.result = 'FAILURE'
-          if (isGithubError(err)) {
-            notify(config, 'Build', 'githubdown', 'FAILURE', true)
-          } else {
-            notify(config, 'Build', 'Failed', 'FAILURE')
-          }
-          throw err
-        }
-      }
-
-      /*
-        all notify calls past the build stage will skip notifcations to github
-      */
-      if (config.publish) {
-        try {
-          notify(config, 'Publish', 'Pending', 'PENDING', true)
-          publish(config)
-          passStep('PUBLISH')
-          notify(config, 'Publish', 'Successful', 'SUCCESS', true)
-        } catch (err) {
-          echo "Caught: ${err}"
-          currentBuild.result = 'FAILURE'
-          if (isGithubError(err)) {
-            notify(config, 'Publish', 'githubdown', 'FAILURE', true)
-          } else {
-            notify(config, 'Publish', 'Failed', 'FAILURE', true)
-          }
-          throw err
-        }
-      }
-
-      if (config.deploy) {
-        try {
-          notify(config, 'Deploy', 'Pending', 'PENDING', true)
-          deploy(config)
-          passStep('DEPLOY')
-          notify(config, 'Deploy', 'Successful', 'SUCCESS', true)
-          // TODO notify Flowdock
-        } catch (err) {
-          echo "Caught: ${err}"
-          currentBuild.result = 'FAILURE'
-          notify(config, 'Deploy', 'Failed', 'FAILURE', true)
-          throw err
-        }
-      }
-
-      if (config.integrationTests) {
-        try {
-          notify(config, 'IT', 'Pending', 'PENDING', true)
-
-          if (config.xvfb) {
-            def screen = config.xvfbScreen ?: '1800x900x24';
-
-            wrap([$class: 'Xvfb', screen: screen]) {
-              integrationTests(config)
-            }
-          } else {
-            integrationTests(config)
-          }
-
-          passStep('IT')
-          notify(config, 'IT', 'Successful', 'SUCCESS', true)
-        } catch (err) {
-          echo "Caught: ${err}"
-          currentBuild.result = 'FAILURE'
-          notify(config, 'IT', 'Failed', 'FAILURE', true)
-          throw err
-        }
-      }
-      
-      if (config.postCleanup) {
-          println "Cleaning up"
-          step([$class: 'WsCleanup'])
-      }
-	} // ssh-agent
-	} // node
+	// clean up old builds (experimental, not sure if this is actually working or not. time will tell)
+	properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10'))])
 	
+	// support for jenkins 'tools'
+	if (config.jdk) {
+	  jdk = tool name: config.jdk
+	  env.JAVA_HOME = "${jdk}"
+	}
+	
+	if (config.node) {
+	  def nodeVersion = "node ${config.node}"
+	  env.NODEJS_HOME = "${tool nodeVersion}"
+	  // on linux / mac
+	  env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
+	}
+
 	sshagent (credentials: config.sshCreds) {
-	if (config.promote) {
+	  // TODO notify Flowdock build starting
+	  echo "My branch is: ${BRANCH_NAME}"
+
+	  // checkout the branch that triggered the build if not explicitly skipped
+	  if (config.preCleanup) {
+		println "Starting Fresh"
+		step([$class: 'WsCleanup'])
+	  }
+
+	  if (!config.skipSCM) {
 		try {
-		  notify(config, 'Promote', 'Pending', 'PENDING', true)
-		  promote(config)
-		  passStep('PROMOTE')
-		  notify(config, 'Promote', 'Successful', 'SUCCESS', true)
+		  notify(config, 'Checkout', 'Pending', 'PENDING')
+		  checkoutSCM(config)
+		  passStep('CHECKOUT')
+		  notify(config, 'Checkout', 'Successful', 'SUCCESS')
+		} catch (err) {
+		  echo "Caught: ${err}"
+		  currentBuild.result = 'UNSTABLE'
+		  if (isGithubError(err)) {
+			notify(config, 'Checkout', 'githubdown', 'FAILURE', true)
+		  } else {
+			notify(config, 'Checkout', 'Failed', 'FAILURE')
+		  }
+		  throw err
+		}
+	  }
+
+	  if (config.sast) {
+		try {
+		  notify(config, 'SAST', 'Pending', 'PENDING')
+		  sast(config)
+		  passStep('SAST')
+		  notify(config, 'SAST', 'Successful', 'SUCCESS')
+		} catch (err) {
+		  echo "Caught: ${err}"
+		  currentBuild.result = 'UNSTABLE'
+		  notify(config, 'Build', 'Failed', 'FAILURE')
+		  throw err
+		}
+	  }
+
+	  if (config.build) {
+		try {
+		  notify(config, 'Build', 'Pending', 'PENDING')
+		  build(config)
+		  passStep('BUILD')
+		  notify(config, 'Build', 'Successful', 'SUCCESS')
+		} catch (err) {
+		  echo "Caught: ${err}"
+		  currentBuild.result = 'FAILURE'
+		  if (isGithubError(err)) {
+			notify(config, 'Build', 'githubdown', 'FAILURE', true)
+		  } else {
+			notify(config, 'Build', 'Failed', 'FAILURE')
+		  }
+		  throw err
+		}
+	  }
+
+	  /*
+		all notify calls past the build stage will skip notifcations to github
+	  */
+	  if (config.publish) {
+		try {
+		  notify(config, 'Publish', 'Pending', 'PENDING', true)
+		  publish(config)
+		  passStep('PUBLISH')
+		  notify(config, 'Publish', 'Successful', 'SUCCESS', true)
+		} catch (err) {
+		  echo "Caught: ${err}"
+		  currentBuild.result = 'FAILURE'
+		  if (isGithubError(err)) {
+			notify(config, 'Publish', 'githubdown', 'FAILURE', true)
+		  } else {
+			notify(config, 'Publish', 'Failed', 'FAILURE', true)
+		  }
+		  throw err
+		}
+	  }
+
+	  if (config.deploy) {
+		try {
+		  notify(config, 'Deploy', 'Pending', 'PENDING', true)
+		  deploy(config)
+		  passStep('DEPLOY')
+		  notify(config, 'Deploy', 'Successful', 'SUCCESS', true)
 		  // TODO notify Flowdock
 		} catch (err) {
 		  echo "Caught: ${err}"
 		  currentBuild.result = 'FAILURE'
-		  notify(config, 'Promote', 'Failed', 'FAILURE', true)
+		  notify(config, 'Deploy', 'Failed', 'FAILURE', true)
 		  throw err
 		}
-	 }
-	}
-	 /*node() {
-      if (config.postCleanup) {
-        println "Cleaning up"
-        step([$class: 'WsCleanup'])
-      	}
-	  }*/ // node    
+	  }
+
+	  if (config.integrationTests) {
+		try {
+		  notify(config, 'IT', 'Pending', 'PENDING', true)
+
+		  if (config.xvfb) {
+			def screen = config.xvfbScreen ?: '1800x900x24';
+
+			wrap([$class: 'Xvfb', screen: screen]) {
+			  integrationTests(config)
+			}
+		  } else {
+			integrationTests(config)
+		  }
+
+		  passStep('IT')
+		  notify(config, 'IT', 'Successful', 'SUCCESS', true)
+		} catch (err) {
+		  echo "Caught: ${err}"
+		  currentBuild.result = 'FAILURE'
+		  notify(config, 'IT', 'Failed', 'FAILURE', true)
+		  throw err
+		}
+	  }
+
+	  if (config.postCleanup) {
+		println "Cleaning up"
+		step([$class: 'WsCleanup'])
+	  }
+
+	} // ssh-agent
+
+  } // node
 }
