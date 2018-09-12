@@ -23,6 +23,6 @@ banzai {
     deployBranches = /develop/
     promote = true
     promoteBranches = /tag\-(.*)/
-    promoteRepo = git@github.build.ge.com:502061514/config-reviewer-deployment.git
+    promoteRepo = 'git@github.build.ge.com:502061514/config-reviewer-deployment.git'
     stackName = config-reviewer
 }
