@@ -66,16 +66,16 @@ def call(config) {
 					sh 'rm -rf config-reviewer-deployment'
 					sh "git clone ${config.promoteRepo}"
 					
-					versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
+					//versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
 					//assert mydata.versions == '3.14.0'
 					//sh "yaml w -i config-reviewer-deployment/${environment}/version.yml version.${imageName} ${tag}"
 					//sh "git -C config-reviewer-deployment commit -a -m 'Promoted ${imageName} to ${environment}' || true"
 					//sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
 					
 					//writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/newversion.yaml", data: mydata
-					echo ("versionYmlData.version:${versionYmlData.versions}")
+					//echo ("versionYmlData.version:${versionYmlData.versions}")
 					
-					Object tmpData = versionYmlData.versions
+					/*Object tmpData = versionYmlData.versions
 					echo (versionYmlData.versions.getClass().getName())
 					echo (tmpData.getClass().getName())
 					
@@ -86,6 +86,17 @@ def call(config) {
 							}
 					echo (map.toMapString())
 					map.each{
+					    key, value -> print key;
+					}*/
+					
+					versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"					
+					echo (versionYmlData.getClass().getName())
+					echo (versionYmlData.services.getClass().getName())
+					
+					versionYmlData.each{
+					    key, value -> print key;
+					}
+					versionYmlData.version.each{
 					    key, value -> print key;
 					}
 					
