@@ -51,10 +51,30 @@ def call(config) {
 	}
 	else if(env.DEPLOY_OPTION == 'Deploy') {
 		echo "You want to deploy in QA!"
+		def environment = 'qa'
 		node(){
 			sshagent (credentials: config.sshCreds) {
 				stage ("QA Deployment") {
-				  //runDeploy(config, 'QA') // Add QA param
+				  //runDeploy(config, 'QA') // Add QA param										
+					
+					sh 'rm -rf config-reviewer-deployment'
+					sh 'git clone {config.promoteRepo}'
+					
+					mydata = readYaml file: "${WORKSPACE}/envs/{environment}/version.yml"
+					assert mydata.version.cr-api == '3.14.0'
+					//sh "yaml w -i config-reviewer-deployment/${environment}/version.yml version.${imageName} ${tag}"
+					//sh "git -C config-reviewer-deployment commit -a -m 'Promoted ${imageName} to ${environment}' || true"
+					//sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
+					
+					def userInput = input(
+						id: 'userInput', message: 'Let\'s promote?', parameters: [
+						[$class: 'TextParameterDefinition', defaultValue: 'uat', description: 'Environment', name: 'env'],
+						[$class: 'TextParameterDefinition', defaultValue: 'uat1', description: 'Target', name: 'target']
+					   ])
+					   echo ("Env: "+userInput['env'])
+					   echo ("Target: "+userInput['target'])
+					
+					
 				  echo "Deployed to QA!"
 				}
 			}
@@ -97,7 +117,7 @@ def call(config) {
 					env.DEPLOY_OPTION = input message: "Deploy Config Reviewer to PROD?",
 							ok: 'Deploy to PROD!',
 							parameters: [choice(name: 'Deployment Action', choices: "Deploy\nSkip", description: 'What would you like to do?')],
-							submitter: '502061515' //Roger's SSO 210026212
+							submitter: '502061514' //Roger's SSO 210026212
 				}
 			}
 		}
