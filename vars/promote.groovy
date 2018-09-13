@@ -57,18 +57,22 @@ def call(config) {
 			sshagent (credentials: config.sshCreds) {
 				stage ("QA Deployment") {
 				  //runDeploy(config, 'QA') // Add QA param										
-					
-					echo "1: ${config.promoteRepo}"
-					echo "2: ${promoteRepo}"
-					echo '3: git clone ${config.promoteRepo}'
+										
 					sh 'rm -rf config-reviewer-deployment'
 					sh "git clone ${config.promoteRepo}"
 					
-					mydata = readYaml file: "${WORKSPACE}/envs/${environment}/version.yml"
+					mydata = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
 					assert mydata.version.cr-api == '3.14.0'
 					//sh "yaml w -i config-reviewer-deployment/${environment}/version.yml version.${imageName} ${tag}"
 					//sh "git -C config-reviewer-deployment commit -a -m 'Promoted ${imageName} to ${environment}' || true"
 					//sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
+					
+					writeYaml file: '${WORKSPACE}/config-reviewer-deployment/envs/${environment}/newversion.yaml', data: mydata
+					
+					mydata.version.each {
+						assert it.key == 'cr-api'
+						echo ("Key:Value:${it.key}:${it.value}")
+					}
 					
 					def userInput = input(
 						id: 'userInput', message: 'Let\'s promote?', parameters: [
