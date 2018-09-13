@@ -74,8 +74,8 @@ def call(config) {
 					echo ("mydata.version:${mydata.versions}")
 					
 					Object tmpData = mydata.versions
-					echo (mydata.versions.getClass())
-					echo (tmpData.getClass())
+					echo (mydata.versions.getClass().getName())
+					echo (tmpData.getClass().getName())
 					
 					echo ("mydata.version:${mydata.versions.zuul}")
 					
