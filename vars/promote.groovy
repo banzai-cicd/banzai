@@ -66,54 +66,33 @@ def call(config) {
 					sh 'rm -rf config-reviewer-deployment'
 					sh "git clone ${config.promoteRepo}"
 					
-					mydata = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
+					versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
 					//assert mydata.versions == '3.14.0'
 					//sh "yaml w -i config-reviewer-deployment/${environment}/version.yml version.${imageName} ${tag}"
 					//sh "git -C config-reviewer-deployment commit -a -m 'Promoted ${imageName} to ${environment}' || true"
 					//sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
 					
 					//writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/newversion.yaml", data: mydata
-					echo ("mydata.version:${mydata.versions}")
+					echo ("versionYmlData.version:${versionYmlData.versions}")
 					
-					Object tmpData = mydata.versions
-					echo (mydata.versions.getClass().getName())
+					Object tmpData = versionYmlData.versions
+					echo (versionYmlData.versions.getClass().getName())
 					echo (tmpData.getClass().getName())
 					
-					def map =
-					    // Take the String value between
-					    // the [ and ] brackets.
-					    mydata.versions
-						// Split on , to get a List.
-						.split(' ')
-						// Each list item is transformed
-						// to a Map entry with key/value.
-						.collectEntries { entry ->
-						    def pair = entry.split(':')
-						    [(pair.first()): pair.last()]
-						}
+					def map = versionYmlData.versions.split(' ')
+							.collectEntries { entry ->
+							    def pair = entry.split(':')
+							    [(pair.first()): pair.last()]
+							}
 					echo (map.toMapString())
 					map.each{
 					    key, value -> print key;
 					}
 					
-					mydata2 = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version2.yml"
-					echo (mydata2.getClass().getName())
-					echo (mydata2[0].getClass().getName())
-					
-					
-					
-					//echo ("mydata.version:${mydata.versions.zuul}")
-					
-					Yaml parser = new Yaml()
-					versions=parser.load(("${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml" as File).text)
-					println versions
-					
-					mydata.versions.each {
-						//assert it.key == 'cr-api'
-						echo ("it:${it}")
-						//echo ("itval:${it.value}")
-						//echo ("Key:Value:${it.key}:${it.value}")
-					}
+					stackYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml"
+					Object tmpData = stackYmlData.services
+					echo (stackYmlData.getClass().getName())
+					echo (stackYmlData.services.getClass().getName())
 					
 					def userInput = input(
 						id: 'userInput', message: 'Let\'s promote?', parameters: [
