@@ -69,20 +69,29 @@ def call(config) {
 					//versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
 					//assert mydata.versions == '3.14.0'
 					//sh "yaml w -i config-reviewer-deployment/${environment}/version.yml version.${imageName} ${tag}"
-														
-					versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"					
-					versionYmlData.version.each{
-					    key, value -> print key;
-					}
 					
 					stackYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml"
-										
+					versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"					
+					
+					versionYmlData.version.each{key, value -> 
+					    print key;
+					    existingImgName = stackYmlData.services[key].image
+					    echo ("Before Update image: "+stackYmlData.services[key].image)
+					    existingImgVersion = imgName.split(/:/)[-1]
+					    newImgVersion = value
+					    newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
+					    echo ("Before Update image: "+newImgName)
+					    stackYmlData.services[key].image = newImgName
+					}
+															
 					stackYmlData.services.each{ key,value -> 
 					    print key;
 					    echo ("image: "+stackYmlData.services[key].image)
 					    echo ("version: "+versionYmlData.version[key])
+					    sh "yaml w -i config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml services.${key}.image ${value}"
 					}
-					writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml", data: stackYmlData
+					//def theName = a.split(/:/)[-1]
+					//writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml", data: stackYmlData
 					
 					sh "git -C config-reviewer-deployment commit -a -m 'Promoted QA Environment' || true"
 					sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
