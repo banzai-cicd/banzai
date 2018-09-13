@@ -62,7 +62,7 @@ def call(config) {
 					echo "2: ${promoteRepo}"
 					echo '3: git clone ${config.promoteRepo}'
 					sh 'rm -rf config-reviewer-deployment'
-					sh 'git clone ${config.promoteRepo}'
+					sh "git clone ${config.promoteRepo}"
 					
 					mydata = readYaml file: "${WORKSPACE}/envs/${environment}/version.yml"
 					assert mydata.version.cr-api == '3.14.0'
