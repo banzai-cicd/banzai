@@ -52,13 +52,14 @@ def call(config) {
 	else if(env.DEPLOY_OPTION == 'Deploy') {
 		echo "You want to deploy in QA!"
 		def environment = 'qa'
+		promoteRepo = config.promoteRepo
 		node(){
 			sshagent (credentials: config.sshCreds) {
 				stage ("QA Deployment") {
 				  //runDeploy(config, 'QA') // Add QA param										
 					
 					sh 'rm -rf config-reviewer-deployment'
-					sh 'git clone {config.promoteRepo}'
+					sh 'git clone {promoteRepo}'
 					
 					mydata = readYaml file: "${WORKSPACE}/envs/{environment}/version.yml"
 					assert mydata.version.cr-api == '3.14.0'
