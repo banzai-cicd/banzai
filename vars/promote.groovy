@@ -61,7 +61,7 @@ def call(config) {
 					sh 'rm -rf config-reviewer-deployment'
 					sh 'git clone ${config.promoteRepo}'
 					
-					mydata = readYaml file: "${WORKSPACE}/envs/{environment}/version.yml"
+					mydata = readYaml file: "${WORKSPACE}/envs/${environment}/version.yml"
 					assert mydata.version.cr-api == '3.14.0'
 					//sh "yaml w -i config-reviewer-deployment/${environment}/version.yml version.${imageName} ${tag}"
 					//sh "git -C config-reviewer-deployment commit -a -m 'Promoted ${imageName} to ${environment}' || true"
