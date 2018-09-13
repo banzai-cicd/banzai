@@ -3,6 +3,8 @@
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.DumperOptions
+import static org.yaml.snakeyaml.DumperOptions.FlowStyle.BLOCK
 
 def call(config) {	
 	
@@ -77,9 +79,25 @@ def call(config) {
 					echo (mydata.versions.getClass().getName())
 					echo (tmpData.getClass().getName())
 					
+					def map =
+					    // Take the String value between
+					    // the [ and ] brackets.
+					    mydata.versions
+						// Split on , to get a List.
+						.split(' ')
+						// Each list item is transformed
+						// to a Map entry with key/value.
+						.collectEntries { entry ->
+						    def pair = entry.split(':')
+						    [(pair.first()): pair.last()]
+						}
+					echo (map)
+					
 					mydata2 = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version2.yml"
 					echo (mydata2.getClass().getName())
 					echo (mydata2[0].getClass().getName())
+					
+					
 					
 					//echo ("mydata.version:${mydata.versions.zuul}")
 					
