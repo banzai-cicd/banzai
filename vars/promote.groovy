@@ -100,6 +100,7 @@ def call(config) {
 					stackYmlData.services.each{
 					    key, value -> print key;
 					}
+					writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml2", data: stackYmlData
 					
 					def userInput = input(
 						id: 'userInput', message: 'Let\'s promote?', parameters: [
