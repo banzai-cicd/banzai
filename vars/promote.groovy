@@ -70,14 +70,18 @@ def call(config) {
 					//sh "git -C config-reviewer-deployment commit -a -m 'Promoted ${imageName} to ${environment}' || true"
 					//sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
 					
-					writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/newversion.yaml", data: mydata
+					//writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/newversion.yaml", data: mydata
 					echo ("mydata.version:${mydata.versions}")
 					
 					Object tmpData = mydata.versions
 					echo (mydata.versions.getClass().getName())
 					echo (tmpData.getClass().getName())
 					
-					echo ("mydata.version:${mydata.versions.zuul}")
+					mydata2 = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version2.yml"
+					echo (mydata2.getClass().getName())
+					echo (mydata2[0].getClass().getName())
+					
+					//echo ("mydata.version:${mydata.versions.zuul}")
 					
 					Yaml parser = new Yaml()
 					versions=parser.load(("${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml" as File).text)
