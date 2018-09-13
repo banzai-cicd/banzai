@@ -72,6 +72,11 @@ def call(config) {
 					
 					writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/newversion.yaml", data: mydata
 					echo ("mydata.version:${mydata.versions}")
+					
+					Object tmpData = mydata.versions
+					echo (mydata.versions.getClass())
+					echo (tmpData.getClass())
+					
 					echo ("mydata.version:${mydata.versions.zuul}")
 					
 					Yaml parser = new Yaml()
