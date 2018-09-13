@@ -79,8 +79,8 @@ def call(config) {
 										
 					stackYmlData.services.each{ key,value -> 
 					    print key;
-					    echo ("image: "+stackYmlData.services['key'].image)
-					    echo ("version: "+versionYmlData.version['key'])
+					    echo ("image: "+stackYmlData.services[key].image)
+					    echo ("version: "+versionYmlData.version[key])
 					}
 					writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml", data: stackYmlData
 					
