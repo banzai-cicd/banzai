@@ -58,6 +58,9 @@ def call(config) {
 				stage ("QA Deployment") {
 				  //runDeploy(config, 'QA') // Add QA param										
 					
+					echo "1: ${config.promoteRepo}"
+					echo "2: ${promoteRepo}"
+					echo '3: git clone ${config.promoteRepo}'
 					sh 'rm -rf config-reviewer-deployment'
 					sh 'git clone ${config.promoteRepo}'
 					
