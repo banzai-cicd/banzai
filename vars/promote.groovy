@@ -91,7 +91,10 @@ def call(config) {
 						    def pair = entry.split(':')
 						    [(pair.first()): pair.last()]
 						}
-					echo (map)
+					echo (map.toMapString())
+					map.each{
+					    key, value -> print key;
+					}
 					
 					mydata2 = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version2.yml"
 					echo (mydata2.getClass().getName())
