@@ -59,7 +59,7 @@ def call(config) {
 				  //runDeploy(config, 'QA') // Add QA param										
 					
 					sh 'rm -rf config-reviewer-deployment'
-					sh 'git clone {promoteRepo}'
+					sh 'git clone ${config.promoteRepo}'
 					
 					mydata = readYaml file: "${WORKSPACE}/envs/{environment}/version.yml"
 					assert mydata.version.cr-api == '3.14.0'
