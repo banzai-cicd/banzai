@@ -10,13 +10,14 @@ def call(config) {
 	stage ('Environment Selection'){
 		
 		env.ENV_OPTION = ''
-		timeout(time: 3, unit: 'DAYS') {
+		/*timeout(time: 3, unit: 'DAYS') {
 			script {
 				env.ENV_OPTION = input message: "Select the Environment for Deployment",
 						ok: 'Submit',
 						parameters: [choice(name: 'Where do you want to deploy the application ?', choices: "QA&PROD\nQA\nPROD\nSkip", description: 'What would you like to do?')]
 			}
-		}
+		}*/
+		env.ENV_OPTION = 'QA'
 	}
 	if (env.ENV_OPTION == 'Skip') {
 		echo "You want to skip deployment!"
@@ -38,13 +39,14 @@ def call(config) {
 		}*/
 		  
 		env.DEPLOY_OPTION = ''
-		timeout(time: 3, unit: 'DAYS') {
+		/*timeout(time: 3, unit: 'DAYS') {
 			script {
 				env.DEPLOY_OPTION = input message: "Promote to QA ?",
 						ok: 'Submit',
 						parameters: [choice(name: 'Deployment Request', choices: "Deploy\nSkip", description: 'What would you like to do?')]
 			}
-		}
+		}*/
+		env.DEPLOY_OPTION = 'Deploy'
 	}
 	if(env.DEPLOY_OPTION == 'Skip') {
 		echo "You want to skip QA deployment!"
@@ -72,7 +74,7 @@ def call(config) {
 					echo ("mydata.version:${mydata.version}")
 					
 					Yaml parser = new Yaml()
-					versions=parser.load(("${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yaml" as File).text)
+					versions=parser.load(("${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml" as File).text)
 					println versions
 					
 					mydata.versions.each {
