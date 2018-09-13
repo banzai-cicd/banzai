@@ -65,6 +65,7 @@ def call(config) {
 										
 					sh 'rm -rf config-reviewer-deployment'
 					sh "git clone ${config.promoteRepo}"
+					sh "pwd"
 					
 					//versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
 					//assert mydata.versions == '3.14.0'
