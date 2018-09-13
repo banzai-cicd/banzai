@@ -94,6 +94,13 @@ def call(config) {
 					echo (stackYmlData.getClass().getName())
 					echo (stackYmlData.services.getClass().getName())
 					
+					stackYmlData.each{
+					    key, value -> print key;
+					}
+					stackYmlData.services.each{
+					    key, value -> print key;
+					}
+					
 					def userInput = input(
 						id: 'userInput', message: 'Let\'s promote?', parameters: [
 						[$class: 'TextParameterDefinition', defaultValue: 'uat', description: 'Environment', name: 'env'],
