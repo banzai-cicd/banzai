@@ -82,7 +82,7 @@ def call(config) {
 					    newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
 					    echo ("Before Update image: "+newImgName)
 					    stackYmlData.services[key].image = newImgName
-					    sh "yaml w -i ${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml services.${key}.image ${newImgName}"
+					    sh "yaml w -i '${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml' services.${key}.image ${newImgName}"
 					}
 					def paramList = []										
 					stackYmlData.services.each{ serviceName,value -> 
