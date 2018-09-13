@@ -73,8 +73,7 @@ def call(config) {
 					stackYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml"
 					versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"					
 					
-					versionYmlData.version.each{key, value -> 
-					    print key;
+					versionYmlData.version.each{key, value -> 					    
 					    existingImgName = stackYmlData.services[key].image
 					    echo ("Before Update image: "+stackYmlData.services[key].image)
 					    existingImgVersion = existingImgName.split(/:/)[-1]
@@ -82,13 +81,15 @@ def call(config) {
 					    newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
 					    echo ("Before Update image: "+newImgName)
 					    stackYmlData.services[key].image = newImgName
+					    sh "yaml w -i ${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml services.${key}.image ${newImgName}"
 					}
-															
-					stackYmlData.services.each{ key,value -> 
-					    print key;
-					    echo ("image: "+stackYmlData.services[key].image)
-					    echo ("version: "+versionYmlData.version[key])
-					    sh "yaml w -i config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml services.${key}.image ${value}"
+					def paramList = []										
+					stackYmlData.services.each{ serviceName,value -> 
+					    def uiParameter = [$class: 'TextParameterDefinition', defaultValue: stackYmlData.services[serviceName].image.split(/:/)[-1], description: serviceName, name: serviceName]
+					    paramList.add(uiParameter)
+					    print serviceName;
+					    echo ("image: "+stackYmlData.services[serviceName].image)
+					    echo ("version: "+versionYmlData.version[serviceName])					    
 					}
 					//def theName = a.split(/:/)[-1]
 					//writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml", data: stackYmlData
@@ -97,12 +98,9 @@ def call(config) {
 					sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
 
 					def userInput = input(
-						id: 'userInput', message: 'Let\'s promote?', parameters: [
-						[$class: 'TextParameterDefinition', defaultValue: 'uat', description: 'Environment', name: 'env'],
-						[$class: 'TextParameterDefinition', defaultValue: 'uat1', description: 'Target', name: 'target']
-					   ])
-					   echo ("Env: "+userInput['env'])
-					   echo ("Target: "+userInput['target'])
+						id: 'userInput', message: 'Verify module tags to be deployed', parameters: paramList)
+					   echo ("Env: "+userInput['cr-api'])
+					   echo ("Target: "+userInput['cr-service'])
 					
 					
 				  echo "Deployed to QA!"
