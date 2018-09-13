@@ -69,50 +69,24 @@ def call(config) {
 					//versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
 					//assert mydata.versions == '3.14.0'
 					//sh "yaml w -i config-reviewer-deployment/${environment}/version.yml version.${imageName} ${tag}"
-					//sh "git -C config-reviewer-deployment commit -a -m 'Promoted ${imageName} to ${environment}' || true"
-					//sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
-					
-					//writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/newversion.yaml", data: mydata
-					//echo ("versionYmlData.version:${versionYmlData.versions}")
-					
-					/*Object tmpData = versionYmlData.versions
-					echo (versionYmlData.versions.getClass().getName())
-					echo (tmpData.getClass().getName())
-					
-					def map = versionYmlData.versions.split(' ')
-							.collectEntries { entry ->
-							    def pair = entry.split(':')
-							    [(pair.first()): pair.last()]
-							}
-					echo (map.toMapString())
-					map.each{
-					    key, value -> print key;
-					}*/
-					
+														
 					versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"					
-					echo (versionYmlData.getClass().getName())
-					echo (versionYmlData.services.getClass().getName())
-					
-					versionYmlData.each{
-					    key, value -> print key;
-					}
 					versionYmlData.version.each{
 					    key, value -> print key;
 					}
 					
 					stackYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml"
-					Object tmpData2 = stackYmlData.services
-					echo (stackYmlData.getClass().getName())
-					echo (stackYmlData.services.getClass().getName())
-					
-					stackYmlData.each{
-					    key, value -> print key;
+										
+					stackYmlData.services.each{ key,value -> 
+					    print key;
+					    echo ("image: "+stackYmlData.services['key'].image)
+					    echo ("version: "+versionYmlData.version['key'])
 					}
-					stackYmlData.services.each{
-					    key, value -> print key;
-					}
-					writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml2", data: stackYmlData
+					writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml", data: stackYmlData
 					
+					sh "git -C config-reviewer-deployment commit -a -m 'Promoted QA Environment' || true"
+					sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
+
 					def userInput = input(
 						id: 'userInput', message: 'Let\'s promote?', parameters: [
 						[$class: 'TextParameterDefinition', defaultValue: 'uat', description: 'Environment', name: 'env'],
