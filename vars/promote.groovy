@@ -71,7 +71,8 @@ def call(config) {
 					//sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
 					
 					writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/newversion.yaml", data: mydata
-					echo ("mydata.version:${mydata.version}")
+					echo ("mydata.version:${mydata.versions}")
+					echo ("mydata.version:${mydata.versions.zuul}")
 					
 					Yaml parser = new Yaml()
 					versions=parser.load(("${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml" as File).text)
