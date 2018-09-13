@@ -2,6 +2,7 @@
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import org.yaml.snakeyaml.Yaml
 
 def call(config) {	
 	
@@ -62,18 +63,23 @@ def call(config) {
 					sh "git clone ${config.promoteRepo}"
 					
 					mydata = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
-					//assert mydata.version == '3.14.0'
+					//assert mydata.versions == '3.14.0'
 					//sh "yaml w -i config-reviewer-deployment/${environment}/version.yml version.${imageName} ${tag}"
 					//sh "git -C config-reviewer-deployment commit -a -m 'Promoted ${imageName} to ${environment}' || true"
 					//sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
 					
 					writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/newversion.yaml", data: mydata
 					echo ("mydata.version:${mydata.version}")
-					mydata.version.each {
+					
+					Yaml parser = new Yaml()
+					versions=parser.load(("${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yaml" as File).text)
+					println versions
+					
+					mydata.versions.each {
 						//assert it.key == 'cr-api'
 						echo ("it:${it}")
-						echo ("itval:${it.value}")
-						echo ("Key:Value:${it.key}:${it.value}")
+						//echo ("itval:${it.value}")
+						//echo ("Key:Value:${it.key}:${it.value}")
 					}
 					
 					def userInput = input(
