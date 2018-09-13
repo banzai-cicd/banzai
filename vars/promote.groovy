@@ -90,7 +90,7 @@ def call(config) {
 					}
 					
 					stackYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml"
-					Object tmpData = stackYmlData.services
+					Object tmpData2 = stackYmlData.services
 					echo (stackYmlData.getClass().getName())
 					echo (stackYmlData.services.getClass().getName())
 					
