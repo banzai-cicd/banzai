@@ -67,10 +67,12 @@ def call(config) {
 					//sh "git -C config-reviewer-deployment commit -a -m 'Promoted ${imageName} to ${environment}' || true"
 					//sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
 					
-					writeYaml file: '${WORKSPACE}/config-reviewer-deployment/envs/${environment}/newversion.yaml', data: mydata
-					
+					writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/newversion.yaml", data: mydata
+					echo ("mydata.version:${mydata.version}")
 					mydata.version.each {
-						assert it.key == 'cr-api'
+						//assert it.key == 'cr-api'
+						echo ("it:${it}")
+						echo ("itval:${it.value}")
 						echo ("Key:Value:${it.key}:${it.value}")
 					}
 					
