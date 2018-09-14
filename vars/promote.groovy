@@ -117,19 +117,20 @@ def call(config) {
 		}		
 			node(){
 				sshagent (credentials: config.sshCreds) {
-					stage ("QA Deployment") {
-						
-					stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
-				    stackYmlData.services.each{ serviceName,value ->
-					   def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
-					   if(existingImgVersion.toLowerCase().contains('.com')) {
-						   existingImgVersion = ''
-					   }
-					   newImgVersion = env.VERSION_INFO[serviceName]
-					   newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
-					   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceName}.image ${newImgName}"
-					   echo ("Updating YAML Service: ${serviceName} Version: "+stackYmlData.services[serviceName].image)					   
-				   }
+					stage ("QA Deployment") {						
+						script {
+							stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
+						    stackYmlData.services.each{ serviceName,value ->
+							   def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
+							   if(existingImgVersion.toLowerCase().contains('.com')) {
+								   existingImgVersion = ''
+							   }
+							   newImgVersion = env.VERSION_INFO[serviceName]
+							   newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
+							   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceName}.image ${newImgName}"
+							   echo ("Updating YAML Service: ${serviceName} Version: "+stackYmlData.services[serviceName].image)					   
+						   }
+						}
 				   
 				   sh "git -C ${deploymntRepoName} commit -a -m 'Promoted QA Environment' || true"
 				   sh "git -C ${deploymntRepoName} pull && git -C ${deploymntRepoName} push origin master"
