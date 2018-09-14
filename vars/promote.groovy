@@ -103,15 +103,15 @@ def call(config) {
 				}
 			}
 		}
-					env.VERSION_INFO = ''
+					env.VERSION_INFO = [:]
 					timeout(time: 3, unit: 'DAYS') {
 						script {
 							env.VERSION_INFO = input(id: 'userInput', message: "Verify ${config.stackName} application module tags to be deployed to ${environment.toUpperCase()}", parameters: paramList)
 						}
 					}
 					//def userInput = input(id: 'userInput', message: 'Verify module tags to be deployed', parameters: paramList)
-					//println ("Env: "+VERSION_INFO['cr-api'])
-					//println ("Target: "+VERSION_INFO['cr-service'])
+					//println ("Env: "+env.VERSION_INFO['cr-api'])
+					//println ("Target: "+env.VERSION_INFO['cr-service'])
 					
 			node(){
 				sshagent (credentials: config.sshCreds) {
@@ -120,7 +120,7 @@ def call(config) {
 					   if(existingImgVersion.toLowerCase().contains('.com')) {
 						   existingImgVersion = ''
 					   }
-					   newImgVersion = VERSION_INFO[serviceName]
+					   newImgVersion = env.VERSION_INFO[serviceName]
 					   newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
 					   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceName}.image ${newImgName}"
 					   echo ("Updating YAML Service: ${serviceName} Version: "+stackYmlData.services[serviceName].image)
