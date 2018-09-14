@@ -57,7 +57,7 @@ def call(config) {
 	else if(env.DEPLOY_OPTION == 'Deploy') {
 		echo "You want to deploy in QA!"
 		environment = 'qa'
-		
+		paramList = []
 		node(){
 			sshagent (credentials: config.sshCreds) {
 				stage ("QA Deployment") {
@@ -86,8 +86,7 @@ def call(config) {
 							}
 						}				    
 					    			    
-					}
-					def paramList = []										
+					}														
 					stackYmlData.services.each{ serviceName,value -> 
 						existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
 						if(!(existingImgVersion.toLowerCase().contains('.com'))) {
@@ -98,11 +97,7 @@ def call(config) {
 					    
 					    echo ("Adding UI image: "+stackYmlData.services[serviceName].image)
 					    echo ("Adding UI version: "+versionYmlData.version[serviceName])					    
-					}					
-					//writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml", data: stackYmlData
-					
-					sh "git -C ${deploymntRepoName} commit -a -m 'Promoted QA Environment' || true"
-					sh "git -C ${deploymntRepoName} pull && git -C ${deploymntRepoName} push origin master"
+					}
 				}
 			}
 					env.VERSION_INFO = ''
@@ -128,6 +123,9 @@ def call(config) {
 					   echo ("Updating YAML Service: ${serviceName} Version: "+stackYmlData.services[serviceName].image)
 					   echo ("Updating YAML version: "+versionYmlData.version[serviceName])
 				   }
+				   
+				   sh "git -C ${deploymntRepoName} commit -a -m 'Promoted QA Environment' || true"
+				   sh "git -C ${deploymntRepoName} pull && git -C ${deploymntRepoName} push origin master"
 				   
 				   qaDeployServer="vdcald05143.ics.cloud.ge.com" //"vdcalq05504.ics.cloud.ge.com"
 				   prodDeployServer="vdcald05143.ics.cloud.ge.com" //"vdcalq05504.ics.cloud.ge.com"
