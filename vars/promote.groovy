@@ -126,7 +126,7 @@ def call(config) {
 							   }
 							   echo ("VERSION_INFO Class: "+VERSION_INFO.getClass())
 							   newImgVersion = VERSION_INFO[serviceName]
-							   newImgName = stackYmlData1.services[key].image.replaceAll(existingImgVersion, newImgVersion)
+							   newImgName = stackYmlData1.services[serviceName].image.replaceAll(existingImgVersion, newImgVersion)
 							   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceName}.image ${newImgName}"
 							   echo ("Updating YAML Service: ${serviceName} Version: "+stackYmlData1.services[serviceName].image)					   
 						   }
