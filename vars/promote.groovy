@@ -154,7 +154,7 @@ def call(config) {
 				   echo "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} ${deployScript}"
 				   
 				   sh "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"	
-				   sh "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} ${deployScript}"
+				   sh "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} '${deployScript}'"
 					
 				   echo "Deployed to QA!"
 				}
