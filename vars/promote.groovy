@@ -58,38 +58,38 @@ def call(config) {
 		echo "You want to deploy in QA!"
 		environment = 'qa'
 		paramList = []
-		env.stackYmlData = [:]
+		deploymntRepoName = ''
+		
 		node(){
 			sshagent (credentials: config.sshCreds) {
 				stage ("Preparing for Deployment") {
-				  //runDeploy(config, 'QA') // Add QA param										
-									
+				  //runDeploy(config, 'QA') // Add QA param	
+					
 					deploymntRepoName =  config.promoteRepo.tokenize('/').last().split("\\.")[0]
-					echo ("deploymntRepoName: "+deploymntRepoName)
-					echo ("deploymntRepoName: ${deploymntRepoName}")
+					echo "deploymntRepoName: ${deploymntRepoName}"
 					
 					sh "rm -rf ${deploymntRepoName}"
 					sh "git clone ${config.promoteRepo}"
 					
-					env.stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
+					stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
 					versionYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/version.yml"					
 					
 					versionYmlData.version.each{key, value -> 
-						if (env.stackYmlData.services.containsKey(key))	{
-							existingImgName = env.stackYmlData.services[key].image
+						if (stackYmlData.services.containsKey(key))	{
+							existingImgName = stackYmlData.services[key].image
 							echo ("Before image Update: "+existingImgName)
 							existingImgVersion = existingImgName.split(/:/)[-1]
 							if(!(existingImgVersion.toLowerCase().contains('.com'))) {
 								newImgVersion = value
-								newImgName = env.stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
+								newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
 								echo ("After image Update: "+newImgName)
-								env.stackYmlData.services[key].image = newImgName
+								stackYmlData.services[key].image = newImgName
 							}
 						}				    
 					    			    
 					}														
-					env.stackYmlData.services.each{ serviceName,value -> 
-						def imgVersion = env.stackYmlData.services[serviceName].image.split(/:/)[-1]
+					stackYmlData.services.each{ serviceName,value -> 
+						def imgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
 						echo ("existingImgVersion1: "+imgVersion)
 						if(imgVersion.toLowerCase().contains('.com')) {
 							imgVersion = ''
@@ -98,7 +98,7 @@ def call(config) {
 					    def uiParameter = [$class: 'StringParameterDefinition', defaultValue: imgVersion, description: "Please verify tag for Docker service ${serviceName}", name: serviceName]
 					    paramList.add(uiParameter)
 					    
-					    echo ("Adding UI image: "+env.stackYmlData.services[serviceName].image)
+					    echo ("Adding UI image: "+stackYmlData.services[serviceName].image)
 					    echo ("Adding UI version: "+versionYmlData.version[serviceName])					    
 					}
 				}
@@ -118,15 +118,17 @@ def call(config) {
 			node(){
 				sshagent (credentials: config.sshCreds) {
 					stage ("QA Deployment") {
-				    env.stackYmlData.services.each{ serviceName,value ->
-					   def existingImgVersion = env.stackYmlData.services[serviceName].image.split(/:/)[-1]
+						
+					stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
+				    stackYmlData.services.each{ serviceName,value ->
+					   def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
 					   if(existingImgVersion.toLowerCase().contains('.com')) {
 						   existingImgVersion = ''
 					   }
 					   newImgVersion = env.VERSION_INFO[serviceName]
-					   newImgName = env.stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
+					   newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
 					   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceName}.image ${newImgName}"
-					   echo ("Updating YAML Service: ${serviceName} Version: "+env.stackYmlData.services[serviceName].image)					   
+					   echo ("Updating YAML Service: ${serviceName} Version: "+stackYmlData.services[serviceName].image)					   
 				   }
 				   
 				   sh "git -C ${deploymntRepoName} commit -a -m 'Promoted QA Environment' || true"
