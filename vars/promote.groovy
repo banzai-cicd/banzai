@@ -76,7 +76,7 @@ def call(config) {
 							existingImgName = stackYmlData.services[key].image
 							echo ("Before image Update: "+existingImgName)
 							existingImgVersion = existingImgName.split(/:/)[-1]
-							if(!(existingImgVersion.toLowerCase().contains('.com')) {
+							if(!(existingImgVersion.toLowerCase().contains('.com'))) {
 								newImgVersion = value
 								newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
 								echo ("After image Update: "+newImgName)
