@@ -61,7 +61,7 @@ def call(config) {
 		stackYmlData = [:]
 		node(){
 			sshagent (credentials: config.sshCreds) {
-				stage ("QA Deployment") {
+				stage ("Preparing for Deployment") {
 				  //runDeploy(config, 'QA') // Add QA param										
 									
 					deploymntRepoName =  config.promoteRepo.tokenize('/').last().split("\\.")[0]
@@ -104,6 +104,7 @@ def call(config) {
 				}
 			}
 		}
+		stage ("Verify Deployment Info") {
 					env.VERSION_INFO = [:]
 					timeout(time: 3, unit: 'DAYS') {
 						script {
@@ -113,9 +114,10 @@ def call(config) {
 					//def userInput = input(id: 'userInput', message: 'Verify module tags to be deployed', parameters: paramList)
 					//println ("Env: "+env.VERSION_INFO['cr-api'])
 					//println ("Target: "+env.VERSION_INFO['cr-service'])
-					
+		}		
 			node(){
 				sshagent (credentials: config.sshCreds) {
+					stage ("QA Deployment") {
 				    stackYmlData.services.each{ serviceName,value ->
 					   def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
 					   if(existingImgVersion.toLowerCase().contains('.com')) {
@@ -153,6 +155,7 @@ def call(config) {
 				   sh "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} ${deployScript}"
 					
 				   echo "Deployed to QA!"
+				}
 				}
 			}
 		}
