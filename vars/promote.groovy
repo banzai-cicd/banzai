@@ -119,16 +119,16 @@ def call(config) {
 				sshagent (credentials: config.sshCreds) {
 					stage ("QA Deployment") {						
 						script {
-							stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
-						    stackYmlData.services.each{ serviceName,value ->
-							   def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
+							stackYmlData1 = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
+						    stackYmlData1.get('services').each{ serviceName,value ->
+							   def existingImgVersion = stackYmlData1.services[serviceName].image.split(/:/)[-1]
 							   if(existingImgVersion.toLowerCase().contains('.com')) {
 								   existingImgVersion = ''
 							   }
 							   newImgVersion = env.VERSION_INFO[serviceName]
-							   newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
+							   newImgName = stackYmlData1.services[key].image.replaceAll(existingImgVersion, newImgVersion)
 							   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceName}.image ${newImgName}"
-							   echo ("Updating YAML Service: ${serviceName} Version: "+stackYmlData.services[serviceName].image)					   
+							   echo ("Updating YAML Service: ${serviceName} Version: "+stackYmlData1.services[serviceName].image)					   
 						   }
 						}
 				   
