@@ -6,7 +6,7 @@ import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.DumperOptions
 import static org.yaml.snakeyaml.DumperOptions.FlowStyle.BLOCK
 
-def call(config) {
+def call(config) {	
 	
 	echo "Environment Selection"
 	stage ('Environment Selection'){
@@ -61,7 +61,7 @@ def call(config) {
 		node(){
 			sshagent (credentials: config.sshCreds) {
 				stage ("QA Deployment") {
-				  //runDeploy(config, 'QA') // Add QA param
+				  //runDeploy(config, 'QA') // Add QA param										
 										
 					sh 'rm -rf config-reviewer-deployment'
 					sh "git clone ${config.promoteRepo}"
@@ -72,25 +72,25 @@ def call(config) {
 					//sh "yaml w -i config-reviewer-deployment/${environment}/version.yml version.${imageName} ${tag}"
 					
 					stackYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml"
-					versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
+					versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"					
 					
-					versionYmlData.version.each{key, value ->
-						existingImgName = stackYmlData.services[key].image
-						echo ("Before Update image: "+stackYmlData.services[key].image)
-						existingImgVersion = existingImgName.split(/:/)[-1]
-						newImgVersion = value
-						newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
-						echo ("Before Update image: "+newImgName)
-						stackYmlData.services[key].image = newImgName
-						sh "yaml w -i '${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml' services.${key}.image ${newImgName}"
+					versionYmlData.version.each{key, value -> 					    
+					    existingImgName = stackYmlData.services[key].image
+					    echo ("Before Update image: "+stackYmlData.services[key].image)
+					    existingImgVersion = existingImgName.split(/:/)[-1]
+					    newImgVersion = value
+					    newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
+					    echo ("Before Update image: "+newImgName)
+					    stackYmlData.services[key].image = newImgName
+					    sh "yaml w -i '${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml' services.${key}.image ${newImgName}"
 					}
-					def paramList = []
-					stackYmlData.services.each{ serviceName,value ->
-						def uiParameter = [$class: 'TextParameterDefinition', defaultValue: stackYmlData.services[serviceName].image.split(/:/)[-1], description: serviceName, name: serviceName]
-						paramList.add(uiParameter)
-						print serviceName;
-						echo ("image: "+stackYmlData.services[serviceName].image)
-						echo ("version: "+versionYmlData.version[serviceName])
+					def paramList = []										
+					stackYmlData.services.each{ serviceName,value -> 
+					    def uiParameter = [$class: 'TextParameterDefinition', defaultValue: stackYmlData.services[serviceName].image.split(/:/)[-1], description: serviceName, name: serviceName]
+					    paramList.add(uiParameter)
+					    print serviceName;
+					    echo ("image: "+stackYmlData.services[serviceName].image)
+					    echo ("version: "+versionYmlData.version[serviceName])					    
 					}
 					//def theName = a.split(/:/)[-1]
 					//writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml", data: stackYmlData
