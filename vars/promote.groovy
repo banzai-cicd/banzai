@@ -56,55 +56,99 @@ def call(config) {
 	}
 	else if(env.DEPLOY_OPTION == 'Deploy') {
 		echo "You want to deploy in QA!"
-		def environment = 'qa'
-		promoteRepo = config.promoteRepo
+		environment = 'qa'
+		
 		node(){
 			sshagent (credentials: config.sshCreds) {
 				stage ("QA Deployment") {
 				  //runDeploy(config, 'QA') // Add QA param										
-										
-					sh 'rm -rf config-reviewer-deployment'
+									
+					deploymntRepoName =  config.promoteRepo.tokenize('/').last().split("\\.")[0]
+					
+					sh 'rm -rf ${deploymntRepoName}'
 					sh "git clone ${config.promoteRepo}"
-					sh "pwd"
 					
-					//versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
-					//assert mydata.versions == '3.14.0'
-					//sh "yaml w -i config-reviewer-deployment/${environment}/version.yml version.${imageName} ${tag}"
+					stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
+					versionYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/version.yml"					
 					
-					stackYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml"
-					versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"					
-					
-					versionYmlData.version.each{key, value -> 					    
-					    existingImgName = stackYmlData.services[key].image
-					    echo ("Before Update image: "+stackYmlData.services[key].image)
-					    existingImgVersion = existingImgName.split(/:/)[-1]
-					    newImgVersion = value
-					    newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
-					    echo ("Before Update image: "+newImgName)
-					    stackYmlData.services[key].image = newImgName
-					    sh "yaml w -i '${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml' services.${key}.image ${newImgName}"
+					versionYmlData.version.each{key, value -> 
+						if (stackYmlData.services.containsKey(key))	{
+							existingImgName = stackYmlData.services[key].image
+							echo ("Before image Update: "+existingImgName)
+							existingImgVersion = existingImgName.split(/:/)[-1]
+							if(!(existingImgVersion.toLowerCase().contains('.com')) {
+								newImgVersion = value
+								newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
+								echo ("After image Update: "+newImgName)
+								stackYmlData.services[key].image = newImgName
+							}
+						}				    
+					    			    
 					}
 					def paramList = []										
 					stackYmlData.services.each{ serviceName,value -> 
-					    def uiParameter = [$class: 'TextParameterDefinition', defaultValue: stackYmlData.services[serviceName].image.split(/:/)[-1], description: serviceName, name: serviceName]
+						def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
+						if(!(existingImgVersion.toLowerCase().contains('.com')) {
+							existingImgVersion = ''
+						}
+					    def uiParameter = [$class: 'TextParameterDefinition', defaultValue: existingImgVersion, description: serviceName, name: serviceName]
 					    paramList.add(uiParameter)
-					    print serviceName;
-					    echo ("image: "+stackYmlData.services[serviceName].image)
-					    echo ("version: "+versionYmlData.version[serviceName])					    
-					}
-					//def theName = a.split(/:/)[-1]
+					    
+					    echo ("Adding UI image: "+stackYmlData.services[serviceName].image)
+					    echo ("Adding UI version: "+versionYmlData.version[serviceName])					    
+					}					
 					//writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml", data: stackYmlData
 					
-					sh "git -C config-reviewer-deployment commit -a -m 'Promoted QA Environment' || true"
-					sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
-
-					def userInput = input(
-						id: 'userInput', message: 'Verify module tags to be deployed', parameters: paramList)
-					   echo ("Env: "+userInput['cr-api'])
-					   echo ("Target: "+userInput['cr-service'])
+					sh "git -C ${deploymntRepoName} commit -a -m 'Promoted QA Environment' || true"
+					sh "git -C ${deploymntRepoName} pull && git -C ${deploymntRepoName} push origin master"
+				}
+			}
+					env.VERSION_INFO = ''
+					timeout(time: 3, unit: 'DAYS') {
+						script {
+							env.VERSION_INFO = input(id: 'userInput', message: 'Verify module tags to be deployed', parameters: paramList)
+						}
+					}
+					//def userInput = input(id: 'userInput', message: 'Verify module tags to be deployed', parameters: paramList)
+					echo ("Env: "+VERSION_INFO['cr-api'])
+					echo ("Target: "+VERSION_INFO['cr-service'])
 					
+			node(){
+				sshagent (credentials: config.sshCreds) {
+				    stackYmlData.services.each{ serviceName,value ->
+					   def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
+					   if(!(existingImgVersion.toLowerCase().contains('.com')) {
+						   existingImgVersion = ''
+					   }
+					   newImgVersion = VERSION_INFO[serviceName]
+					   newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
+					   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceName}.image ${newImgName}"
+					   echo ("Updating YAML Service: ${serviceName} Version: "+stackYmlData.services[serviceName].image)
+					   echo ("Updating YAML version: "+versionYmlData.version[serviceName])
+				   }
+				   
+				   qaDeployServer="vdcald05143.ics.cloud.ge.com" //"vdcalq05504.ics.cloud.ge.com"
+				   prodDeployServer="vdcald05143.ics.cloud.ge.com" //"vdcalq05504.ics.cloud.ge.com"
+				   appStackYmlPath="~/docker-swarm/${config.stackName}"
+				   appStackYml="${appStackYmlPath}/${config.stackName}-dev.yml"
+				   deployCmd="docker stack deploy -c ${appStackYml} ${config.stackName} --with-registry-auth"
+				   deployScript="docker login registry.gear.ge.com -u 502061514 -p password && ${deployCmd} && docker logout"
+				   deployUser="de589146"
+				   
+				   deployServer = ''
+				   if (environment == "qa") {
+					   deployServer = qaDeployServer
+				   } else if (environment == "prod") {
+					   deployServer = prodDeployServer
+				   }
+				   
+				   echo "scp ${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml ${deployUser}@${deployServer}:${appStackYmlPath}"
+				   echo "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} ${deployScript}"
+				   
+				   sh "scp ${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml ${deployUser}@${deployServer}:${appStackYmlPath}"	
+				   sh "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} ${deployScript}"
 					
-				  echo "Deployed to QA!"
+				   echo "Deployed to QA!"
 				}
 			}
 		}
