@@ -88,11 +88,13 @@ def call(config) {
 					    			    
 					}														
 					stackYmlData.services.each{ serviceName,value -> 
-						existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
-						if(!(existingImgVersion.toLowerCase().contains('.com'))) {
-							existingImgVersion = ''
+						def imgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
+						echo ("existingImgVersion1: "+imgVersion)
+						if(!(imgVersion.toLowerCase().contains('.com'))) {
+							imgVersion = ''
 						}
-					    def uiParameter = [$class: 'TextParameterDefinition', defaultValue: existingImgVersion, description: serviceName, name: serviceName]
+						echo ("existingImgVersion2: "+imgVersion)
+					    def uiParameter = [$class: 'StringParameterDefinition', defaultValue: imgVersion, description: serviceName, name: serviceName]
 					    paramList.add(uiParameter)
 					    
 					    echo ("Adding UI image: "+stackYmlData.services[serviceName].image)
@@ -100,6 +102,7 @@ def call(config) {
 					}
 				}
 			}
+		}
 					env.VERSION_INFO = ''
 					timeout(time: 3, unit: 'DAYS') {
 						script {
@@ -152,8 +155,9 @@ def call(config) {
 				}
 			}
 		}
+	
 	}
-	}
+
 	
 	if (env.ENV_OPTION.contains('PROD')) {
 	// Request PROD deploy
