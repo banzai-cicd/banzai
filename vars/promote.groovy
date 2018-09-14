@@ -110,8 +110,8 @@ def call(config) {
 						}
 					}
 					//def userInput = input(id: 'userInput', message: 'Verify module tags to be deployed', parameters: paramList)
-					echo ("Env: "+VERSION_INFO['cr-api'])
-					echo ("Target: "+VERSION_INFO['cr-service'])
+					println ("Env: "+VERSION_INFO['cr-api'])
+					println ("Target: "+VERSION_INFO['cr-service'])
 					
 			node(){
 				sshagent (credentials: config.sshCreds) {
