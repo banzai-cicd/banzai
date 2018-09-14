@@ -150,10 +150,10 @@ def call(config) {
 					   deployServer = prodDeployServer
 				   }
 				   
-				   echo "scp ${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml ${deployUser}@${deployServer}:${appStackYmlPath}"
+				   echo "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
 				   echo "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} ${deployScript}"
 				   
-				   sh "scp ${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml ${deployUser}@${deployServer}:${appStackYmlPath}"	
+				   sh "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"	
 				   sh "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} ${deployScript}"
 					
 				   echo "Deployed to QA!"
