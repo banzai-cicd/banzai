@@ -87,7 +87,7 @@ def call(config) {
 					}
 					def paramList = []										
 					stackYmlData.services.each{ serviceName,value -> 
-						def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
+						existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
 						if(!(existingImgVersion.toLowerCase().contains('.com')) {
 							existingImgVersion = ''
 						}
