@@ -58,6 +58,7 @@ def call(config) {
 		echo "You want to deploy in QA!"
 		environment = 'qa'
 		paramList = []
+		stackYmlData = [:]
 		node(){
 			sshagent (credentials: config.sshCreds) {
 				stage ("QA Deployment") {
