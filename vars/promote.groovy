@@ -59,7 +59,7 @@ def call(config) {
 		environment = 'qa'
 		paramList = []
 		deploymntRepoName = ''
-		env.VERSION_INFO = [:]
+		VERSION_INFO = [:]
 		node(){
 			sshagent (credentials: config.sshCreds) {
 				stage ("Preparing for Deployment") {
@@ -107,7 +107,7 @@ def call(config) {
 		stage ("Verify Deployment Info") {					
 					timeout(time: 3, unit: 'DAYS') {
 						script {
-							env.VERSION_INFO = input(id: 'userInput', message: "Verify ${config.stackName} application module tags to be deployed to ${environment.toUpperCase()}", parameters: paramList)
+							VERSION_INFO = input(id: 'userInput', message: "Verify ${config.stackName} application module tags to be deployed to ${environment.toUpperCase()}", parameters: paramList)
 						}
 					}
 					//def userInput = input(id: 'userInput', message: 'Verify module tags to be deployed', parameters: paramList)
@@ -124,7 +124,8 @@ def call(config) {
 							   if(existingImgVersion.toLowerCase().contains('.com')) {
 								   existingImgVersion = ''
 							   }
-							   newImgVersion = env.VERSION_INFO[serviceName]
+							   echo ("VERSION_INFO Class: "+VERSION_INFO.getClass())
+							   newImgVersion = VERSION_INFO[serviceName]
 							   newImgName = stackYmlData1.services[key].image.replaceAll(existingImgVersion, newImgVersion)
 							   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceName}.image ${newImgName}"
 							   echo ("Updating YAML Service: ${serviceName} Version: "+stackYmlData1.services[serviceName].image)					   
