@@ -2,20 +2,24 @@
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.DumperOptions
+import static org.yaml.snakeyaml.DumperOptions.FlowStyle.BLOCK
 
-def call(config) {	
+def call(config) {
 	
 	echo "Environment Selection"
 	stage ('Environment Selection'){
 		
 		env.ENV_OPTION = ''
-		timeout(time: 3, unit: 'DAYS') {
+		/*timeout(time: 3, unit: 'DAYS') {
 			script {
 				env.ENV_OPTION = input message: "Select the Environment for Deployment",
 						ok: 'Submit',
 						parameters: [choice(name: 'Where do you want to deploy the application ?', choices: "QA&PROD\nQA\nPROD\nSkip", description: 'What would you like to do?')]
 			}
-		}
+		}*/
+		env.ENV_OPTION = 'QA'
 	}
 	if (env.ENV_OPTION == 'Skip') {
 		echo "You want to skip deployment!"
@@ -37,13 +41,14 @@ def call(config) {
 		}*/
 		  
 		env.DEPLOY_OPTION = ''
-		timeout(time: 3, unit: 'DAYS') {
+		/*timeout(time: 3, unit: 'DAYS') {
 			script {
 				env.DEPLOY_OPTION = input message: "Promote to QA ?",
 						ok: 'Submit',
 						parameters: [choice(name: 'Deployment Request', choices: "Deploy\nSkip", description: 'What would you like to do?')]
 			}
-		}
+		}*/
+		env.DEPLOY_OPTION = 'Deploy'
 	}
 	if(env.DEPLOY_OPTION == 'Skip') {
 		echo "You want to skip QA deployment!"
@@ -56,31 +61,47 @@ def call(config) {
 		node(){
 			sshagent (credentials: config.sshCreds) {
 				stage ("QA Deployment") {
-				  //runDeploy(config, 'QA') // Add QA param										
+				  //runDeploy(config, 'QA') // Add QA param
 										
 					sh 'rm -rf config-reviewer-deployment'
 					sh "git clone ${config.promoteRepo}"
+					sh "pwd"
 					
-					mydata = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
-					assert mydata.version.cr-api == '3.14.0'
+					//versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
+					//assert mydata.versions == '3.14.0'
 					//sh "yaml w -i config-reviewer-deployment/${environment}/version.yml version.${imageName} ${tag}"
-					//sh "git -C config-reviewer-deployment commit -a -m 'Promoted ${imageName} to ${environment}' || true"
-					//sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
 					
-					writeYaml file: '${WORKSPACE}/config-reviewer-deployment/envs/${environment}/newversion.yaml', data: mydata
+					stackYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml"
+					versionYmlData = readYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/version.yml"
 					
-					mydata.version.each {
-						assert it.key == 'cr-api'
-						echo ("Key:Value:${it.key}:${it.value}")
+					versionYmlData.version.each{key, value ->
+						existingImgName = stackYmlData.services[key].image
+						echo ("Before Update image: "+stackYmlData.services[key].image)
+						existingImgVersion = existingImgName.split(/:/)[-1]
+						newImgVersion = value
+						newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
+						echo ("Before Update image: "+newImgName)
+						stackYmlData.services[key].image = newImgName
+						sh "yaml w -i '${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml' services.${key}.image ${newImgName}"
 					}
+					def paramList = []
+					stackYmlData.services.each{ serviceName,value ->
+						def uiParameter = [$class: 'TextParameterDefinition', defaultValue: stackYmlData.services[serviceName].image.split(/:/)[-1], description: serviceName, name: serviceName]
+						paramList.add(uiParameter)
+						print serviceName;
+						echo ("image: "+stackYmlData.services[serviceName].image)
+						echo ("version: "+versionYmlData.version[serviceName])
+					}
+					//def theName = a.split(/:/)[-1]
+					//writeYaml file: "${WORKSPACE}/config-reviewer-deployment/envs/${environment}/config-reviewer-3.14.x.yml", data: stackYmlData
 					
+					sh "git -C config-reviewer-deployment commit -a -m 'Promoted QA Environment' || true"
+					sh "git -C config-reviewer-deployment pull && git -C config-reviewer-deployment push origin master"
+
 					def userInput = input(
-						id: 'userInput', message: 'Let\'s promote?', parameters: [
-						[$class: 'TextParameterDefinition', defaultValue: 'uat', description: 'Environment', name: 'env'],
-						[$class: 'TextParameterDefinition', defaultValue: 'uat1', description: 'Target', name: 'target']
-					   ])
-					   echo ("Env: "+userInput['env'])
-					   echo ("Target: "+userInput['target'])
+						id: 'userInput', message: 'Verify module tags to be deployed', parameters: paramList)
+					   echo ("Env: "+userInput['cr-api'])
+					   echo ("Target: "+userInput['cr-service'])
 					
 					
 				  echo "Deployed to QA!"
