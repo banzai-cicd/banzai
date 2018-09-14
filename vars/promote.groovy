@@ -64,6 +64,8 @@ def call(config) {
 				  //runDeploy(config, 'QA') // Add QA param										
 									
 					deploymntRepoName =  config.promoteRepo.tokenize('/').last().split("\\.")[0]
+					echo ("deploymntRepoName: "+deploymntRepoName)
+					echo ("deploymntRepoName: ${deploymntRepoName}")
 					
 					sh 'rm -rf ${deploymntRepoName}'
 					sh "git clone ${config.promoteRepo}"
