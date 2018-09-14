@@ -67,7 +67,7 @@ def call(config) {
 					echo ("deploymntRepoName: "+deploymntRepoName)
 					echo ("deploymntRepoName: ${deploymntRepoName}")
 					
-					sh 'rm -rf ${deploymntRepoName}'
+					sh "rm -rf ${deploymntRepoName}"
 					sh "git clone ${config.promoteRepo}"
 					
 					stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
