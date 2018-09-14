@@ -59,7 +59,7 @@ def call(config) {
 		environment = 'qa'
 		paramList = []
 		deploymntRepoName = ''
-		
+		env.VERSION_INFO = [:]
 		node(){
 			sshagent (credentials: config.sshCreds) {
 				stage ("Preparing for Deployment") {
@@ -104,8 +104,7 @@ def call(config) {
 				}
 			}
 		}
-		stage ("Verify Deployment Info") {
-					env.VERSION_INFO = [:]
+		stage ("Verify Deployment Info") {					
 					timeout(time: 3, unit: 'DAYS') {
 						script {
 							env.VERSION_INFO = input(id: 'userInput', message: "Verify ${config.stackName} application module tags to be deployed to ${environment.toUpperCase()}", parameters: paramList)
