@@ -90,11 +90,11 @@ def call(config) {
 					stackYmlData.services.each{ serviceName,value -> 
 						def imgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
 						echo ("existingImgVersion1: "+imgVersion)
-						if(!(imgVersion.toLowerCase().contains('.com'))) {
+						if(imgVersion.toLowerCase().contains('.com')) {
 							imgVersion = ''
 						}
 						echo ("existingImgVersion2: "+imgVersion)
-					    def uiParameter = [$class: 'StringParameterDefinition', defaultValue: imgVersion, description: serviceName, name: serviceName]
+					    def uiParameter = [$class: 'StringParameterDefinition', defaultValue: imgVersion, description: "Please verify tag for Docker service ${serviceName}", name: serviceName]
 					    paramList.add(uiParameter)
 					    
 					    echo ("Adding UI image: "+stackYmlData.services[serviceName].image)
@@ -106,7 +106,7 @@ def call(config) {
 					env.VERSION_INFO = ''
 					timeout(time: 3, unit: 'DAYS') {
 						script {
-							env.VERSION_INFO = input(id: 'userInput', message: 'Verify module tags to be deployed', parameters: paramList)
+							env.VERSION_INFO = input(id: 'userInput', message: "Verify ${config.stackName} application module tags to be deployed to ${environment.toUpperCase()}", parameters: paramList)
 						}
 					}
 					//def userInput = input(id: 'userInput', message: 'Verify module tags to be deployed', parameters: paramList)
@@ -117,7 +117,7 @@ def call(config) {
 				sshagent (credentials: config.sshCreds) {
 				    stackYmlData.services.each{ serviceName,value ->
 					   def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
-					   if(!(existingImgVersion.toLowerCase().contains('.com'))) {
+					   if(existingImgVersion.toLowerCase().contains('.com')) {
 						   existingImgVersion = ''
 					   }
 					   newImgVersion = VERSION_INFO[serviceName]
