@@ -60,6 +60,8 @@ def call(config, environment) {
 					def foo = sh(script: 'pwd', returnStdout: true)
 					println(foo)
 				 // }
+					def foo2 = sh(script: 'dirname $0', returnStdout: true)
+					println(foo2)
 				
 				deploymntRepoName =  config.promoteRepo.tokenize('/').last().split("\\.")[0]
 				echo "deploymntRepoName: ${deploymntRepoName}"
