@@ -52,7 +52,7 @@ def call(config, environment) {
 	}
 	node(){
 		sshagent (credentials: config.sshCreds) {
-			stage ("{environment.toUpperCase()} Deployment") {
+			stage ("${environment.toUpperCase()} Deployment") {
 				script {
 					stackYmlData1 = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
 					stackYmlData1.get('services').each{ serviceName,value ->
@@ -68,7 +68,7 @@ def call(config, environment) {
 				   }
 				}
 			   
-			   sh "git -C ${deploymntRepoName} commit -a -m 'Promoted {environment.toUpperCase()} Environment' || true"
+			   sh "git -C ${deploymntRepoName} commit -a -m 'Promoted ${environment.toUpperCase()} Environment' || true"
 			   sh "git -C ${deploymntRepoName} pull && git -C ${deploymntRepoName} push origin master"
 			   
 			   qaDeployServer="vdcald05143.ics.cloud.ge.com" //"vdcalq05504.ics.cloud.ge.com"
@@ -92,7 +92,7 @@ def call(config, environment) {
 			   sh "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
 			   sh "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} '${deployScript}'"
 				
-			   echo "Deployed to {environment.toUpperCase()}!"
+			   echo "Deployed to ${environment.toUpperCase()}!"
 			}
 		}
 	}
