@@ -54,17 +54,17 @@ def call(config, environment) {
 		sshagent (credentials: config.sshCreds) {
 			stage ("${environment.toUpperCase()} Deployment") {
 				script {
-					stackYmlData1 = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
-					stackYmlData1.get('services').each{ serviceName,value ->
-					   def existingImgVersion = stackYmlData1.services[serviceName].image.split(/:/)[-1]
+					stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
+					stackYmlData.get('services').each{ serviceName,value ->
+					   def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
 					   if(existingImgVersion.toLowerCase().contains('.com')) {
 						   existingImgVersion = ''
 					   }
 					   echo ("VERSION_INFO Class: "+VERSION_INFO.getClass())
 					   newImgVersion = VERSION_INFO[serviceName]
-					   newImgName = stackYmlData1.services[serviceName].image.replaceAll(existingImgVersion, newImgVersion)
+					   newImgName = stackYmlData.services[serviceName].image.replaceAll(existingImgVersion, newImgVersion)
 					   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceName}.image ${newImgName}"
-					   echo ("Updating YAML Service: ${serviceName} Version: "+stackYmlData1.services[serviceName].image)
+					   echo ("Updating YAML Service: ${serviceName} Version: "+stackYmlData.services[serviceName].image)
 				   }
 				}
 			   
