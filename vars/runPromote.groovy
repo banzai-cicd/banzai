@@ -52,6 +52,7 @@ def call(config, environment) {
 		sshagent (credentials: config.sshCreds) {
 			stage ("Preparing for Deployment") {
 				
+				def args = null
 				runShellScript("dockerUtils.sh", args)
 				
 				deploymntRepoName =  config.promoteRepo.tokenize('/').last().split("\\.")[0]
