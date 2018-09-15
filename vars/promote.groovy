@@ -2,14 +2,28 @@
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import org.yaml.snakeyaml.Yaml
+/*import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.DumperOptions
-import static org.yaml.snakeyaml.DumperOptions.FlowStyle.BLOCK
+import static org.yaml.snakeyaml.DumperOptions.FlowStyle.BLOCK*/
 
 def call(config) {
 	
 	echo "Environment Selection"
 	stage ('Environment Selection'){
+		
+		if (!config.promoteRepo || !config.stackName) {
+			println "'promoteRepo' and 'stackName' are required in your Jenkinsfile when 'promote' = true"
+			return
+		}
+		
+		if (config.promoteBranches) {
+			Pattern pattern = Pattern.compile(config.promoteBranches)
+	   
+			if (!(BRANCH_NAME ==~ pattern)) {
+			   println "${BRANCH_NAME} does not match the promoteBranches pattern. Skipping Promote"
+			   return
+			}
+		}
 		
 		env.ENV_OPTION = ''
 		timeout(time: 3, unit: 'DAYS') {
@@ -29,15 +43,6 @@ def call(config) {
 		// Request QA deploy
 		echo "Requesting QA deployment"
 		stage ('Promote to QA ?'){
-			
-			/*if (config.promoteBranches) {
-				Pattern pattern = Pattern.compile(config.promoteBranches)
-		  
-				if (!(BRANCH_NAME ==~ pattern)) {
-				  println "${BRANCH_NAME} does not match the promoteBranches pattern. Skipping Promote"
-				  return
-				}
-			}*/
 			  
 			env.DEPLOY_OPTION = ''
 			timeout(time: 3, unit: 'DAYS') {
@@ -55,25 +60,26 @@ def call(config) {
 		else if(env.DEPLOY_OPTION == 'Deploy') {
 			echo "You want to deploy in QA!"		
 			runPromote(config, 'qa')
+			echo "Deployed to QA!"
 		}
 	}
 	
 	if (env.ENV_OPTION.contains('PROD')) {
-	// Request PROD deploy
-	echo "Requesting PROD deployment"
-	stage ('Request PROD Deployment ?'){
-		env.DEPLOY_OPTION = ''
-		timeout(time: 5, unit: 'DAYS') {
-			script {
-				env.DEPLOY_OPTION = input message: "Request deployment to PROD ?",
-						ok: 'Submit',
-						parameters: [choice(name: 'Deployment Request', choices: "Email Roger\nSkip", description: 'What would you like to do?')]
+		// Request PROD deploy
+		echo "Requesting PROD deployment"
+		stage ('Request PROD Deployment ?'){
+			env.DEPLOY_OPTION = ''
+			timeout(time: 5, unit: 'DAYS') {
+				script {
+					env.DEPLOY_OPTION = input message: "Request deployment to PROD ?",
+							ok: 'Submit',
+							parameters: [choice(name: 'Deployment Request', choices: "Email Roger\nSkip", description: 'What would you like to do?')]
+				}
 			}
 		}
-	}
-	if(env.DEPLOY_OPTION == 'Skip') {
-		echo "You want to skip PROD deployment!"
-	}
+		if(env.DEPLOY_OPTION == 'Skip') {
+			echo "You want to skip PROD deployment!"
+		}
 	else if(env.DEPLOY_OPTION == 'Email Roger') {
 		// If Request QA Deploy, dispatch approval request to QA team
 		//submitter: '210026212' //Roger's SSO // ,Roger.Laurence@ge.com
@@ -102,19 +108,9 @@ def call(config) {
 			script.echo "You want to reject PROD deployment!"
 		}
 		else if(env.DEPLOY_OPTION == 'Deploy') {
-			echo "You want to deploy in PROD!"
-  
-			// If approved, deploy to PROD
-			echo "You want to deploy in PROD!"
-			node(){
-				sshagent (credentials: config.sshCreds) {
-					stage ("PROD Deployment") {
-						runPromote(config, 'prod')
-					  //runDeploy(config, 'PROD') // Add QA param
-					  echo "Deployed to PROD!"
-					}
-				}
-			}
+			echo "You want to deploy in PROD!"  
+			runPromote(config, 'prod')
+			echo "Deployed to PROD!"
 		}
 	 }
    }
