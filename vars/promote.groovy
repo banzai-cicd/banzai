@@ -19,7 +19,7 @@ def call(config) {
 		if (config.promoteBranches) {
 			Pattern pattern = Pattern.compile(config.promoteBranches)
 	   
-			if (!(BRANCH_NAME ==~ pattern)) {
+			if (!(env.BRANCH_NAME ==~ pattern)) {
 			   println "${BRANCH_NAME} does not match the promoteBranches pattern. Skipping Promote"
 			   return
 			}
