@@ -2,9 +2,6 @@
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-/*import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.DumperOptions
-import static org.yaml.snakeyaml.DumperOptions.FlowStyle.BLOCK*/
 
 def call(config) {
 	
@@ -80,38 +77,36 @@ def call(config) {
 		if(env.DEPLOY_OPTION == 'Skip') {
 			echo "You want to skip PROD deployment!"
 		}
-	else if(env.DEPLOY_OPTION == 'Email Roger') {
-		// If Request QA Deploy, dispatch approval request to QA team
-		//submitter: '210026212' //Roger's SSO // ,Roger.Laurence@ge.com
-		//"Roger.Laurence@ge.com"
-		echo "You want to request PROD deployment!"
-		stage ('Promote to PROD ?'){
-			// Remove the app name hardcoding
-			mail from: "JenkinsAdmin@ge.com",
-				 to: "ramesh.ganapathi@ge.com",
-				 cc: "ramesh.ganapathi@ge.com",
-				 subject: "Config Reviewer Service awaiting PROD deployment approval",
-				 body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' is waiting for PROD approval.\n\nPlease click the link below to proceed.\n${env.BUILD_URL}input/"
-  
-			env.DEPLOY_OPTION = ''
-			timeout(time: 7, unit: 'DAYS') {
-				script {
-					env.DEPLOY_OPTION = input message: "Deploy Config Reviewer to PROD?",
-							ok: 'Deploy to PROD!',
-							parameters: [choice(name: 'Deployment Action', choices: "Deploy\nSkip", description: 'What would you like to do?')],
-							submitter: '502061514' //Roger's SSO 210026212
+		else if(env.DEPLOY_OPTION == 'Email Roger') {			
+			//submitter: '210026212' //Roger's SSO // ,Roger.Laurence@ge.com
+			echo "You want to request PROD deployment!"
+			stage ('Promote to PROD ?'){
+				// Remove the app name hardcoding
+				mail from: "JenkinsAdmin@ge.com",
+					 to: "ramesh.ganapathi@ge.com",
+					 cc: "ramesh.ganapathi@ge.com",
+					 subject: "${config.stackName} application stack awaiting PROD deployment approval",
+					 body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' is waiting for PROD approval.\n\nPlease click the link below to proceed.\n${env.BUILD_URL}input/"
+	  
+				env.DEPLOY_OPTION = ''
+				timeout(time: 7, unit: 'DAYS') {
+					script {
+						env.DEPLOY_OPTION = input message: "Deploy Config Reviewer to PROD?",
+								ok: 'Deploy to PROD!',
+								parameters: [choice(name: 'Deployment Action', choices: "Deploy\nSkip", description: 'What would you like to do?')],
+								submitter: '502061514' //Roger's SSO 210026212
+					}
 				}
 			}
-		}
   
-		if(env.DEPLOY_OPTION == 'Skip') {
-			script.echo "You want to reject PROD deployment!"
+			if(env.DEPLOY_OPTION == 'Skip') {
+				script.echo "You want to reject PROD deployment!"
+			}
+			else if(env.DEPLOY_OPTION == 'Deploy') {
+				echo "You want to deploy in PROD!"  
+				runPromote(config, 'prod')
+				echo "Deployed to PROD!"
+			}
 		}
-		else if(env.DEPLOY_OPTION == 'Deploy') {
-			echo "You want to deploy in PROD!"  
-			runPromote(config, 'prod')
-			echo "Deployed to PROD!"
-		}
-	 }
-   }
+	}
 }

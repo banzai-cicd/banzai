@@ -33,6 +33,18 @@ def updateStackYamlVersion(versionYmlData, stackYmlData) {
 	}*/
 }
 
+@NonCPS
+def prepareUIList(stackYmlData) {
+	stackYmlData.services.each{ serviceName,value ->
+		def imgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
+		if(imgVersion.toLowerCase().contains('.com')) {    // Set empty if no tag present with image name
+			imgVersion = ''
+		}
+		def uiParameter = [$class: 'StringParameterDefinition', defaultValue: imgVersion, description: "Please verify tag for Docker service ${serviceName}", name: serviceName]
+		paramList.add(uiParameter)
+	}
+}
+
 def call(config, environment) {
 	
 	paramList = []
@@ -65,14 +77,15 @@ def call(config, environment) {
 				updateStackYamlVersion(versionYmlData, stackYmlData)
 				echo "Stack Yml Data after updating from Version file: ${stackYmlData.toMapString()}"
 				
-				stackYmlData.services.each{ serviceName,value ->
+				/*stackYmlData.services.each{ serviceName,value ->
 					def imgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
 					if(imgVersion.toLowerCase().contains('.com')) {    // Set empty if no tag present with image name
 						imgVersion = ''
 					}					
 					def uiParameter = [$class: 'StringParameterDefinition', defaultValue: imgVersion, description: "Please verify tag for Docker service ${serviceName}", name: serviceName]
 					paramList.add(uiParameter)
-				}
+				}*/
+				prepareUIList(stackYmlData)
 			}
 		}
 	}
