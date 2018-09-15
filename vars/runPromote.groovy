@@ -53,8 +53,8 @@ def call(config, environment) {
 			stage ("Preparing for Deployment") {
 				
 				//def args = null
-				def scriptDir = runPromote.class.protectionDomain.codeSource.location.path
-				println scriptDir
+				//def scriptDir = runPromote.class.protectionDomain.codeSource.location.path
+				//println scriptDir
 				//runShellScript("dockerUtils.sh", args)
 				steps {
 					def foo = sh(script: 'pwd', returnStdout: true)
