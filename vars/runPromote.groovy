@@ -46,9 +46,9 @@ def prepareUIList(stackYmlData) {
 	}
 }
 
-serviceImgList = []
 @NonCPS
 def updateUserVersionInYaml(stackYmlData, VERSION_INFO) {
+	def serviceImgList = []
 	stackYmlData.get('services').each{ serviceName,value ->
 		def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
 		if(existingImgVersion.toLowerCase().contains('.com')) {
@@ -62,6 +62,7 @@ def updateUserVersionInYaml(stackYmlData, VERSION_INFO) {
 		//sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceName}.image ${newImgName}"
 		//echo "Updating YAML Service: ${serviceName} Version: "+stackYmlData.services[serviceName].image
 	}
+	return serviceImgList
 }
 
 def call(config, environment) {
@@ -97,8 +98,8 @@ def call(config, environment) {
 	node(){
 		sshagent (credentials: config.sshCreds) {
 			stage ("${environment.toUpperCase()} Deployment") {
-				stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
-				updateUserVersionInYaml(stackYmlData, VERSION_INFO)
+				def stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
+				def serviceImgList = updateUserVersionInYaml(stackYmlData, VERSION_INFO)
 				/*script {					
 					stackYmlData.get('services').each{ serviceName,value ->
 					   def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
