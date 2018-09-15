@@ -52,8 +52,14 @@ def call(config, environment) {
 		sshagent (credentials: config.sshCreds) {
 			stage ("Preparing for Deployment") {
 				
-				def args = null
-				runShellScript("dockerUtils.sh", args)
+				//def args = null
+				def scriptDir = runPromote.class.protectionDomain.codeSource.location.path
+				//println "${WORKSPACE}"
+				//runShellScript("dockerUtils.sh", args)
+				steps {
+					def foo = sh(script: 'pwd', returnStdout: true)
+					println(foo)
+				  }
 				
 				deploymntRepoName =  config.promoteRepo.tokenize('/').last().split("\\.")[0]
 				echo "deploymntRepoName: ${deploymntRepoName}"
