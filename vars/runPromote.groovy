@@ -94,8 +94,7 @@ def call(config, environment) {
 				
 			   echo "Deployed to {environment.toUpperCase()}!"
 			}
-			}
 		}
-	}	
+	}
+}	
 	
-}
