@@ -54,7 +54,7 @@ def call(config, environment) {
 				
 				//def args = null
 				def scriptDir = runPromote.class.protectionDomain.codeSource.location.path
-				//println "${WORKSPACE}"
+				println scriptDir
 				//runShellScript("dockerUtils.sh", args)
 				steps {
 					def foo = sh(script: 'pwd', returnStdout: true)
