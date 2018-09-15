@@ -6,7 +6,7 @@ import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.DumperOptions
 import static org.yaml.snakeyaml.DumperOptions.FlowStyle.BLOCK
 
-def call(config) {	
+def call(config) {
 	
 	echo "Environment Selection"
 	stage ('Environment Selection'){
@@ -117,5 +117,5 @@ def call(config) {
 			}
 		}
 	 }
-	
+   }
 }
