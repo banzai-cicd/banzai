@@ -56,10 +56,10 @@ def call(config, environment) {
 				//def scriptDir = runPromote.class.protectionDomain.codeSource.location.path
 				//println scriptDir
 				//runShellScript("dockerUtils.sh", args)
-				steps {
+				//steps {
 					def foo = sh(script: 'pwd', returnStdout: true)
 					println(foo)
-				  }
+				 // }
 				
 				deploymntRepoName =  config.promoteRepo.tokenize('/').last().split("\\.")[0]
 				echo "deploymntRepoName: ${deploymntRepoName}"
