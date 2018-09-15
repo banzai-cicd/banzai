@@ -14,24 +14,6 @@ def updateStackYamlVersion(versionYmlData, stackYmlData) {
 		}
 	}	
 	echo "Stack Yml Data after updating from Version file: ${stackYmlData.toMapString()}"
-	/*def changeLogSets = currentBuild.changeSets
-	for (int i = 0; i < changeLogSets.size(); i++) {
-		def entries = changeLogSets[i].items
-		for (int j = 0; j < entries.length; j++) {
-			def entry = entries[j]
-			def files = new ArrayList(entry.affectedFiles)
-			for (int k = 0; k < files.size(); k++) {
-				def file = files[k]
-				if (file.path.contains('dev/')) {
-					dev_modified = true
-				} else if (file.path.contains('qa/')) {
-					qa_modified = true
-				} else if (file.path.contains('prod/')) {
-					prod_modified = true
-				}
-			}
-		}
-	}*/
 }
 
 @NonCPS
@@ -47,20 +29,16 @@ def prepareUIList(stackYmlData) {
 }
 
 @NonCPS
-def updateUserVersionInYaml(stackYmlData, VERSION_INFO) {
+def updateUserVersionInYaml(stackYmlData, userVersionInfo) {
 	def serviceImgList = []
 	stackYmlData.get('services').each{ serviceName,value ->
 		def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
 		if(existingImgVersion.toLowerCase().contains('.com')) {
 			existingImgVersion = ''
-		}
-		
-		newImgVersion = VERSION_INFO[serviceName]
-		newImgName = stackYmlData.services[serviceName].image.replaceAll(existingImgVersion, newImgVersion)
-		
+		}		
+		newImgVersion = userVersionInfo[serviceName]
+		newImgName = stackYmlData.services[serviceName].image.replaceAll(existingImgVersion, newImgVersion)		
 		serviceImgList.add("${serviceName}~${newImgName}")
-		//sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceName}.image ${newImgName}"
-		//echo "Updating YAML Service: ${serviceName} Version: "+stackYmlData.services[serviceName].image
 	}
 	return serviceImgList
 }
@@ -69,7 +47,7 @@ def call(config, environment) {
 	
 	paramList = []
 	deploymntRepoName = ''
-	VERSION_INFO = [:]
+	userVersionInfo = [:]
 	node(){
 		sshagent (credentials: config.sshCreds) {
 			stage ("Preparing for Deployment") {
@@ -91,29 +69,16 @@ def call(config, environment) {
 	stage ("Verify Deployment Info") {
 		timeout(time: 3, unit: 'DAYS') {
 			script {
-				VERSION_INFO = input(id: 'userInput', message: "Verify ${config.stackName} application module tags to be deployed to ${environment.toUpperCase()}", parameters: paramList)
+				userVersionInfo = input(id: 'userInput', message: "Verify ${config.stackName} application module tags to be deployed to ${environment.toUpperCase()}", parameters: paramList)
 			}
 		}
 	}
 	node(){
 		sshagent (credentials: config.sshCreds) {
 			stage ("${environment.toUpperCase()} Deployment") {
-				def stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
-				def serviceImgList = updateUserVersionInYaml(stackYmlData, VERSION_INFO)
-				/*script {					
-					stackYmlData.get('services').each{ serviceName,value ->
-					   def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
-					   if(existingImgVersion.toLowerCase().contains('.com')) {
-						   existingImgVersion = ''
-					   }
-					   
-					   newImgVersion = VERSION_INFO[serviceName]
-					   newImgName = stackYmlData.services[serviceName].image.replaceAll(existingImgVersion, newImgVersion)
-					   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceName}.image ${newImgName}"
-					   echo "Updating YAML Service: ${serviceName} Version: "+stackYmlData.services[serviceName].image
-				   }
-			   }*/
-			
+			   def stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
+			   def serviceImgList = updateUserVersionInYaml(stackYmlData, userVersionInfo)
+							
 			   for (int i = 0; i < serviceImgList.size(); i++) {
 				   def serviceImg = serviceImgList[i].split(/~/)
 				   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceImg[0]}.image ${serviceImg[1]}"
