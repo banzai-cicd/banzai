@@ -16,11 +16,11 @@ def call(config) {
 			return
 		}
 		
-		if (config.promoteBranches) {
+		if (config.promoteBranches && env.BRANCH_NAME) {
 			Pattern pattern = Pattern.compile(config.promoteBranches)
-	   
+			println "Inside banch check"
 			if (!(env.BRANCH_NAME ==~ pattern)) {
-			   println "${BRANCH_NAME} does not match the promoteBranches pattern. Skipping Promote"
+			   println "${env.BRANCH_NAME} does not match the promoteBranches pattern. Skipping Promote"
 			   return
 			}
 		}
