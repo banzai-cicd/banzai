@@ -21,9 +21,6 @@ def call(config) {
 			   return
 			}
 		}
-		//def scriptDir = getClass().protectionDomain.codeSource.location.path
-		//println "${WORKSPACE}"
-		//println System.getProperty("user.dir")
 		
 		env.ENV_OPTION = ''
 		timeout(time: 3, unit: 'DAYS') {
