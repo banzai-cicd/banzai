@@ -83,6 +83,15 @@ def call(config, environment) {
 				   def serviceImg = serviceImgList[i].split(/~/)
 				   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceImg[0]}.image ${serviceImg[1]}"
 				   echo "Updating YAML Service: ${serviceImg[0]} with Image: ${serviceImg[1]}"
+				   
+				   if (environment == 'qa') { // Update prod version file for readiness
+					   def imgVersion = serviceImg[1].split(/:/)[-1]
+					   if(imgVersion.toLowerCase().contains('.com')) {
+						   imgVersion = ''
+					   }
+					   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/prod/version.yml' version.${serviceImg[0]} ${imgVersion}"
+				   }
+				   
 			   }
 			   
 			   sh "git -C ${deploymntRepoName} commit -a -m 'Promoted ${environment.toUpperCase()} Environment' || true"
