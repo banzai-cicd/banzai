@@ -89,6 +89,9 @@ def call(config, environment) {
 					   if(imgVersion.toLowerCase().contains('.com')) {
 						   imgVersion = ''
 					   }
+					   if(imgVersion.contains('qa-')) {
+						   imgVersion = imgVersion.replaceAll('qa-', 'prod-')	
+					   }					   
 					   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/prod/version.yml' version.${serviceImg[0]} ${imgVersion}"
 				   }
 				   
