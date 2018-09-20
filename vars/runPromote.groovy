@@ -23,7 +23,7 @@ def prepareUIList(stackYmlData) {
 		if(imgVersion.toLowerCase().contains('.com')) {    // Set empty if no tag present with image name StringParameterDefinition
 			imgVersion = ''
 		}
-		def uiParameter = [$class: 'LabelParameterDefinition', name: serviceName, defaultValue: imgVersion, description: "Please verify tag for Docker service ${serviceName}"]
+		def uiParameter = [$class: 'StringParameterDefinition', name: serviceName, defaultValue: imgVersion, description: "Please verify tag for Docker service ${serviceName} [Read-Only]"]
 		paramList.add(uiParameter)
 	}
 }
@@ -32,12 +32,14 @@ def prepareUIList(stackYmlData) {
 def updateUserVersionInYaml(stackYmlData, userVersionInfo) {
 	def serviceImgList = []
 	stackYmlData.get('services').each{ serviceName,value ->
-		def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
+		// Commented this code as we have made User Input is just read-only info
+		/*def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
 		if(existingImgVersion.toLowerCase().contains('.com')) {
 			existingImgVersion = ''
 		}		
 		newImgVersion = userVersionInfo[serviceName]
-		newImgName = stackYmlData.services[serviceName].image.replaceAll(existingImgVersion, newImgVersion)		
+		newImgName = stackYmlData.services[serviceName].image.replaceAll(existingImgVersion, newImgVersion)*/
+		def newImgName = stackYmlData.services[serviceName].image
 		serviceImgList.add("${serviceName}~${newImgName}")
 	}
 	return serviceImgList
