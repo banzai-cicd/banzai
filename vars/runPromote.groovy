@@ -23,7 +23,7 @@ def prepareUIList(stackYmlData) {
 		if(imgVersion.toLowerCase().contains('.com')) {    // Set empty if no tag present with image name StringParameterDefinition
 			imgVersion = ''
 		}
-		def uiParameter = [$class: 'WReadonlyStringParameterDefinition', name: serviceName, defaultValue: imgVersion, description: "Please verify tag for Docker service ${serviceName}"]
+		def uiParameter = [$class: 'LabelParameterDefinition', name: serviceName, defaultValue: imgVersion, description: "Please verify tag for Docker service ${serviceName}"]
 		paramList.add(uiParameter)
 	}
 }
