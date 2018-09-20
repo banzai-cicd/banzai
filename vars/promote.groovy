@@ -27,7 +27,7 @@ def call(config) {
 			script {
 				env.ENV_OPTION = input message: "Select the Environment for Deployment",
 						ok: 'Submit',
-						parameters: [choice(name: 'Where do you want to deploy the application ?', choices: "QA&PROD\nQA\nPROD\nSkip", description: 'What would you like to do?')]
+						parameters: [choice(name: 'Where do you want to deploy the application ?', choices: "QA & PROD\nQA\nPROD\nSkip", description: 'What would you like to do?')]
 			}
 		}
 	}
@@ -83,8 +83,7 @@ def call(config) {
 			stage ('Promote to PROD ?'){
 				// Remove the app name hardcoding
 				mail from: "JenkinsAdmin@ge.com",
-					 to: "ramesh.ganapathi@ge.com",
-					 cc: "ramesh.ganapathi@ge.com",
+					 to: config.approverEmail,
 					 subject: "${config.stackName} application stack awaiting PROD deployment approval",
 					 body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' is waiting for PROD approval.\n\nPlease click the link below to proceed.\n${env.BUILD_URL}input/"
 	  
@@ -94,7 +93,7 @@ def call(config) {
 						env.DEPLOY_OPTION = input message: "Deploy Config Reviewer to PROD?",
 								ok: 'Deploy to PROD!',
 								parameters: [choice(name: 'Deployment Action', choices: "Deploy\nSkip", description: 'What would you like to do?')],
-								submitter: '502061514' //Roger's SSO 210026212
+								submitter: config.approverSSO //Roger's SSO 210026212
 					}
 				}
 			}

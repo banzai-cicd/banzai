@@ -20,10 +20,10 @@ def updateStackYamlVersion(versionYmlData, stackYmlData) {
 def prepareUIList(stackYmlData) {
 	stackYmlData.services.each{ serviceName,value ->
 		def imgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
-		if(imgVersion.toLowerCase().contains('.com')) {    // Set empty if no tag present with image name
+		if(imgVersion.toLowerCase().contains('.com')) {    // Set empty if no tag present with image name StringParameterDefinition
 			imgVersion = ''
 		}
-		def uiParameter = [$class: 'StringParameterDefinition', defaultValue: imgVersion, description: "Please verify tag for Docker service ${serviceName}", name: serviceName]
+		def uiParameter = [$class: 'WReadonlyStringParameterDefinition', name: serviceName, defaultValue: imgVersion, description: "Please verify tag for Docker service ${serviceName}"]
 		paramList.add(uiParameter)
 	}
 }
@@ -52,11 +52,11 @@ def call(config, environment) {
 		sshagent (credentials: config.sshCreds) {
 			stage ("Preparing for Deployment") {				
 				
-				deploymntRepoName =  config.promoteRepo.tokenize('/').last().split("\\.")[0]
+				deploymntRepoName =  config.deploymentRepo.tokenize('/').last().split("\\.")[0]
 				echo "deploymntRepoName: ${deploymntRepoName}"
 				
 				sh "rm -rf ${deploymntRepoName}"
-				sh "git clone ${config.promoteRepo}"
+				sh "git clone ${config.deploymentRepo}"
 				
 				stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
 				versionYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/version.yml"
@@ -67,7 +67,7 @@ def call(config, environment) {
 		}
 	}
 	stage ("Verify Deployment Info") {
-		timeout(time: 3, unit: 'DAYS') {
+		timeout(time: 1, unit: 'DAYS') {
 			script {
 				userVersionInfo = input(id: 'userInput', message: "Verify ${config.stackName} application module tags to be deployed to ${environment.toUpperCase()}", parameters: paramList)
 			}
