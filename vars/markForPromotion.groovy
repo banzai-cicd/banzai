@@ -26,14 +26,21 @@ def call(config) {
 	  def deploymntRepoName =  config.deploymentRepo.tokenize('/').last().split("\\.")[0]
 	  
 	  echo "MARK-PROMOTION SCRIPT - Updating deploymntRepo for ${config.stackServiceName} module with version ${BUILD_VERSION_QA}"
-	  sh """#!/bin/bash
+	  /*sh """#!/bin/bash
 		pwd
 		rm -rf "$WORKSPACE"/${deploymntRepoName}
 		git ${config.deploymentRepo}		
 		yaml w -i "$WORKSPACE"/${deploymntRepoName}/envs/qa/version.yml version.${config.stackServiceName} ${BUILD_VERSION_QA}
 		git -C ${deploymntRepoName} commit -a -m 'Updated QA version for ${config.stackServiceName} module' || true
 		git -C ${deploymntRepoName} pull && git -C ${deploymntRepoName} push origin master
-	  """    		
+	  """    		*/
+	  sh "pwd"
+	  sh "rm -rf ${deploymntRepoName}"
+	  sh "git ${config.deploymentRepo}"
+	  sh "yaml w -i ${deploymntRepoName}/envs/qa/version.yml version.${config.stackServiceName} ${BUILD_VERSION_QA}"
+	  sh "git -C ${deploymntRepoName} commit -a -m 'Updated QA version for ${config.stackServiceName} module' || true"
+	  sh "git -C ${deploymntRepoName} pull && git -C ${deploymntRepoName} push origin master"
+	  
 	  echo "MARK-PROMOTION SCRIPT - Done updation for ${config.stackServiceName} module with version ${BUILD_VERSION_QA}"
 	}
 }
