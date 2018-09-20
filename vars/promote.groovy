@@ -8,7 +8,7 @@ def call(config) {
 	echo "Environment Selection"
 	stage ('Environment Selection'){
 		
-		if (!config.promoteRepo || !config.stackName) {
+		if (!config.deploymentRepo || !config.stackName) {
 			println "'promoteRepo' and 'stackName' are required in your Jenkinsfile when 'promote' = true"
 			return
 		}
