@@ -27,7 +27,8 @@ def call(config) {
 	  
 	  echo "MARK-PROMOTION SCRIPT - Updating deploymntRepo for ${config.stackServiceName} module with version ${BUILD_VERSION_QA}"
 	  sh """#!/bin/bash
-		rm -rf ${deploymntRepoName}
+		pwd
+		rm -rf "$WORKSPACE"/${deploymntRepoName}
 		git ${config.deploymentRepo}		
 		yaml w -i "$WORKSPACE"/${deploymntRepoName}/envs/qa/version.yml version.${config.stackServiceName} ${BUILD_VERSION_QA}
 		git -C ${deploymntRepoName} commit -a -m 'Updated QA version for ${config.stackServiceName} module' || true
