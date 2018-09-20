@@ -36,7 +36,7 @@ def call(config) {
 	  """    		*/
 	  sh "pwd"
 	  sh "rm -rf ${deploymntRepoName}"
-	  sh "git ${config.deploymentRepo}"
+	  sh "git clone ${config.deploymentRepo}"
 	  sh "yaml w -i ${deploymntRepoName}/envs/qa/version.yml version.${config.stackServiceName} ${BUILD_VERSION_QA}"
 	  sh "git -C ${deploymntRepoName} commit -a -m 'Updated QA version for ${config.stackServiceName} module' || true"
 	  sh "git -C ${deploymntRepoName} pull && git -C ${deploymntRepoName} push origin master"
