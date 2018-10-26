@@ -60,7 +60,7 @@ def call(config, environment) {
 				sh "rm -rf ${deploymntRepoName}"
 				sh "git clone ${config.deploymentRepo}"
 				
-				stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
+				stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml"
 				versionYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/version.yml"
 								
 				updateStackYamlVersion(versionYmlData, stackYmlData)				
@@ -78,12 +78,12 @@ def call(config, environment) {
 	node(){
 		sshagent (credentials: config.sshCreds) {
 			stage ("${environment.toUpperCase()} Deployment") {
-			   def stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml"
+			   def stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml"
 			   def serviceImgList = updateUserVersionInYaml(stackYmlData, userVersionInfo)
 							
 			   for (int i = 0; i < serviceImgList.size(); i++) {
 				   def serviceImg = serviceImgList[i].split(/~/)
-				   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' services.${serviceImg[0]}.image ${serviceImg[1]}"
+				   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' services.${serviceImg[0]}.image ${serviceImg[1]}"
 				   echo "Updating YAML Service: ${serviceImg[0]} with Image: ${serviceImg[1]}"
 				   
 				   if (environment == 'qa') { // Update prod version file for readiness
@@ -105,7 +105,7 @@ def call(config, environment) {
 			   qaDeployServer="vdcald05143.ics.cloud.ge.com" //"vdcalq05504.ics.cloud.ge.com"
 			   prodDeployServer="vdcald05143.ics.cloud.ge.com" //"vdcalq05504.ics.cloud.ge.com"
 			   appStackYmlPath="~/docker-swarm/${config.stackName}"
-			   appStackYml="${appStackYmlPath}/${config.stackName}-dev.yml"
+			   appStackYml="${appStackYmlPath}/${config.stackName}.yml"
 			   deployCmd="docker stack deploy -c ${appStackYml} ${config.stackName} --with-registry-auth"
 			   deployScript="docker login registry.gear.ge.com -u 502061514 -p password && ${deployCmd} && docker logout"
 			   deployUser="de589146"
@@ -117,10 +117,10 @@ def call(config, environment) {
 				   deployServer = prodDeployServer
 			   }
 			   
-			   echo "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
+			   echo "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
 			   echo "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} ${deployScript}"
 			   
-			   sh "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}-dev.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
+			   sh "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
 			   sh "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} '${deployScript}'"
 				
 			   echo "Deployed to ${environment.toUpperCase()}!"
