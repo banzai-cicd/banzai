@@ -102,8 +102,8 @@ def call(config, environment) {
 			   sh "git -C ${deploymntRepoName} commit -a -m 'Promoted ${environment.toUpperCase()} Environment' || true"
 			   sh "git -C ${deploymntRepoName} pull && git -C ${deploymntRepoName} push origin master"
 			   
-			   qaDeployServer="vdcald05143.ics.cloud.ge.com" //"vdcalq05504.ics.cloud.ge.com"
-			   prodDeployServer="vdcald05143.ics.cloud.ge.com" //"vdcalq05504.ics.cloud.ge.com"
+			   qaDeployServer="vdcalq05504.ics.cloud.ge.com" //"vdcalq05504.ics.cloud.ge.com"
+			   prodDeployServer="vdcglp05886.ics.cloud.ge.com" //"vdcalq05504.ics.cloud.ge.com"
 			   appStackYmlPath="~/docker-swarm/${config.stackName}"
 			   appStackYml="${appStackYmlPath}/${config.stackName}.yml"
 			   deployCmd="docker stack deploy -c ${appStackYml} ${config.stackName} --with-registry-auth"
