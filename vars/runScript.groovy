@@ -18,7 +18,7 @@ def call(config, configFilePropName, SCRIPT_DEFAULT, args=null) {
       script: 'if [ -e ${SCRIPT_FILE} ]; then echo "EXISTS" ; else echo "NOT-EXISTS" ; fi',
       returnStdout: true
     ).trim()
-    echo "BUILD_SCRIPT_STATUS: ${SCRIPT_FILE_STATUS}"
+    echo "SCRIPT_FILE_STATUS: ${SCRIPT_FILE_STATUS}"
     
     if (SCRIPT_FILE_STATUS == 'EXISTS') {
       println "${SCRIPT_DEFAULT}.sh detected"
