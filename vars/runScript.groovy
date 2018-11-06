@@ -11,18 +11,16 @@ def call(config, configFilePropName, SCRIPT_DEFAULT, args=null) {
   if(!config[configFilePropName]) {
     println "no ${configFilePropName} specified in config"
     // try and load defaults
-    def shellScript = new File("${WORKSPACE}/${SCRIPT_DEFAULT}.sh")
+    //def shellScript = new File("${WORKSPACE}/${SCRIPT_DEFAULT}.sh")
     
-    def BUILD_SCRIPT = "${WORKSPACE}/${SCRIPT_DEFAULT}.sh"
-    echo "SCRIPT_DEFAULT: ${SCRIPT_DEFAULT}"
-    echo "BUILD_SCRIPT: ${BUILD_SCRIPT}"
-    BUILD_SCRIPT_STATUS = sh (
-      script: 'if [ -e ${BUILD_SCRIPT} ]; then echo "EXISTS" ; else echo "NOT-EXISTS" ; fi',
+    def SCRIPT_FILE = "${WORKSPACE}/${SCRIPT_DEFAULT}.sh"
+    SCRIPT_FILE_STATUS = sh (
+      script: 'if [ -e ${SCRIPT_FILE} ]; then echo "EXISTS" ; else echo "NOT-EXISTS" ; fi',
       returnStdout: true
     ).trim()
-    echo "BUILD_SCRIPT_STATUS: ${BUILD_SCRIPT_STATUS}"
+    echo "BUILD_SCRIPT_STATUS: ${SCRIPT_FILE_STATUS}"
     
-    if (shellScript.exists()) {
+    if (SCRIPT_FILE_STATUS == 'EXISTS') {
       println "${SCRIPT_DEFAULT}.sh detected"
       runShellScript(shellScript.name, args)
     } else {
