@@ -22,7 +22,7 @@ def call(config, configFilePropName, SCRIPT_DEFAULT, args=null) {
     
     if (SCRIPT_FILE_STATUS == 'EXISTS') {
       println "${SCRIPT_DEFAULT}.sh detected"
-      runShellScript(shellScript.name, args)
+      runShellScript("${SCRIPT_DEFAULT}.sh", args)
     } else {
       throw new IllegalArgumentException("no ${SCRIPT_DEFAULT}[.sh|.groovy] exists!")
     }
