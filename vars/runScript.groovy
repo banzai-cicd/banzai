@@ -14,13 +14,13 @@ def call(config, configFilePropName, SCRIPT_DEFAULT, args=null) {
     def shellScript = new File("${WORKSPACE}/${SCRIPT_DEFAULT}.sh")
     
     BUILD_SCRIPT_STATUS = sh (
-      script: 'if [ -e ${WORKSPACE}/${SCRIPT_DEFAULT}.sh ]; then echo "EXISTS" else echo "NOT-EXISTS" fi',
+      script: 'if [ -e ${WORKSPACE}/${SCRIPT_DEFAULT}.sh ]; then echo "EXISTS" ; else echo "NOT-EXISTS" ; fi',
       returnStdout: true
     ).trim()
     echo "BUILD_SCRIPT_STATUS: ${BUILD_SCRIPT_STATUS}"
     
     BUILD_SCRIPT_STATUS = sh (
-      script: 'if [ -e ${WORKSPACE}/${SCRIPT_DEFAULT}.sh1 ]; then echo "EXISTS" else echo "NOT-EXISTS" fi',
+      script: 'if [ -e ${WORKSPACE}/${SCRIPT_DEFAULT}.sh1 ]; then echo "EXISTS" ; else echo "NOT-EXISTS" ; fi',
       returnStdout: true
     ).trim()
     echo "BUILD_SCRIPT_STATUS: ${BUILD_SCRIPT_STATUS}"
