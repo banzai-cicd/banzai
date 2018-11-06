@@ -13,7 +13,7 @@ def call(config) {
 
     git branch: '${branch}',
       credentialsId: config.gitCredId,
-      url: "ssh://git@github.build.ge.com:${org}/${repo}.git"
-  }*/
+      url: "ssh://git@github.build.ge.com:${org}/${repo}.git"*/
+  }
 
 }
