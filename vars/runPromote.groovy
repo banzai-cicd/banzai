@@ -32,15 +32,13 @@ def prepareUIList(stackYmlData) {
 def updateUserVersionInYaml(stackYmlData, userVersionInfo) {
 	def serviceImgList = []
 	echo "userVersionInfo: ${userVersionInfo.toMapString()}"
-	stackYmlData.get('services').each{ serviceName,value ->
-		// Commented this code as we have made User Input is just read-only info
+	stackYmlData.get('services').each{ serviceName,value ->		
 		def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
 		if(existingImgVersion.toLowerCase().contains('.com')) {
 			existingImgVersion = ''
 		}		
 		newImgVersion = userVersionInfo[serviceName]
-		def newImgName = stackYmlData.services[serviceName].image.replaceAll(existingImgVersion, newImgVersion)
-		//def newImgName = stackYmlData.services[serviceName].image
+		def newImgName = stackYmlData.services[serviceName].image.replaceAll(existingImgVersion, newImgVersion)		
 		serviceImgList.add("${serviceName}~${newImgName}")
 	}
 	echo "serviceImgList: ${serviceImgList.toListString()}"
