@@ -43,7 +43,7 @@ def updateUserVersionInYaml(stackYmlData, userVersionInfo) {
 		//def newImgName = stackYmlData.services[serviceName].image
 		serviceImgList.add("${serviceName}~${newImgName}")
 	}
-	echo "serviceImgList: ${serviceImgList.toMapString()}"
+	echo "serviceImgList: ${serviceImgList.toListString()}"
 	return serviceImgList
 }
 
