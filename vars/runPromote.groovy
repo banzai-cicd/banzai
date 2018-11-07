@@ -31,6 +31,7 @@ def prepareUIList(stackYmlData) {
 @NonCPS
 def updateUserVersionInYaml(stackYmlData, userVersionInfo) {
 	def serviceImgList = []
+	echo "userVersionInfo: ${userVersionInfo.toMapString()}"
 	stackYmlData.get('services').each{ serviceName,value ->
 		// Commented this code as we have made User Input is just read-only info
 		/*def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
