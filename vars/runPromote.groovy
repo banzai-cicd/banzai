@@ -108,7 +108,7 @@ def call(config, environment) {
 			   appStackYml="${appStackYmlPath}/${config.stackName}.yml"
 			   deployCmd="docker stack deploy -c ${appStackYml} ${config.stackName} --with-registry-auth"
 			   deployScript="docker login registry.gear.ge.com -u 502061514 -p password && ${deployCmd} && docker logout registry.gear.ge.com"
-			   deployUser="de589146"
+			   deployUser="lg800570"
 			   
 			   deployServer = ''
 			   if (environment == "qa") {
