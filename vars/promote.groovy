@@ -27,7 +27,7 @@ def call(config) {
 			script {
 				env.ENV_OPTION = input message: "Select the Environment for Deployment",
 						ok: 'Submit',
-						parameters: [choice(name: 'Where do you want to deploy the application ?', choices: "QA & PROD\nQA\nPROD\nSkip", description: 'What would you like to do?')]
+						parameters: [choice(name: 'Where do you want to deploy the application ?', choices: "QA\nPROD\nQA & PROD\nSkip", description: 'What would you like to do?')]
 			}
 		}
 	}
