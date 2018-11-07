@@ -34,15 +34,16 @@ def updateUserVersionInYaml(stackYmlData, userVersionInfo) {
 	echo "userVersionInfo: ${userVersionInfo.toMapString()}"
 	stackYmlData.get('services').each{ serviceName,value ->
 		// Commented this code as we have made User Input is just read-only info
-		/*def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
+		def existingImgVersion = stackYmlData.services[serviceName].image.split(/:/)[-1]
 		if(existingImgVersion.toLowerCase().contains('.com')) {
 			existingImgVersion = ''
 		}		
 		newImgVersion = userVersionInfo[serviceName]
-		newImgName = stackYmlData.services[serviceName].image.replaceAll(existingImgVersion, newImgVersion)*/
-		def newImgName = stackYmlData.services[serviceName].image
+		def newImgName = stackYmlData.services[serviceName].image.replaceAll(existingImgVersion, newImgVersion)
+		//def newImgName = stackYmlData.services[serviceName].image
 		serviceImgList.add("${serviceName}~${newImgName}")
 	}
+	echo "serviceImgList: ${serviceImgList.toMapString()}"
 	return serviceImgList
 }
 
