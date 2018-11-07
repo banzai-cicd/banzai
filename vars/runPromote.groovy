@@ -117,10 +117,10 @@ def call(config, environment) {
 				   deployServer = prodDeployServer
 			   }
 			   
-			   echo "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
+			   echo "scp -o StrictHostKeyChecking=no '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
 			   echo "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} ${deployScript}"
 			   
-			   sh "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
+			   sh "scp -o StrictHostKeyChecking=no '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
 			   sh "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} '${deployScript}'"
 				
 			   echo "Deployed to ${environment.toUpperCase()}!"
