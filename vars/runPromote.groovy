@@ -10,10 +10,12 @@ def updateStackYamlVersion(versionYmlData, stackYmlData) {
 				def newImgVersion = value
 				def newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
 				stackYmlData.services[key].image = newImgName
+				latestImgNameList.add("${key}~${newImgName}")
 			}
 		}
 	}	
 	echo "Stack Yml Data after updating from Version file: ${stackYmlData.toMapString()}"
+	echo "latestImgNameList: ${latestImgNameList.toListString()}"
 }
 
 @NonCPS
@@ -48,6 +50,7 @@ def updateUserVersionInYaml(stackYmlData, userVersionInfo) {
 def call(config, environment) {
 	
 	paramList = []
+	latestImgNameList = []
 	deploymntRepoName = ''
 	userVersionInfo = [:]
 	node(){
@@ -80,7 +83,8 @@ def call(config, environment) {
 			stage ("${environment.toUpperCase()} Deployment") {
 			   def stackYmlData = readYaml file: "${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml"
 			   def serviceImgList = updateUserVersionInYaml(stackYmlData, userVersionInfo)
-							
+			   echo "latestImgNameList2: ${latestImgNameList.toListString()}"
+			   
 			   for (int i = 0; i < serviceImgList.size(); i++) {
 				   def serviceImg = serviceImgList[i].split(/~/)
 				   sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' services.${serviceImg[0]}.image ${serviceImg[1]}"
@@ -107,7 +111,7 @@ def call(config, environment) {
 			   appStackYmlPath="~/docker-swarm/${config.stackName}"
 			   appStackYml="${appStackYmlPath}/${config.stackName}.yml"
 			   deployCmd="docker stack deploy -c ${appStackYml} ${config.stackName} --with-registry-auth"
-			   deployScript="docker login registry.gear.ge.com -u 502061514 -p password && ${deployCmd} && docker logout registry.gear.ge.com"
+			   deployScript="docker login registry.gear.ge.com -u 502800570 -p P1p3L1ne && ${deployCmd} && docker logout registry.gear.ge.com"
 			   deployUser="lg800570"  //lg800570 de589146
 			   
 			   deployServer = ''
@@ -117,10 +121,10 @@ def call(config, environment) {
 				   deployServer = prodDeployServer
 			   }
 			   
-			   echo "scp -vvv '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
+			   echo "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
 			   echo "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} ${deployScript}"
 			   
-			   sh "scp -vvv '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
+			   sh "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
 			   sh "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} '${deployScript}'"
 				
 			   echo "Deployed to ${environment.toUpperCase()}!"
