@@ -28,9 +28,9 @@ def call(config) {
 	} else {
 	    throw new IllegalArgumentException("no ${WORKSPACE}/versionInfo exists!")
 	}
-	
+	// value = cat ${VER_FILE}; echo "$value";
 	def VER_FILE_CONTENT = sh (
-	    script: 'value = cat ${VER_FILE}; echo "$value";',
+	    script: 'echo $(<${VER_FILE})',
 	    returnStdout: true
 	).trim()
 	echo "VER_FILE_CONTENT: ${VER_FILE_CONTENT}" 
@@ -43,8 +43,7 @@ def call(config) {
 	} else {
 	    BUILD_VERSION_QA = versionInfo
 	}	  
-	def deploymntRepoName =  config.deploymentRepo.tokenize('/').last().split("\\.")[0]
-	  
+	def deploymntRepoName =  config.deploymentRepo.tokenize('/').last().split("\\.")[0]	  
 	echo "MARK-PROMOTION SCRIPT - Updating deploymntRepo for ${config.stackServiceName} module with version ${BUILD_VERSION_QA}"
 	  
 	sh "rm -rf ${deploymntRepoName}"
