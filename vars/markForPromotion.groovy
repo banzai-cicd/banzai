@@ -30,7 +30,7 @@ def call(config) {
 	}
 	// value = cat ${VER_FILE}; echo "$value";
 	def VER_FILE_CONTENT = sh (
-	    script: 'echo $(<${VER_FILE})',
+	    script: 'cat ${VER_FILE}',
 	    returnStdout: true
 	).trim()
 	echo "VER_FILE_CONTENT: ${VER_FILE_CONTENT}" 
