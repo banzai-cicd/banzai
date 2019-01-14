@@ -69,7 +69,7 @@ def call(config, environment) {
 		}
 	    }
 	}
-	if (environment == 'prod') {
+	if (environment == 'qa') {
 	    stage ("Verify Deployment Info") {
 		timeout(time: 1, unit: 'DAYS') {
 		    script {
