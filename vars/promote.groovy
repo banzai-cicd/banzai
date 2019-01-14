@@ -90,7 +90,7 @@ def call(config) {
 				env.DEPLOY_OPTION = ''
 				timeout(time: 7, unit: 'DAYS') {
 					script {
-						env.DEPLOY_OPTION = input message: "Deploy Config Reviewer to PROD?",
+						env.DEPLOY_OPTION = input message: "Deploy ${config.stackName} to PROD?",
 								ok: 'Deploy to PROD!',
 								parameters: [choice(name: 'Deployment Action', choices: "Deploy\nSkip", description: 'What would you like to do?')],
 								submitter: config.approverSSO //Roger's SSO 210026212
