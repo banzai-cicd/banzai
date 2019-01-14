@@ -69,10 +69,12 @@ def call(config, environment) {
 		}
 	    }
 	}
-	stage ("Verify Deployment Info") {
-	    timeout(time: 1, unit: 'DAYS') {
-		script {
-		    userVersionInfo = input(id: 'userInput', message: "Verify tags of ${config.stackName} application modules to be deployed to ${environment.toUpperCase()}", parameters: paramList)
+	if (environment == 'prod') {
+	    stage ("Verify Deployment Info") {
+		timeout(time: 1, unit: 'DAYS') {
+		    script {
+			userVersionInfo = input(id: 'userInput', message: "Verify tags of ${config.stackName} application modules to be deployed to ${environment.toUpperCase()}", parameters: paramList)
+		    }
 		}
 	    }
 	}
@@ -108,8 +110,9 @@ def call(config, environment) {
 			   appStackYmlPath="~/docker-swarm/${config.stackName}"
 			   appStackYml="${appStackYmlPath}/${config.stackName}.yml"
 			   deployCmd="docker stack deploy -c ${appStackYml} ${config.stackName} --with-registry-auth"
-			   deployScript="docker login registry.gear.ge.com -u 502800570 -p P1p3L1ne && ${deployCmd} && docker logout registry.gear.ge.com"
-			   deployUser="lg800570"  //lg800570 de589146
+			   //deployScript="docker login registry.gear.ge.com -u 502800570 -p P1p3L1ne && ${deployCmd} && docker logout registry.gear.ge.com"
+			   deployScript="docker login registry.gear.ge.com -u 502800570 -p P1p3L1ne && ${deployCmd}"
+			   deployUser="lg800570"  //de589146
 			   
 			   deployServer = ''
 			   if (environment == "qa") {
