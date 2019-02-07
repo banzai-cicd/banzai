@@ -2,17 +2,21 @@
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy
+//import com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy
+import hudson.model.User
 
 @NonCPS
 def getApprovalUsersList(role) {
     echo "Retrieving users for ${role}..."
     def users = [:]
     def authStrategy = Jenkins.instance.getAuthorizationStrategy()
-    if(authStrategy instanceof RoleBasedAuthorizationStrategy){
+    if(authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy){
       def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
       sids.each { sid ->
         users[sid] = Jenkins.instance.getUser(sid).fullName
+	User usr = Jenkins.instance.getUser(sid)
+	def usrmail = usr.getProperty(hudson.tasks.Mailer.UserProperty.class)
+	print usrmail.getAddress()
       }
       return users
     } else {
