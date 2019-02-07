@@ -2,8 +2,28 @@
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy
+
+@NonCPS
+def getApprovalUsersList(role) {
+    echo "Retrieving users for ${role}..."
+    def users = [:]
+    def authStrategy = Jenkins.instance.getAuthorizationStrategy()
+    if(authStrategy instanceof RoleBasedAuthorizationStrategy){
+      def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
+      sids.each { sid ->
+        users[sid] = Jenkins.instance.getUser(sid).fullName
+      }
+      return users
+    } else {
+	throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
+    }
+}
 
 def call(config) {
+
+def appList = getApprovalUsersList('approver-plp')
+echo "appList: ${appList.toMapString()}"
 	
 	echo "Environment Selection"
 	stage ('Environment Selection'){
