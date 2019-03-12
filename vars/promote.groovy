@@ -17,6 +17,7 @@ def getRoleBasedUsersList(role) {
 	def usrmail = usr.getProperty(hudson.tasks.Mailer.UserProperty.class)
 	users[sid] = usrmail.getAddress()
 	//Jenkins.instance.getUser(sid).fullName
+	echo "${sid}: ${usrmail.getAddress()}"
       }
       return users
     } else {
@@ -102,7 +103,7 @@ def call(config) {
 			mail from: "JenkinsAdmin@ge.com",
 				 to: watchListEmail,
 				 subject: "QA deployment completed for ${config.stackName} application stack",
-				 body: "QA deployment completion details:\n\nApplication Stack: ${config.stackName}\nJob: ${env.JOB_NAME} [${env.BUILD_NUMBER}]\nBuild URL: ${env.BUILD_URL}"
+				 body: "QA deployment Info:\n\nApplication Stack: ${config.stackName}\nJob: ${env.JOB_NAME} [${env.BUILD_NUMBER}] \n\n Build URL: ${env.BUILD_URL}"
 		}
 	}
 	
@@ -130,8 +131,8 @@ def call(config) {
 				mail from: "JenkinsAdmin@ge.com",
 					 to: approverEmail,
 					 cc: watchListEmail,
-					 subject: "${config.stackName} application stack awaiting PROD deployment approval",
-					 body: "Dear Approver, \n\nJob '${env.JOB_NAME} [${env.BUILD_NUMBER}]' is waiting for PROD approval.\nPlease click the link below to proceed.\n${env.BUILD_URL}input/"
+					 subject: "${config.stackName} application stack AWAITING PROD deployment approval",
+					 body: "Dear Approver(s), \n\nJob '${env.JOB_NAME} [${env.BUILD_NUMBER}]' is waiting for PROD approval.\nPlease click the link below to proceed.\n${env.BUILD_URL}input/"
 	  
 				env.DEPLOY_OPTION = ''
 				timeout(time: 7, unit: 'DAYS') {
@@ -167,7 +168,7 @@ def call(config) {
 					 to: watchListEmail,
 					 cc: approverEmail,
 					 subject: "PROD deployment completed for ${config.stackName} application stack",
-					 body: "PROD deployment completion details:\n\nApplication Stack: ${config.stackName}\nJob: ${env.JOB_NAME} [${env.BUILD_NUMBER}]\nBuild URL: ${env.BUILD_URL}"
+					 body: "PROD deployment Info:\n\nApplication Stack: ${config.stackName}\nJob: ${env.JOB_NAME} [${env.BUILD_NUMBER}] \n\n Build URL: ${env.BUILD_URL}"
 			}
 		}
 	}
