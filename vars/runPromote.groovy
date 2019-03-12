@@ -98,21 +98,20 @@ def call(config, environment) {
 					if(imgVersion.contains('qa-')) {
 					    imgVersion = imgVersion.replaceAll('qa-', 'prod-')	
 					}					   
-					sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/prod/version.yml' version.${serviceImg[0]} ${imgVersion}"
+					//sh "yaml w -i '${WORKSPACE}/${deploymntRepoName}/envs/prod/version.yml' version.${serviceImg[0]} ${imgVersion}"
 				   }				   
 			   }
 			   
-			   sh "git -C ${deploymntRepoName} commit -a -m 'Promoted application to ${environment.toUpperCase()} Environment' || true"
-			   sh "git -C ${deploymntRepoName} pull && git -C ${deploymntRepoName} push origin master"
+			   //sh "git -C ${deploymntRepoName} commit -a -m 'Promoted application to ${environment.toUpperCase()} Environment' || true"
+			   //sh "git -C ${deploymntRepoName} pull && git -C ${deploymntRepoName} push origin master"
 			   
 			   qaDeployServer="vdcalq05504.ics.cloud.ge.com" 
 			   prodDeployServer="vdcglp05885.ics.cloud.ge.com" 
 			   appStackYmlPath="~/docker-swarm/${config.stackName}"
 			   appStackYml="${appStackYmlPath}/${config.stackName}.yml"
 			   deployCmd="docker stack deploy -c ${appStackYml} ${config.stackName} --with-registry-auth"
-			   //deployScript="docker login registry.gear.ge.com -u 502800570 -p P1p3L1ne && ${deployCmd} && docker logout registry.gear.ge.com"
 			   deployScript="docker login registry.gear.ge.com -u 502800570 -p P1p3L1ne && ${deployCmd}"
-			   deployUser="lg800570"  //de589146
+			   deployUser="lg800570" 
 			   
 			   deployServer = ''
 			   if (environment == "qa") {
@@ -124,8 +123,8 @@ def call(config, environment) {
 			   echo "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
 			   echo "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} ${deployScript}"
 			   
-			   sh "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
-			   sh "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} '${deployScript}'"
+			   //sh "scp '${WORKSPACE}/${deploymntRepoName}/envs/${environment}/${config.stackName}.yml' ${deployUser}@${deployServer}:${appStackYmlPath}"
+			   //sh "ssh -o StrictHostKeyChecking=no ${deployUser}@${deployServer} '${deployScript}'"
 				
 			   echo "Deployed to ${environment.toUpperCase()}!"
 			}
