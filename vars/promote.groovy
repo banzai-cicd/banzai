@@ -118,14 +118,14 @@ def call(config) {
 				script {
 					env.DEPLOY_OPTION = input message: "Request deployment to PROD ?",
 							ok: 'Submit',
-							parameters: [choice(name: 'Deployment Request', choices: "Email Roger\nSkip", description: 'What would you like to do?')]
+							parameters: [choice(name: 'Deployment Request', choices: "Email Approver\nSkip", description: 'What would you like to do?')]
 				}
 			}
 		}
 		if(env.DEPLOY_OPTION == 'Skip') {
 			echo "You want to skip PROD deployment!"
 		}
-		else if(env.DEPLOY_OPTION == 'Email Roger') {			
+		else if(env.DEPLOY_OPTION == 'Email Approver') {			
 			//submitter: '210026212' //Roger's SSO // ,Roger.Laurence@ge.com
 			echo "You want to request PROD deployment!"
 			stage ('Promote to PROD ?'){
