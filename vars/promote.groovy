@@ -66,9 +66,9 @@ def call(config) {
 		    echo "approverMap: ${approverMap.toMapString()}"
 		    echo "watchListMap: ${watchListMap.toMapString()}"
 		    
-		    watchListEmail = watchListMap.values().toListString()
-		    approverEmail = approverMap.values().toListString()
-		    approverSSO = approverMap.keySet().toListString()
+		    watchListEmail = watchListMap.values().join(",")
+		    approverEmail = approverMap.values().join(",")
+		    approverSSO = approverMap.keySet().join(",")
 		}
 	}
 	if (env.ENV_OPTION == 'Skip') {
