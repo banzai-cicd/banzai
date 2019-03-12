@@ -102,7 +102,7 @@ def call(config) {
 			mail from: "JenkinsAdmin@ge.com",
 				 to: watchListEmail,
 				 subject: "QA deployment completed for ${config.stackName} application stack",
-				 body: "QA deployment completion details:\n\nApplication Stack: ${config.stackName}\nJob: ${env.JOB_NAME} [${env.BUILD_NUMBER}]\nBuild URL:${env.BUILD_URL}"
+				 body: "QA deployment completion details:\n\nApplication Stack: ${config.stackName}\nJob: ${env.JOB_NAME} [${env.BUILD_NUMBER}]\nBuild URL: ${env.BUILD_URL}"
 		}
 	}
 	
@@ -128,9 +128,10 @@ def call(config) {
 			stage ('Promote to PROD ?'){
 				// Remove the app name hardcoding
 				mail from: "JenkinsAdmin@ge.com",
-					 to: config.approverEmail,
+					 to: approverEmail,
+					 cc: watchListEmail,
 					 subject: "${config.stackName} application stack awaiting PROD deployment approval",
-					 body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' is waiting for PROD approval.\n\nPlease click the link below to proceed.\n${env.BUILD_URL}input/"
+					 body: "Dear Approver, \n\nJob '${env.JOB_NAME} [${env.BUILD_NUMBER}]' is waiting for PROD approval.\nPlease click the link below to proceed.\n${env.BUILD_URL}input/"
 	  
 				env.DEPLOY_OPTION = ''
 				timeout(time: 7, unit: 'DAYS') {
@@ -138,18 +139,35 @@ def call(config) {
 						env.DEPLOY_OPTION = input message: "Deploy ${config.stackName} to PROD?",
 								ok: 'Deploy to PROD!',
 								parameters: [choice(name: 'Deployment Action', choices: "Deploy\nSkip", description: 'What would you like to do?')],
-								submitter: config.approverSSO //Roger's SSO 210026212
+								submitter: approverSSO //Roger's SSO 210026212
 					}
 				}
 			}
   
 			if(env.DEPLOY_OPTION == 'Skip') {
-				script.echo "You want to reject PROD deployment!"
+			    script.echo "You want to reject PROD deployment!"
+			    mail from: "JenkinsAdmin@ge.com",
+					 to: watchListEmail,
+					 cc: approverEmail,
+					 subject: "${config.stackName} application stack REJECTED for PROD deployment",
+					 body: "Team, \n\nJob '${env.JOB_NAME} [${env.BUILD_NUMBER}]' is REJECTED for PROD deployment.\nBuild URL: ${env.BUILD_URL}"
 			}
 			else if(env.DEPLOY_OPTION == 'Deploy') {
 				echo "You want to deploy in PROD!"  
+				mail from: "JenkinsAdmin@ge.com",
+					 to: watchListEmail,
+					 cc: approverEmail,
+					 subject: "${config.stackName} application stack APPROVED for PROD deployment",
+					 body: "Team, \n\nJob '${env.JOB_NAME} [${env.BUILD_NUMBER}]' is APPROVED for PROD deployment.\nBuild URL: ${env.BUILD_URL}"
+	  				
 				runPromote(config, 'prod')
 				echo "Deployed to PROD!"
+				
+				mail from: "JenkinsAdmin@ge.com",
+					 to: watchListEmail,
+					 cc: approverEmail,
+					 subject: "PROD deployment completed for ${config.stackName} application stack",
+					 body: "PROD deployment completion details:\n\nApplication Stack: ${config.stackName}\nJob: ${env.JOB_NAME} [${env.BUILD_NUMBER}]\nBuild URL: ${env.BUILD_URL}"
 			}
 		}
 	}
