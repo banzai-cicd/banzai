@@ -6,17 +6,17 @@ import java.util.regex.Pattern
 import hudson.model.User
 
 @NonCPS
-def getApprovalUsersList(role) {
+def getRoleBasedUsersList(role) {
     echo "Retrieving users for ${role}..."
     def users = [:]
     def authStrategy = Jenkins.instance.getAuthorizationStrategy()
     if(authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy){
       def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
-      sids.each { sid ->
-        users[sid] = Jenkins.instance.getUser(sid).fullName
+      sids.each { sid ->        
 	User usr = Jenkins.instance.getUser(sid)
 	def usrmail = usr.getProperty(hudson.tasks.Mailer.UserProperty.class)
-	print usrmail.getAddress()
+	users[sid] = usrmail.getAddress()
+	//Jenkins.instance.getUser(sid).fullName
       }
       return users
     } else {
@@ -26,8 +26,9 @@ def getApprovalUsersList(role) {
 
 def call(config) {
 
-def appList = getApprovalUsersList('approver-plp')
-echo "appList: ${appList.toMapString()}"
+    def watchListEmail = ''
+    def approverEmail = ''
+    def approverSSO = ''
 	
 	echo "Environment Selection"
 	stage ('Environment Selection'){
@@ -53,6 +54,21 @@ echo "appList: ${appList.toMapString()}"
 						ok: 'Submit',
 						parameters: [choice(name: 'Where do you want to deploy the application ?', choices: "QA\nPROD\nQA & PROD\nSkip", description: 'What would you like to do?')]
 			}
+		}
+		if (config.approverEmail && config.approverSSO) {
+		    watchListEmail = config.approverEmail
+		    approverEmail = config.approverEmail
+		    approverSSO = config.approverSSO
+		}
+		if (config.approverRole || config.watchlistRole) {
+		    def approverMap = getRoleBasedUsersList(config.approverRole)
+		    def watchListMap = getRoleBasedUsersList(config.watchlistRole)
+		    echo "approverMap: ${approverMap.toMapString()}"
+		    echo "watchListMap: ${watchListMap.toMapString()}"
+		    
+		    watchListEmail = watchListMap.values().toListString()
+		    approverEmail = approverMap.values().toListString()
+		    approverSSO = approverMap.keySet().toListString()
 		}
 	}
 	if (env.ENV_OPTION == 'Skip') {
@@ -82,6 +98,11 @@ echo "appList: ${appList.toMapString()}"
 			echo "You want to deploy in QA!"		
 			runPromote(config, 'qa')
 			echo "Deployed to QA!"
+			
+			mail from: "JenkinsAdmin@ge.com",
+				 to: watchListEmail,
+				 subject: "QA deployment completed for ${config.stackName} application stack",
+				 body: "QA deployment completion details:\n\nApplication Stack: ${config.stackName}\nJob: ${env.JOB_NAME} [${env.BUILD_NUMBER}]\nBuild URL:${env.BUILD_URL}"
 		}
 	}
 	
