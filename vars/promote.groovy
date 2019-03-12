@@ -105,7 +105,7 @@ def call(config) {
 			mail from: "JenkinsAdmin@ge.com",
 				 to: watchListEmail,
 				 subject: "QA deployment completed for ${config.stackName} application stack",
-				 body: "QA deployment Info:\n\nApplication Stack: ${config.stackName}\nJob: ${env.JOB_NAME} [${env.BUILD_NUMBER}] \nBuild URL: ${env.BUILD_URL}"
+				 body: "QA deployment Info:\n\nApplication Stack: ${config.stackName}\nJob: ${env.JOB_NAME} [${env.BUILD_NUMBER}] \n\nBuild URL: ${env.BUILD_URL}"
 		}
 	}
 	
@@ -170,7 +170,7 @@ def call(config) {
 					 to: watchListEmail,
 					 cc: approverEmail,
 					 subject: "PROD deployment completed for ${config.stackName} application stack",
-					 body: "PROD deployment Info:\n\nApplication Stack: ${config.stackName}\nJob: ${env.JOB_NAME} [${env.BUILD_NUMBER}] \nBuild URL: ${env.BUILD_URL}"
+					 body: "PROD deployment Info:\n\nApplication Stack: ${config.stackName}\nJob: ${env.JOB_NAME} [${env.BUILD_NUMBER}] \n\nBuild URL: ${env.BUILD_URL}"
 			}
 		}
 	}
