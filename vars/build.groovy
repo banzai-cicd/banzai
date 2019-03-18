@@ -10,7 +10,7 @@ def call(config) {
         Pattern pattern = Pattern.compile(config.buildBranches)
 
         if (!(BRANCH_NAME ==~ pattern)) {
-          println "${BRANCH_NAME} does not match the buildBranches pattern. Skipping Build"
+          logger "${BRANCH_NAME} does not match the buildBranches pattern. Skipping Build"
           return
         }
       }

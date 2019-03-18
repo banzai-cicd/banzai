@@ -7,11 +7,11 @@ def call(config) {
     if (config.deploySSHCredId) {
       /* should wrap deployCmd in ssh creds */
       if (!config.deployUser) {
-        println "Deploy: No deployUser specified! When passing deploySSHCredId+deployCmd you must also pass deployUser. Skipping Deploy"
+        logger "Deploy: No deployUser specified! When passing deploySSHCredId+deployCmd you must also pass deployUser. Skipping Deploy"
         return
       }
       if (!config.deployServer) {
-        println "Deploy: No deployServer specified! When passing deploySSHCredId you must also pass deployServer. Skipping Deploy"
+        logger "Deploy: No deployServer specified! When passing deploySSHCredId you must also pass deployServer. Skipping Deploy"
         return
       }
 

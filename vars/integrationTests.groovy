@@ -1,6 +1,5 @@
 #!/usr/bin/env groovy
 
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 def call(config) {
@@ -10,7 +9,7 @@ def call(config) {
         Pattern pattern = Pattern.compile(config.integrationTestsBranches)
 
         if (!(BRANCH_NAME ==~ pattern)) {
-          println "${BRANCH_NAME} does not match the integrationTestsBranches pattern. Skipping IT"
+          logger "${BRANCH_NAME} does not match the integrationTestsBranches pattern. Skipping IT"
           return
         }
       }

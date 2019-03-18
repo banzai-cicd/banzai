@@ -31,7 +31,7 @@ def runPipeline(config) {
 
   def passStep = { step ->
     passedSteps += 1
-    println "BANZAI: ${step} PASSED : ${passedSteps}/${steps.size()} STEPS COMPLETE"
+    logger "${step} PASSED : ${passedSteps}/${steps.size()} STEPS COMPLETE"
     if (passedSteps >= steps.size()) {
       currentBuild.result = 'SUCCESS'
     }
@@ -49,6 +49,8 @@ def runPipeline(config) {
     if (config.jdk) {
       jdk = tool name: config.jdk
       env.JAVA_HOME = "${jdk}"
+
+      logger "JAVA_HOME: ${jdk}"
     }
     
     if (config.node) {
@@ -56,11 +58,13 @@ def runPipeline(config) {
       env.NODEJS_HOME = "${tool nodeVersion}"
       // on linux / mac
       env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
+
+      logger "NODEJS_HOME: ${env.NODEJS_HOME}"
     }
 
     sshagent (credentials: config.sshCreds) {
       // TODO notify Flowdock build starting
-      echo "My branch is: ${BRANCH_NAME}"
+      logger "My branch is: ${BRANCH_NAME}"
 
       // checkout the branch that triggered the build if not explicitly skipped
       if (config.preCleanup) {
@@ -75,7 +79,7 @@ def runPipeline(config) {
           passStep('CHECKOUT')
           notify(config, 'Checkout', 'Successful', 'SUCCESS')
         } catch (err) {
-          echo "Caught: ${err}"
+          logger "Caught: ${err}"
           currentBuild.result = 'UNSTABLE'
           if (isGithubError(err)) {
             notify(config, 'Checkout', 'githubdown', 'FAILURE', true)
@@ -93,7 +97,7 @@ def runPipeline(config) {
           passStep('SAST')
           notify(config, 'SAST', 'Successful', 'SUCCESS')
         } catch (err) {
-          echo "Caught: ${err}"
+          logger "Caught: ${err}"
           currentBuild.result = 'UNSTABLE'
           notify(config, 'Build', 'Failed', 'FAILURE')
           throw err
@@ -107,7 +111,7 @@ def runPipeline(config) {
           passStep('BUILD')
           notify(config, 'Build', 'Successful', 'SUCCESS')
         } catch (err) {
-          echo "Caught: ${err}"
+          logger "Caught: ${err}"
           currentBuild.result = 'FAILURE'
           if (isGithubError(err)) {
             notify(config, 'Build', 'githubdown', 'FAILURE', true)
@@ -128,7 +132,7 @@ def runPipeline(config) {
           passStep('PUBLISH')
           notify(config, 'Publish', 'Successful', 'SUCCESS', true)
         } catch (err) {
-          echo "Caught: ${err}"
+          logger "Caught: ${err}"
           currentBuild.result = 'FAILURE'
           if (isGithubError(err)) {
             notify(config, 'Publish', 'githubdown', 'FAILURE', true)
@@ -147,7 +151,7 @@ def runPipeline(config) {
           notify(config, 'Deploy', 'Successful', 'SUCCESS', true)
           // TODO notify Flowdock
         } catch (err) {
-          echo "Caught: ${err}"
+          logger "Caught: ${err}"
           currentBuild.result = 'FAILURE'
           notify(config, 'Deploy', 'Failed', 'FAILURE', true)
           throw err
@@ -171,7 +175,7 @@ def runPipeline(config) {
           passStep('IT')
           notify(config, 'IT', 'Successful', 'SUCCESS', true)
         } catch (err) {
-          echo "Caught: ${err}"
+          logger "Caught: ${err}"
           currentBuild.result = 'FAILURE'
           notify(config, 'IT', 'Failed', 'FAILURE', true)
           throw err
@@ -179,7 +183,7 @@ def runPipeline(config) {
       }
 
       if (config.postCleanup) {
-        println "Cleaning up"
+        logger "Cleaning up"
         step([$class: 'WsCleanup'])
       }
 

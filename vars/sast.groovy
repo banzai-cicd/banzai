@@ -1,6 +1,5 @@
 #!/usr/bin/env groovy
 
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 def call(config) {
@@ -9,7 +8,7 @@ def call(config) {
       Pattern pattern = Pattern.compile(sastBranchesPattern)
 
       if (!(BRANCH_NAME ==~ pattern)) {
-        echo "${BRANCH_NAME} does not match the sastBranches pattern. Skipping SAST"
+        logger "${BRANCH_NAME} does not match the sastBranches pattern. Skipping SAST"
         return
       }
     }
@@ -20,7 +19,7 @@ def call(config) {
       def PRESET = config.sastPreset ?: '17'
 
       if (!config.sastCredId) {
-        println "SAST: No sastCredId specified: Skipping SAST"
+        logger "SAST: No sastCredId specified: Skipping SAST"
         return
       }
       
