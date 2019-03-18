@@ -9,8 +9,8 @@ def call(SCRIPT_FILE_NAME, args=null ) {
     SCRIPT_FILE_NAME = "./" + SCRIPT_FILE_NAME
   }
 
-  println "Running Shell Script ${SCRIPT_FILE_NAME}"
-  println "Cmd: ${WORKSPACE}/${SCRIPT_FILE_NAME}"
+  logger "Running Shell Script ${SCRIPT_FILE_NAME}"
+  logger "Cmd: ${WORKSPACE}/${SCRIPT_FILE_NAME}"
 
   sh """#!/bin/bash
     if [ -f "${WORKSPACE}/${SCRIPT_FILE_NAME}" ] ; then
