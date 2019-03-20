@@ -44,7 +44,8 @@ def call(config) {
               sourceEncoding: '1',
               username: "${CHECKMARX_USER}",
               vulnerabilityThresholdResult: 'FAILURE',
-              waitForResultsEnabled: true
+              waitForResultsEnabled: true,
+              generatePdfReport: true
         ])
 
       }
