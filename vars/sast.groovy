@@ -9,7 +9,7 @@ def call(config) {
       Pattern pattern = Pattern.compile(sastBranchesPattern)
 
       if (!(BRANCH_NAME ==~ pattern)) {
-        echo "${BRANCH_NAME} does not match the sastBranches pattern. Skipping SAST"
+        logger "${BRANCH_NAME} does not match the sastBranches pattern. Skipping SAST"
         return
       }
     }
@@ -20,7 +20,7 @@ def call(config) {
       def PRESET = config.sastPreset ?: '17'
 
       if (!config.sastCredId) {
-        println "SAST: No sastCredId specified: Skipping SAST"
+        logger "SAST: No sastCredId specified: Skipping SAST"
         return
       }
       
@@ -49,10 +49,12 @@ def call(config) {
         ])
 
       }
-      echo "Sending Checkmarx Scan Results..."
-      emailext attachmentsPattern: '**/ScanReport.pdf', body: "BUILD_URL: ${BUILD_URL}", 
-                subject: "Checkmarx Scan Results: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}", 
-                to: "ramesh.ganapathi@ge.com" 
-      echo "Sent Checkmarx Scan Results..."
+      if (config.sastReportEmailTo) {
+          logger "Emailing Checkmarx Scan Results..."
+          emailext attachmentsPattern: '**/ScanReport.pdf', body: "BUILD_URL: ${BUILD_URL}", 
+                    subject: "Checkmarx Scan Results: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}", 
+                    to: config.sastReportEmailTo 
+          logger "Sent Checkmarx Scan Results..."
+      }
     }
 }
