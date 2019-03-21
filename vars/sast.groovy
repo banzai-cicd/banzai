@@ -49,9 +49,10 @@ def call(config) {
         ])
 
       }
-      
+      echo "Sending Checkmarx Scan Results..."
       emailext attachmentsPattern: '**/ScanReport.pdf', body: "BUILD_URL: ${BUILD_URL}", 
                 subject: "Checkmarx Scan Results: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}", 
                 to: "ramesh.ganapathi@ge.com" 
+      echo "Sent Checkmarx Scan Results..."
     }
 }
