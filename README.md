@@ -46,6 +46,8 @@ banzai {
     sast = true
     sastBranches = /tag\-(.*)|develop/          // regex to determine which branches to run SAST against
     sastCredId = 'ge-checkmarx'                 // which credId in Jenkins to use for SAST login
+    sastTeamUUID = 'fgdfg-5402-7635-4562-dfgfg' // SAST team id
+    sastReportEmailTo = 'test@ge.com'           // optional. SAST report to be sent to which email id
     build = true
     buildBranches = /tag\-(.*)|develop/         // regex to determine which branches to build
     buildScriptFile = 'buildScript.sh'          // location of buildScript. defaults to buildScript.sh
