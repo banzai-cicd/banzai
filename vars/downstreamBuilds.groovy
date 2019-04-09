@@ -7,7 +7,7 @@ java.util.regex.Matcher
 String determineOrgName(url) {
     def finder = (url =~ /:([^:]*)\//)
 
-    return finder.getAt(0).getAt(1))
+    return finder.getAt(0).getAt(1)
 }
 
 String determineRepoName(url) {
