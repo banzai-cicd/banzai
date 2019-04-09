@@ -15,11 +15,17 @@ String determineRepoName(url) {
     return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last().split("\\.")[0]
 }
 
-def executeBuild(config, labels) {
+def executeBuild(downstreamBuilds, labels) {
     def targetLabel = labels.removeAt(0)
     def buildKey = targetLabel.replace("build:", "")​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
 
-    build(job: config.downstreamBuilds[buildKey], parameters: [[$class: 'StringParameterValue', name: 'downstreamBuildList', value: labels.join(',')]])
+    // execute downstream build and pass on remaining build list and downstreamBuilds map
+    build(job: downstreamBuilds[buildKey],
+          parameters: [
+              [$class: 'StringParameterValue', name: 'downstreamBuildList', value: labels.join(',')],
+              [$class: 'StringParameterValue', name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds)]
+            ]
+        )
 }
 
 def call(config) {
@@ -37,7 +43,8 @@ def call(config) {
         if (binding.hasVariable('downstreamBuildList') && downstreamBuildList.split(",").size > 0) {
             // we are currently executing a downstream build which needs to trigger additional downstream build(s)
             logger "downstreamBuildList detected. executing"
-            executeBuild(config, downstreamBuildList.split(","))
+            def downstreamBuildsParsed = readJSON(text: downstreamBuilds)
+            executeBuild(downstreamBuildsParsed, downstreamBuildList.split(","))
             return
         }
 
@@ -50,14 +57,14 @@ def call(config) {
             // get latest commit hash from the current branch
             def branchInfoUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/branches/${BRANCH_NAME}"
             def branchInfoResponse = httpRequest(url: branchInfoUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
-            def branchInfo = readJSON text: branchInfoResponse.content
+            def branchInfo = readJSON(text: branchInfoResponse.content)
             def latestCommit = branchInfo.commit.sha
             logger "Latest Commit: ${latestCommit}"
 
             // find the pr with this merge_hash
             def prListUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/pulls?state=closed"
             def prListResponse = httpRequest(url: prListUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
-            def prList = readJSON text: prListResponse.content
+            def prList = readJSON(text: prListResponse.content)
             def targetPr = prList.find { it.merge_commit_sha == latestCommit }
             logger "Associated PR found. PR:${targetPr.number}"
             
@@ -66,7 +73,7 @@ def call(config) {
                 logger "No labels found for the associated pr. Will not trigger downstream builds"
             } else {
                 logger "Labels detected: ${targetPr.labels.join(',')}"
-                executeBuild(config, targetPr.labels)
+                executeBuild(config.downstreamBuilds, targetPr.labels)
             }
         }
         
