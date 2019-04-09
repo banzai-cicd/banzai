@@ -69,19 +69,19 @@ def call(config) {
             logger "Associated PR found. PR:${targetPr.number}"
             
             // determine if it has any labels
-            if (targetPr.labels.size > 0) {
+            if (targetPr.labels.size() > 0) {
                 logger "Labels detected: ${targetPr.labels.join(',')}"
                 def labelValues = []
-                targetPr.labels.each { labelValues.add(it.name) }
+                targetPr.labels.each {
+                    if (it.name.startsWith("build:")) {
+                        labelValues.add(it.name)
+                    }
+                }
 
                 executeBuild(config.downstreamBuilds, labelValues)
             } else {
                 logger "No labels found for the associated pr. Will not trigger downstream builds"
             }
         }
-        
-        // getLatestCommitHash  commit.sha
-        // lookupClosedPrWithMatchingMergeHash https://github.build.ge.com/api/v3/repos/PowerApi/power-api/pulls?state=closed [*].merge_commit_sha
-        // checkForDownstreamBuildLabels result.labels
     }
 }
