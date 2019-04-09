@@ -69,11 +69,14 @@ def call(config) {
             logger "Associated PR found. PR:${targetPr.number}"
             
             // determine if it has any labels
-            if (targetPr.labels.isEmpty()) {
-                logger "No labels found for the associated pr. Will not trigger downstream builds"
-            } else {
+            if (targetPr.labels.size > 0) {
                 logger "Labels detected: ${targetPr.labels.join(',')}"
-                executeBuild(config.downstreamBuilds, targetPr.labels)
+                def labelValues = []
+                targetPr.labels.each { labelValues.add(it.name) }
+
+                executeBuild(config.downstreamBuilds, labelValues)
+            } else {
+                logger "No labels found for the associated pr. Will not trigger downstream builds"
             }
         }
         
