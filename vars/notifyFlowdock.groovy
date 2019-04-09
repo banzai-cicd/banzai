@@ -1,14 +1,11 @@
 #!/usr/bin/env groovy
-
 import groovy.json.JsonOutput
-import java.net.URLEncoder
-import hudson.model.Result
-import java.util.regex.Matcher
+
 import java.util.regex.Pattern
 
 def call(config, stage, message) {
     if (!config.mergeBranches || !config.flowdockCredId || !config.flowdockAuthor) {
-      println "'mergeBranches', 'flowdockFlowToken' and 'flowdockAuthor' are required in your Jenkinsfile when 'flowdock' = true"
+      logger "'mergeBranches', 'flowdockFlowToken' and 'flowdockAuthor' are required in your Jenkinsfile when 'flowdock' = true"
       return
     }
 
@@ -78,11 +75,12 @@ def call(config, stage, message) {
        def payload = JsonOutput.toJson(payloadMap)
 
        if (config.debug) {
-         println(payload)
+         logger(payload)
        }
 
+       logger "Sending Flowdock notification..."
+
        sh """#!/bin/bash
-         echo "Sending Flowdock notification..."
          curl -H \"Content-Type: application/json\" -X POST -s -d \'${payload}\' ${flowdockURL}
          """
     }

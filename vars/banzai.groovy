@@ -31,7 +31,7 @@ def runPipeline(config) {
 
   def passStep = { step ->
 	passedSteps += 1
-	println "BANZAI: ${step} PASSED : ${passedSteps}/${steps.size()} STEPS COMPLETE"
+	logger "BANZAI: ${step} PASSED : ${passedSteps}/${steps.size()} STEPS COMPLETE"
 	if (passedSteps >= steps.size()) {
 	  currentBuild.result = 'SUCCESS'
 	}
@@ -49,6 +49,8 @@ def runPipeline(config) {
 	if (config.jdk) {
 	  jdk = tool name: config.jdk
 	  env.JAVA_HOME = "${jdk}"
+
+    logger "JAVA_HOME: ${jdk}"
 	}
 	
 	if (config.node) {
@@ -64,7 +66,7 @@ def runPipeline(config) {
 
 	  // checkout the branch that triggered the build if not explicitly skipped
 	  if (config.preCleanup) {
-		println "Starting Fresh"
+		logger "Starting Fresh"
 		step([$class: 'WsCleanup'])
 	  }
 
@@ -193,7 +195,7 @@ def runPipeline(config) {
 	  }
 	  
 	  if (config.postCleanup) {
-		  println "Cleaning up"
+		  logger "Cleaning up"
 		  step([$class: 'WsCleanup'])
 	  }
 	} // ssh-agent
@@ -216,7 +218,7 @@ def runPipeline(config) {
 	
 	 /*node() {
 	  if (config.postCleanup) {
-		println "Cleaning up"
+		logger "Cleaning up"
 		step([$class: 'WsCleanup'])
 		  }
 	  }*/ // node

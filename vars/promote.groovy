@@ -37,15 +37,15 @@ def call(config) {
 	stage ('Environment Selection'){
 		
 		if (!config.deploymentRepo || !config.stackName) {
-			println "'promoteRepo' and 'stackName' are required in your Jenkinsfile when 'promote' = true"
+			logger "'promoteRepo' and 'stackName' are required in your Jenkinsfile when 'promote' = true"
 			return
 		}
 		
 		if (config.promoteBranches && env.BRANCH_NAME) {
 			Pattern pattern = Pattern.compile(config.promoteBranches)
-			println "Inside banch check"
+			logger "Inside banch check"
 			if (!(env.BRANCH_NAME ==~ pattern)) {
-			   println "${env.BRANCH_NAME} does not match the promoteBranches pattern. Skipping Promote"
+			   logger "${env.BRANCH_NAME} does not match the promoteBranches pattern. Skipping Promote"
 			   return
 			}
 		}

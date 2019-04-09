@@ -10,7 +10,7 @@ def call(config) {
 	    Pattern pattern = Pattern.compile(config.promoteBranches)
 
 	    if (!(BRANCH_NAME ==~ pattern)) {
-		println "${BRANCH_NAME} does not match the promoteBranches pattern. Skipping markForPromotion"
+		logger "${BRANCH_NAME} does not match the promoteBranches pattern. Skipping markForPromotion"
 		return
 	    }
 	}
@@ -24,7 +24,7 @@ def call(config) {
 	echo "VER_FILE_STATUS: ${VER_FILE_STATUS}" 
 	
 	if (VER_FILE_STATUS == 'EXISTS') {
-	    println "${WORKSPACE}/versionInfo detected"
+	    logger "${WORKSPACE}/versionInfo detected"
 	} else {
 	    throw new IllegalArgumentException("no ${WORKSPACE}/versionInfo exists!")
 	}
