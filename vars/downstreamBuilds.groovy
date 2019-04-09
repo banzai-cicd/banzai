@@ -2,7 +2,7 @@
 
 import java.util.regex.Pattern
 import java.util.regex.Matcher
-import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 
 
 String determineOrgName(url) {
@@ -16,11 +16,15 @@ String determineRepoName(url) {
 }
 
 def executeBuild(downstreamBuilds, labels) {
+    logger "executeBuild"
+    logger labels
     def targetLabel = labels.removeAt(0)
     def buildKey = targetLabel.replace("build:", "")​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
+    def jobPath = downstreamBuilds[buildKey]
+    logger "jobPath: ${jobPath}"
 
     // execute downstream build and pass on remaining build list and downstreamBuilds map
-    build(job: downstreamBuilds[buildKey],
+    build(job: jobPath,
           parameters: [
               [$class: 'StringParameterValue', name: 'downstreamBuildList', value: labels.join(',')],
               [$class: 'StringParameterValue', name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds)]
@@ -70,7 +74,6 @@ def call(config) {
             
             // determine if it has any labels
             if (targetPr.labels.size() > 0) {
-                logger "Labels detected: ${targetPr.labels.join(',')}"
                 def labelValues = []
                 targetPr.labels.each {
                     if (it.name.startsWith("build:")) {
