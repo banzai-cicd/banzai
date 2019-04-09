@@ -1,7 +1,8 @@
 #!/usr/bin/env groovy
 
 import java.util.regex.Pattern
-java.util.regex.Matcher
+import java.util.regex.Matcher
+import groovy.json.JsonSlurper
 
 
 String determineOrgName(url) {
@@ -26,7 +27,7 @@ def call(config) {
             }
         }
 
-        withCredentials([string(credentialsId: config.gitCredId, variable: 'TOKEN')]) {
+        withCredentials([string(credentialsId: config.gitTokenId, variable: 'TOKEN')]) {
             def url = scm.getUserRemoteConfigs()[0].getUrl()
             def orgName = determineOrgName(url)
             def repoName = determineRepoName(url)
