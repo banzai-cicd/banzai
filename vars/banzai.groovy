@@ -16,14 +16,15 @@ def call(body) {
     }
 }
 
+def printEnv() {
+    def envs = sh(returnStdout: true, script: 'env').split('\n')
+    envs.each { name  ->
+        println "Name: $name"
+    }
+}
+
 def runPipeline(config) {
     pipeline {
-
-        parameters {
-            string(name: 'downstreamBuildIds')
-            string(name: 'downstreamBuilds', description: 'serialized downstreamBuilds object automatically passed during a downstream build chain')
-        }
-
         env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
         /*
@@ -50,9 +51,14 @@ def runPipeline(config) {
             return err.message.contains("The suplied credentials are invalid to login") ? true : false
         }
 
-        node() {
+        node() { 
             // clean up old builds (experimental, not sure if this is actually working or not. time will tell)
-            properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10'))])
+            properties(
+              [
+                buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10')),
+                parameters([string(name: 'downstreamBuildIds'), string(name: 'downstreamBuilds', description: 'serialized downstreamBuilds object automatically passed during a downstream build chain')])
+              ]
+            )
 
             // support for jenkins 'tools'
             if (config.jdk) {
