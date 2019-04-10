@@ -56,7 +56,9 @@ def runPipeline(config) {
             properties(
               [
                 buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10')),
-                parameters([string(name: 'downstreamBuildIds'), string(name: 'downstreamBuilds', description: 'serialized downstreamBuilds object automatically passed during a downstream build chain')])
+                parameters([
+                    string(name: 'downstreamBuildIds', defaultValue: 'empty'), 
+                    string(name: 'downstreamBuilds', defaultValue: 'empty', description: 'serialized downstreamBuilds object automatically passed during a downstream build chain')])
               ]
             )
 
@@ -214,7 +216,7 @@ def runPipeline(config) {
                     step([$class: 'WsCleanup'])
                 }
 
-                if (config.downstreamBuilds || params.downstreamBuildIds) {
+                if (config.downstreamBuilds || params.downstreamBuildIds != 'empty') {
                     downstreamBuilds(config)
                 }
             } // ssh-agent

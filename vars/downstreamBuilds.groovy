@@ -99,7 +99,7 @@ def call(config) {
         }
 
         // check to see if this build is part of an ongoing downstream build chain
-        if (params.downstreamBuilds) {
+        if (params.downstreamBuilds != 'empty' && params.downstreamBuildIds != 'empty') {
             def buildIds = params.downstreamBuildIds.split(",").toList()
 
             if (buildIds.getAt(0) == "THE_END") {
