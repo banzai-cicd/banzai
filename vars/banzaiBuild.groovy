@@ -3,6 +3,7 @@
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+// named banzaiBuild to avoid collision with existing 'build' jenkins pipeline plugin
 def call(config) {
     stage ('Build') {
 

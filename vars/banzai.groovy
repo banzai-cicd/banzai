@@ -107,7 +107,7 @@ def runPipeline(config) {
             if (config.build) {
                 try {
                     notify(config, 'Build', 'Pending', 'PENDING')
-                    build(config)
+                    banzaiBuild(config)
                     passStep('BUILD')
                     notify(config, 'Build', 'Successful', 'SUCCESS')
                 } catch (err) {
