@@ -40,13 +40,12 @@ def getBuildIdsWithOptional(config) {
             // determine if the pr has any labels
             def buildIds = []
             if (targetPr.labels.size() > 0) {
-                def labelIds = []
-                targetPr.labels.each {
+                def labelIds = targetPr.labels.collect {
                     if (it.name.startsWith("build:")) {
-                        labelIds.add(it.name.replace("build:", "")​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​)
+                        return it.name.replace("build:", "")​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
                     }
-                }
-
+                }.minus(null)
+                
                 // iterate through builds and add ids that pass optional check
                 buildIds = config.downstreamBuilds.collect {
                     if (!it.optional || labelIds.contains(it.id)) {
