@@ -30,12 +30,12 @@ def runPipeline(config) {
             [
             buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10')),
             parameters([
-                string(name: 'downstreamBuildIds', defaultValue: 'empty'), 
-                string(name: 'downstreamBuilds', defaultValue: 'empty', description: 'serialized downstreamBuilds object automatically passed during a downstream build chain')
+                string(name: 'downstreamBuildIds', required: false), 
+                string(name: 'downstreamBuilds', required: false, description: 'serialized downstreamBuilds object automatically passed during a downstream build chain')
             ])
             ]
         )
-        
+
         env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
         /*
@@ -217,7 +217,7 @@ def runPipeline(config) {
                     step([$class: 'WsCleanup'])
                 }
 
-                if (config.downstreamBuilds || params.downstreamBuildIds != 'empty') {
+                if (config.downstreamBuilds || params.downstreamBuildIds) {
                     downstreamBuilds(config)
                 }
             } // ssh-agent
