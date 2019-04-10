@@ -26,16 +26,15 @@ def printEnv() {
 def runPipeline(config) {
     pipeline {
         // clean up old builds (experimental, not sure if this is actually working or not. time will tell)
-        properties(
-            [
-            buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10')),
-            parameters([
-                string(name: 'downstreamBuildIds', required: false), 
-                string(name: 'downstreamBuilds', required: false, description: 'serialized downstreamBuilds object automatically passed during a downstream build chain')
-            ])
-            ]
-        )
-
+            properties(
+              [
+                buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10')),
+                parameters([
+                    string(name: 'downstreamBuildIds', defaultValue: 'empty'), 
+                    string(name: 'downstreamBuilds', defaultValue: 'empty', description: 'serialized downstreamBuilds object automatically passed during a downstream build chain')
+                ])
+              ]
+            )
         env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
         /*
@@ -217,7 +216,7 @@ def runPipeline(config) {
                     step([$class: 'WsCleanup'])
                 }
 
-                if (config.downstreamBuilds || params.downstreamBuildIds) {
+                if (config.downstreamBuilds || params.downstreamBuildIds != 'empty') {
                     downstreamBuilds(config)
                 }
             } // ssh-agent
