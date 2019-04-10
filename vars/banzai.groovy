@@ -20,7 +20,7 @@ def runPipeline(config) {
     pipeline {
 
         parameters {
-            string(name: 'downstreamBuildIds'),
+            string(name: 'downstreamBuildIds')
             string(name: 'downstreamBuilds', description: 'serialized downstreamBuilds object automatically passed during a downstream build chain')
         }
 
