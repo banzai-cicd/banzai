@@ -79,7 +79,7 @@ def executeBuilds(buildIds, downstreamBuilds) {
           propagate: false,
           wait: false,
           parameters: [
-              string(name: 'downstreamBuildIds', value: buildIds.join(','))
+              string(name: 'downstreamBuildIds', value: buildIds.join(',')),
               string(name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds))
             ]
         )
