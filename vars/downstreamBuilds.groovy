@@ -7,7 +7,6 @@ import groovy.json.JsonOutput
 
 String determineOrgName(url) {
     def finder = (url =~ /:([^:]*)\//)
-
     return finder.getAt(0).getAt(1)
 }
 
@@ -15,18 +14,70 @@ String determineRepoName(url) {
     return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last().split("\\.")[0]
 }
 
-def executeBuild(downstreamBuilds, labels) {
-    logger "executeBuild"
-    logger labels
-    def targetLabel = labels.removeAt(0)
-    def buildKey = targetLabel.replace("build:", "")​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
-    def jobPath = downstreamBuilds[buildKey]
-    logger "jobPath: ${jobPath}"
+// get a list of all the buildIds after checking if optional builds are specified by github pr labels
+def getBuildIdsWithOptional(config) {
+    logger "Evaluating Github PR Labels..."
+    withCredentials([string(credentialsId: config.gitTokenId, variable: 'TOKEN')]) {
+            // determine base repo/branch git url info
+            def url = scm.getUserRemoteConfigs()[0].getUrl()
+            def orgName = determineOrgName(url)
+            def repoName = determineRepoName(url)
 
-    // execute downstream build and pass on remaining build list and downstreamBuilds map
-    build(job: jobPath,
+            // get latest commit hash from the current branch
+            def branchInfoUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/branches/${BRANCH_NAME}"
+            def branchInfoResponse = httpRequest(url: branchInfoUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
+            def branchInfo = readJSON(text: branchInfoResponse.content)
+            def latestCommit = branchInfo.commit.sha
+            logger "Latest ${BRANCH_NAME} branch commit: ${latestCommit}"
+
+            // find the pr with this merge_hash
+            def prListUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/pulls?state=closed"
+            def prListResponse = httpRequest(url: prListUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
+            def prList = readJSON(text: prListResponse.content)
+            def targetPr = prList.find { it.merge_commit_sha == latestCommit }
+            logger "PR found matching commit ${latestCommit} . PR:${targetPr.number}"
+            
+            // determine if the pr has any labels
+            def buildIds = []
+            if (targetPr.labels.size() > 0) {
+                def labelIds = []
+                targetPr.labels.each {
+                    if (it.name.startsWith("build:")) {
+                        labelIds.add(it.name.replace("build:", "")​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​)
+                    }
+                }
+
+                // iterate through builds and add ids that pass optional check
+                buildIds = config.downstreamBuilds.collect {
+                    if (!it.optional || labelIds.contains(it.id)) {
+                        return it.id
+                    }
+                }.minus(null)
+            } else {
+                // just filter out any listed as optional since no labels were found
+                logger "No labels found for the associated pr. No optional downstream builds will be triggered"
+                buildIds = downstreamBuilds.collect {
+                    if (!it.optional) {
+                        return it.id
+                    }
+                }.minus(null)
+            }
+
+            return buildIds
+        }
+}
+
+def executeBuilds(buildIds, downstreamBuilds) {
+    logger "Executing Downstream Builds"
+    logger buildIds
+    def targetBuildId = buildIds.removeAt(0)
+    def targetBuild = downstreamBuilds.find { it.id == targetBuildId }
+    logger "jobPath: ${targetBuild.jobPath}"
+
+    // execute downstream build and pass on remaining buildIds and downstreamBuilds object
+    build(job: targetBuild.jobPath,
           parameters: [
-              [$class: 'StringParameterValue', name: 'downstreamBuildList', value: labels.join(',')],
+              [$class: 'StringParameterValue', name: 'downstreamBuildIds', value: buildIds.join(',')],
               [$class: 'StringParameterValue', name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds)]
             ]
         )
@@ -44,47 +95,25 @@ def call(config) {
             }
         }
 
-        if (binding.hasVariable('downstreamBuildList') && downstreamBuildList.split(",").size > 0) {
+        // check to see if this build is part of an ongoing downstream build chain
+        if (binding.hasVariable('downstreamBuildIds') && downstreamBuildIds.split(",").size > 0) {
             // we are currently executing a downstream build which needs to trigger additional downstream build(s)
-            logger "downstreamBuildList detected. executing"
+            logger "Downstream Build Chain detected. Continuing to execute ${downstreamBuildIds}"
             def downstreamBuildsParsed = readJSON(text: downstreamBuilds)
-            executeBuild(downstreamBuildsParsed, downstreamBuildList.split(","))
+            executeBuilds(downstreamBuildIds.split(","), downstreamBuildsParsed)
             return
         }
 
-        withCredentials([string(credentialsId: config.gitTokenId, variable: 'TOKEN')]) {
-            // determine base repo/branch git url info
-            def url = scm.getUserRemoteConfigs()[0].getUrl()
-            def orgName = determineOrgName(url)
-            def repoName = determineRepoName(url)
 
-            // get latest commit hash from the current branch
-            def branchInfoUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/branches/${BRANCH_NAME}"
-            def branchInfoResponse = httpRequest(url: branchInfoUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
-            def branchInfo = readJSON(text: branchInfoResponse.content)
-            def latestCommit = branchInfo.commit.sha
-            logger "Latest Commit: ${latestCommit}"
-
-            // find the pr with this merge_hash
-            def prListUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/pulls?state=closed"
-            def prListResponse = httpRequest(url: prListUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
-            def prList = readJSON(text: prListResponse.content)
-            def targetPr = prList.find { it.merge_commit_sha == latestCommit }
-            logger "Associated PR found. PR:${targetPr.number}"
-            
-            // determine if it has any labels
-            if (targetPr.labels.size() > 0) {
-                def labelValues = []
-                targetPr.labels.each {
-                    if (it.name.startsWith("build:")) {
-                        labelValues.add(it.name)
-                    }
-                }
-
-                executeBuild(config.downstreamBuilds, labelValues)
-            } else {
-                logger "No labels found for the associated pr. Will not trigger downstream builds"
-            }
+        // see if we have downstreamBuilds in the config
+        def buildIds = []
+        if (config.downstreamBuilds.any { it.optional }) {
+            logger "Optional Downstream Builds detected"
+            buildIds = getBuildIdsWithOptional(config)
+        } else {
+            buildIds config.downstreamBuilds.collect { it.id }
         }
+
+        executeBuilds(buildIds, config.downstreamBuilds)
     }
 }
