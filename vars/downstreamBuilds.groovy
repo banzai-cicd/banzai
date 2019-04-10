@@ -74,15 +74,26 @@ def executeBuilds(buildIds, downstreamBuilds) {
     logger "jobPath: ${targetBuild.jobPath}"
 
     // execute downstream build and pass on remaining buildIds and downstreamBuilds object
-    logger "buildIds: ${buildIds.join(',')}"
-    build(job: targetBuild.jobPath,
-          propagate: false,
-          wait: false,
-          parameters: [
-              string(name: 'downstreamBuildIds', value: buildIds.join(',')),
-              string(name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds))
-            ]
-        )
+    if (buildIds.size() > 0) {
+        logger "buildIds: ${buildIds.join(',')}"
+        build(job: targetBuild.jobPath,
+            propagate: false,
+            wait: false,
+            parameters: [
+                string(name: 'downstreamBuildIds', value: buildIds.join(',')),
+                string(name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds))
+                ]
+            )
+    } else {
+        build(job: targetBuild.jobPath,
+            propagate: false,
+            wait: false,
+            parameters: [
+                string(name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds))
+                ]
+            )
+    }
+    
 }
 
 def call(config) {
@@ -98,12 +109,16 @@ def call(config) {
         }
 
         // check to see if this build is part of an ongoing downstream build chain
-        if (params.downstreamBuildIds) {
-            if (params.downstreamBuildIds.split(",").size() > 0) {
+        if (params.downstreamBuilds) {
+            if (params.downstreamBuildIds && params.downstreamBuildIds.split(",").size() > 0) {
                 // we are currently executing a downstream build which needs to trigger additional downstream build(s)
                 logger "Downstream Build Chain detected. Continuing to execute ${params.downstreamBuildIds}"
                 def downstreamBuildsParsed = readJSON(text: params.downstreamBuilds)
-                executeBuilds(params.downstreamBuildIds.split(","), downstreamBuildsParsed)
+                def buildIds = params.downstreamBuildIds.split(",")
+                if (buildIds instanceof String) {
+                    buildIds = [buildIds]
+                }
+                executeBuilds(buildIds, downstreamBuildsParsed)
             } else {
                 logger "Downstream Build Chain complete"
             }
