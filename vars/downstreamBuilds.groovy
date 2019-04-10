@@ -74,13 +74,13 @@ def executeBuilds(buildIds, downstreamBuilds) {
     logger "jobPath: ${targetBuild.jobPath}"
 
     // execute downstream build and pass on remaining buildIds and downstreamBuilds object
-    logger "buildIds: ${buildIds.join(',')}],"
+    logger "buildIds: ${buildIds.join(',')}"
     build(job: targetBuild.jobPath,
           propagate: false,
           wait: false,
           parameters: [
-              [$class: 'StringParameterValue', name: 'downstreamBuildIds', value: buildIds.join(',')],
-              [$class: 'StringParameterValue', name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds)]
+              string(name: 'downstreamBuildIds', value: buildIds.join(','))
+              string(name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds))
             ]
         )
 }
