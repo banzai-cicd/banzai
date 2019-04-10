@@ -15,55 +15,55 @@ String determineRepoName(url) {
 }
 
 // get a list of all the buildIds after checking if optional builds are specified by github pr labels
-def getBuildIdsWithOptional(config) {
+List<String> getBuildIdsWithOptional(config) {
     logger "Evaluating Github PR Labels..."
     withCredentials([string(credentialsId: config.gitTokenId, variable: 'TOKEN')]) {
-            // determine base repo/branch git url info
-            def url = scm.getUserRemoteConfigs()[0].getUrl()
-            def orgName = determineOrgName(url)
-            def repoName = determineRepoName(url)
+        // determine base repo/branch git url info
+        def url = scm.getUserRemoteConfigs()[0].getUrl()
+        def orgName = determineOrgName(url)
+        def repoName = determineRepoName(url)
 
-            // get latest commit hash from the current branch
-            def branchInfoUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/branches/${BRANCH_NAME}"
-            def branchInfoResponse = httpRequest(url: branchInfoUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
-            def branchInfo = readJSON(text: branchInfoResponse.content)
-            def latestCommit = branchInfo.commit.sha
-            logger "Latest ${BRANCH_NAME} branch commit: ${latestCommit}"
+        // get latest commit hash from the current branch
+        def branchInfoUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/branches/${BRANCH_NAME}"
+        def branchInfoResponse = httpRequest(url: branchInfoUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
+        def branchInfo = readJSON(text: branchInfoResponse.content)
+        def latestCommit = branchInfo.commit.sha
+        logger "Latest ${BRANCH_NAME} branch commit: ${latestCommit}"
 
-            // find the pr with this merge_hash
-            def prListUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/pulls?state=closed"
-            def prListResponse = httpRequest(url: prListUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
-            def prList = readJSON(text: prListResponse.content)
-            def targetPr = prList.find { it.merge_commit_sha == latestCommit }
-            logger "PR found matching commit ${latestCommit} . PR:${targetPr.number}"
+        // find the pr with this merge_hash
+        def prListUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/pulls?state=closed"
+        def prListResponse = httpRequest(url: prListUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
+        def prList = readJSON(text: prListResponse.content)
+        def targetPr = prList.find { it.merge_commit_sha == latestCommit }
+        logger "PR found matching commit ${latestCommit} . PR:${targetPr.number}"
+        
+        // determine if the pr has any labels
+        def buildIds = []
+        if (targetPr.labels.size() > 0) {
+            def labelIds = targetPr.labels.collect {
+                if (it.name.startsWith("build:")) {
+                    return it.name.replace("build:", "")
+                }
+            }.minus(null)
             
-            // determine if the pr has any labels
-            def buildIds = []
-            if (targetPr.labels.size() > 0) {
-                def labelIds = targetPr.labels.collect {
-                    if (it.name.startsWith("build:")) {
-                        return it.name.replace("build:", "")​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
-                    }
-                }.minus(null)
-                
-                // iterate through builds and add ids that pass optional check
-                buildIds = config.downstreamBuilds.collect {
-                    if (!it.optional || labelIds.contains(it.id)) {
-                        return it.id
-                    }
-                }.minus(null)
-            } else {
-                // just filter out any listed as optional since no labels were found
-                logger "No labels found for the associated pr. No optional downstream builds will be triggered"
-                buildIds = downstreamBuilds.collect {
-                    if (!it.optional) {
-                        return it.id
-                    }
-                }.minus(null)
-            }
-
-            return buildIds
+            // iterate through builds and add ids that pass optional check
+            buildIds = config.downstreamBuilds.collect {
+                if (!it.optional || labelIds.contains(it.id)) {
+                    return it.id
+                }
+            }.minus(null)
+        } else {
+            // just filter out any listed as optional since no labels were found
+            logger "No labels found for the associated pr. No optional downstream builds will be triggered"
+            buildIds = downstreamBuilds.collect {
+                if (!it.optional) {
+                    return it.id
+                }
+            }.minus(null)
         }
+
+        return buildIds
+    }
 }
 
 def executeBuilds(buildIds, downstreamBuilds) {
