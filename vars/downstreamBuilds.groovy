@@ -47,7 +47,7 @@ List<String> getBuildIdsWithOptional(config) {
             }.minus(null)
             
             // iterate through builds and add ids that pass optional check
-            buildIds = config.downstreamBuilds.collect {
+            buildIds = config.downstreamBuilds[BRANCH_NAME].collect {
                 if (!it.optional || labelIds.contains(it.id)) {
                     return it.id
                 }
@@ -55,7 +55,7 @@ List<String> getBuildIdsWithOptional(config) {
         } else {
             // just filter out any listed as optional since no labels were found
             logger "No labels found for the associated pr. No optional downstream builds will be triggered"
-            buildIds = downstreamBuilds.collect {
+            buildIds = config.downstreamBuilds[BRANCH_NAME].collect {
                 if (!it.optional) {
                     return it.id
                 }
@@ -66,22 +66,22 @@ List<String> getBuildIdsWithOptional(config) {
     }
 }
 
-def executeBuilds(buildIds, downstreamBuilds) {
+def executeBuilds(buildIds, downstreamBuildDefinitions) {
     logger "Executing Downstream Builds"
     def targetBuildId = buildIds.removeAt(0)
-    def targetBuild = downstreamBuilds.find { it.id == targetBuildId }
+    def targetBuild = downstreamBuildDefinitions.find { it.id == targetBuildId }
     logger "Downstream Build Located: ${targetBuild.jobPath}"
     if (buildIds.size() == 0) {
         buildIds.add("THE_END")
     }
 
-    // execute downstream build and pass on remaining buildIds and downstreamBuilds object
+    // execute downstream build and pass on remaining buildIds and downstreamBuildDefinitions object
     build(job: targetBuild.jobPath,
         propagate: false,
         wait: false,
         parameters: [
                 string(name: 'downstreamBuildIds', value: buildIds.join(',')),
-                string(name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds))
+                string(name: 'downstreamBuildDefinitions', value: JsonOutput.toJson(downstreamBuildDefinitions))
             ]
         )
 }
@@ -99,7 +99,9 @@ def call(config) {
         }
 
         // check to see if this build is part of an ongoing downstream build chain
-        if (params.downstreamBuilds != 'empty' && params.downstreamBuildIds != 'empty') {
+        // params.downstreamBuildDefinitions is not the same as config.downstreamBuilds. The BRANCH_NAME has already been taken into account at this point
+        // and params.downstreamBuildDefinitions just represents the collection of downstreamBuild definitions
+        if (params.downstreamBuildDefinitions != 'empty' && params.downstreamBuildIds != 'empty') {
             def buildIds = params.downstreamBuildIds.split(",").toList()
 
             if (buildIds.getAt(0) == "THE_END") {
@@ -107,23 +109,22 @@ def call(config) {
             } else {
                 // we are currently executing a downstream build which needs to trigger additional downstream build(s)
                 logger "Downstream Build Chain detected. Continuing to execute ${params.downstreamBuildIds}"
-                def downstreamBuildsParsed = readJSON(text: params.downstreamBuilds)
+                def downstreamBuildsParsed = readJSON(text: params.downstreamBuildDefinitions)
                 executeBuilds(buildIds, downstreamBuildsParsed)
             }
 
             return
         }
 
-
         // see if we have downstreamBuilds in the config
         def buildIds = []
-        if (config.downstreamBuilds.any { it.optional }) {
+        if (config.downstreamBuilds[BRANCH_NAME].any { it.optional }) {
             logger "Optional Downstream Builds detected"
             buildIds = getBuildIdsWithOptional(config)
         } else {
-            buildIds config.downstreamBuilds.collect { it.id }
+            buildIds config.downstreamBuilds[BRANCH_NAME].collect { it.id }
         }
 
-        executeBuilds(buildIds, config.downstreamBuilds)
+        executeBuilds(buildIds, config.downstreamBuilds[BRANCH_NAME])
     }
 }

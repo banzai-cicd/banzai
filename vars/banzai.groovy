@@ -31,7 +31,7 @@ def runPipeline(config) {
                 buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10')),
                 parameters([
                     string(name: 'downstreamBuildIds', defaultValue: 'empty', description: 'list of buildIds to execute against'), 
-                    string(name: 'downstreamBuilds', defaultValue: 'empty', description: 'serialized downstreamBuilds object automatically passed during a downstream build chain')
+                    string(name: 'downstreamBuildDefinitions', defaultValue: 'empty', description: 'serialized downstreamBuildDefinitions collection automatically passed during a downstream build chain')
                 ])
               ]
             )

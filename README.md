@@ -58,5 +58,15 @@ banzai {
     deployBranches = /tag\-(.*)|develop/        // regex to determine which branches to deploy
     deployScriptFile = 'deployScript.sh'        // location of deployScript. defaults to deployScript.sh
     jdk = 'jdk 10.0.1'                          // value must be the name given to a configured JDK in the Global Tools sections of Jenkins
+    downstreamBuildBranches = /develop/
+    downstreamBuilds = [
+      develop: [
+        [
+          id: 'my-job',
+          jobPath: '/YOUR_PROJECT_FOLDER/Build/your-project/branch',
+          optional: true
+        ]
+      ]
+    ]
 }
 ```
