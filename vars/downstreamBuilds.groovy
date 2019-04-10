@@ -96,11 +96,16 @@ def call(config) {
         }
 
         // check to see if this build is part of an ongoing downstream build chain
-        if (binding.hasVariable('downstreamBuildIds') && downstreamBuildIds.split(",").size > 0) {
-            // we are currently executing a downstream build which needs to trigger additional downstream build(s)
-            logger "Downstream Build Chain detected. Continuing to execute ${downstreamBuildIds}"
-            def downstreamBuildsParsed = readJSON(text: downstreamBuilds)
-            executeBuilds(downstreamBuildIds.split(","), downstreamBuildsParsed)
+        if (binding.hasVariable('downstreamBuildIds')) {
+            if (downstreamBuildIds.split(",").size > 0) {
+                // we are currently executing a downstream build which needs to trigger additional downstream build(s)
+                logger "Downstream Build Chain detected. Continuing to execute ${downstreamBuildIds}"
+                def downstreamBuildsParsed = readJSON(text: downstreamBuilds)
+                executeBuilds(downstreamBuildIds.split(","), downstreamBuildsParsed)
+            } else {
+                logger "Downstream Build Chain complete"
+            }
+            
             return
         }
 
