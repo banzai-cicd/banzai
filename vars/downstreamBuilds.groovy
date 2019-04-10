@@ -71,7 +71,7 @@ def executeBuilds(buildIds, downstreamBuilds) {
     def targetBuildId = buildIds.removeAt(0)
     def targetBuild = downstreamBuilds.find { it.id == targetBuildId }
     logger "Downstream Build Located: ${targetBuild.jobPath}"
-    if (buildIds.size == 0) {
+    if (buildIds.size() == 0) {
         buildIds.add("THE_END")
     }
 
