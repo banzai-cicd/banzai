@@ -99,7 +99,7 @@ def call(config) {
 
         // check to see if this build is part of an ongoing downstream build chain
         if (params.downstreamBuildIds) {
-            if (downstreamBuildIds.split(",").size > 0) {
+            if (params.downstreamBuildIds.split(",").size > 0) {
                 // we are currently executing a downstream build which needs to trigger additional downstream build(s)
                 logger "Downstream Build Chain detected. Continuing to execute ${params.downstreamBuildIds}"
                 def downstreamBuildsParsed = readJSON(text: params.downstreamBuilds)
