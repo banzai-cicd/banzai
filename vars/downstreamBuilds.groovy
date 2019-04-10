@@ -75,6 +75,8 @@ def executeBuilds(buildIds, downstreamBuilds) {
 
     // execute downstream build and pass on remaining buildIds and downstreamBuilds object
     build(job: targetBuild.jobPath,
+          propagate: false,
+          wait: false,
           parameters: [
               [$class: 'StringParameterValue', name: 'downstreamBuildIds', value: buildIds.join(',')],
               [$class: 'StringParameterValue', name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds)]
