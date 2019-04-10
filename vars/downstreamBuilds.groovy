@@ -74,6 +74,7 @@ def executeBuilds(buildIds, downstreamBuilds) {
     logger "jobPath: ${targetBuild.jobPath}"
 
     // execute downstream build and pass on remaining buildIds and downstreamBuilds object
+    logger "[$class: 'StringParameterValue', name: 'downstreamBuildIds', value: ${buildIds.join(',')}],"
     build(job: targetBuild.jobPath,
           propagate: false,
           wait: false,
@@ -97,12 +98,12 @@ def call(config) {
         }
 
         // check to see if this build is part of an ongoing downstream build chain
-        if (binding.hasVariable('downstreamBuildIds')) {
+        if (params.downstreamBuildIds)) {
             if (downstreamBuildIds.split(",").size > 0) {
                 // we are currently executing a downstream build which needs to trigger additional downstream build(s)
-                logger "Downstream Build Chain detected. Continuing to execute ${downstreamBuildIds}"
-                def downstreamBuildsParsed = readJSON(text: downstreamBuilds)
-                executeBuilds(downstreamBuildIds.split(","), downstreamBuildsParsed)
+                logger "Downstream Build Chain detected. Continuing to execute ${params.downstreamBuildIds}"
+                def downstreamBuildsParsed = readJSON(text: params.downstreamBuilds)
+                executeBuilds(params.downstreamBuildIds.split(","), downstreamBuildsParsed)
             } else {
                 logger "Downstream Build Chain complete"
             }

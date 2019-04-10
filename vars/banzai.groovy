@@ -208,7 +208,7 @@ def runPipeline(config) {
                     step([$class: 'WsCleanup'])
                 }
 
-                if (config.downstreamBuilds || downstreamBuildIds) {
+                if (config.downstreamBuilds || params.downstreamBuildIds) {
                     downstreamBuilds(config)
                 }
             } // ssh-agent
