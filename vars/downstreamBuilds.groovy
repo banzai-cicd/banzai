@@ -71,30 +71,19 @@ def executeBuilds(buildIds, downstreamBuilds) {
     def targetBuildId = buildIds.removeAt(0)
     def targetBuild = downstreamBuilds.find { it.id == targetBuildId }
     logger "Downstream Build Located: ${targetBuild.jobPath}"
+    if (buildIds.size == 0) {
+        buildIds.add("THE_END")
+    }
 
     // execute downstream build and pass on remaining buildIds and downstreamBuilds object
-    if (buildIds.size() > 0) {
-        // pass remaining buildIds to next build
-        build(job: targetBuild.jobPath,
-            propagate: false,
-            wait: false,
-            parameters: [
-                    string(name: 'downstreamBuildIds', value: buildIds.join(',')),
-                    string(name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds))
-                ]
-            )
-    } else {
-        // we pass downstreamBuilds strictly so that the next build
-        // will know it is part of a build chain and display the 'end of build chain' message
-        build(job: targetBuild.jobPath,
-            propagate: false,
-            wait: false,
-            parameters: [
-                    string(name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds))
-                ]
-            )
-    }
-    
+    build(job: targetBuild.jobPath,
+        propagate: false,
+        wait: false,
+        parameters: [
+                string(name: 'downstreamBuildIds', value: buildIds.join(',')),
+                string(name: 'downstreamBuilds', value: JsonOutput.toJson(downstreamBuilds))
+            ]
+        )
 }
 
 def call(config) {
@@ -111,16 +100,17 @@ def call(config) {
 
         // check to see if this build is part of an ongoing downstream build chain
         if (params.downstreamBuilds) {
-            if (params.downstreamBuildIds && params.downstreamBuildIds.split(",").size() > 0) {
+            def buildIds = params.downstreamBuildIds.split(",").toList()
+
+            if (buildIds.getAt(0) == "THE_END") {
+                logger "Downstream Build Chain complete"
+            } else {
                 // we are currently executing a downstream build which needs to trigger additional downstream build(s)
                 logger "Downstream Build Chain detected. Continuing to execute ${params.downstreamBuildIds}"
                 def downstreamBuildsParsed = readJSON(text: params.downstreamBuilds)
-                def buildIds = params.downstreamBuildIds.split(",").toList()
                 executeBuilds(buildIds, downstreamBuildsParsed)
-            } else {
-                logger "Downstream Build Chain complete"
             }
-            
+
             return
         }
 
