@@ -101,11 +101,11 @@ def validateBuildDef(build) {
 }
 
 def executeBuilds(buildIds, downstreamBuildDefinitions) {
-    logger "Executing Downstream Builds"
-
     if (buildIds.size() > 0 && downstreamBuildDefinitions[buildIds.get(0)].parallel) {
+        logger "Executing Downstream Builds in parallel"
         executeParallelBuilds(buildIds, downstreamBuildDefinitions)
     } else {
+        logger "Executing Downstream Builds in serial"
         executeSerialBuild(buildIds, downstreamBuildDefinitions)
     }
 }
@@ -143,6 +143,7 @@ def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
     def parallelBuildIds = buildIds.takeWhile { 
         downstreamBuildDefinitions[it].parallel
     }
+    logger "Parallel Build IDs identified: ${parallelBuildIds.join(',')}"
 
     // calculate the remaining build ids after the parallel builds run
     def remainingBuildIds = buildIds.drop(parallelBuildIds.size())
@@ -160,7 +161,7 @@ def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
 
         // if the tagetBuild has the 'wait' property we remove it because users aren't allowed to set it on a parrallel job
         targetBuild.remove('wait')
-
+        logger "Scheduling Parallel Build ${it}"
         return [
             "ParallelBuild:${it}": {
                 build(buildDefaults << targetBuild)
@@ -199,7 +200,9 @@ def call(config) {
             } else {
                 // we are currently executing a downstream build which needs to trigger additional downstream build(s)
                 logger "Downstream Build Chain detected. Continuing to execute ${params.downstreamBuildIds}"
-                def downstreamBuildsParsed = readJSON(text: params.downstreamBuildDefinitions)
+                def jsonList = readJSON(text: params.downstreamBuildDefinitions)
+                // convert the JSONObject's to LinkedHashMap so that .clone() works later
+                def downstreamBuildsParsed = jsonList.collect { JSONObject.toBean(it, java.util.LinkedHashMap) }
                 executeBuilds(buildIds, downstreamBuildsParsed)
             }
 
