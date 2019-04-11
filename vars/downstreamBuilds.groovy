@@ -14,9 +14,13 @@ String determineRepoName(url) {
     return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last().split("\\.")[0]
 }
 
+Map findBuildDef(id, buildDefinitions) {
+    return buildDefinitions.find { it.id == id }
+}
+
 Map findAndValidateTargetBuild(id, buildDefinitions) {
     logger "Finding Build Definition with id ${id}"
-    def result = buildDefinitions.find { it.id == id }
+    def result = findBuildDef(id, buildDefinitions)
     def targetBuild = result.clone()
     validateBuildDef(targetBuild)
     removeCustomPropertiesFromBuildDef(targetBuild)
@@ -101,7 +105,9 @@ def validateBuildDef(build) {
 }
 
 def executeBuilds(buildIds, downstreamBuildDefinitions) {
-    if (buildIds.size() > 0 && downstreamBuildDefinitions[buildIds.get(0)].parallel) {
+    def nextBuild = findBuildDef(buildIds.get(0), downstreamBuildDefinitions)
+
+    if (buildIds.size() > 0 && nextBuild.parallel) {
         logger "Executing Downstream Builds in parallel"
         executeParallelBuilds(buildIds, downstreamBuildDefinitions)
     } else {
@@ -200,10 +206,19 @@ def call(config) {
             } else {
                 // we are currently executing a downstream build which needs to trigger additional downstream build(s)
                 logger "Downstream Build Chain detected. Continuing to execute ${params.downstreamBuildIds}"
-                def jsonList = readJSON(text: params.downstreamBuildDefinitions)
-                // convert the JSONObject's to LinkedHashMap so that .clone() works later
-                def downstreamBuildsParsed = jsonList.collect { JSONObject.toBean(it, java.util.LinkedHashMap) }
-                executeBuilds(buildIds, downstreamBuildsParsed)
+                def downstreamBuildsJSONArr = readJSON(text: params.downstreamBuildDefinitions)
+                // convert json objects to Maps so that .clone() can be called later
+                def downstreamBuildsArr = downstreamBuildsJSONArr.collect {
+                    def buildDef = [:]
+
+                    it.keySet().each { k -> 
+                        buildDef[k] = it[k] 
+                    }
+
+                    buildDef
+                }
+
+                executeBuilds(buildIds, downstreamBuildsArr)
             }
 
             return
