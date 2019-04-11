@@ -144,11 +144,16 @@ def executeSerialBuild(buildIds, downstreamBuildDefinitions) {
     build(buildDefaults << targetBuild << [parameters: buildParams])
 }
 
-def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
+@NonCPS
+def getParallelBuildIds(buildIds, downstreamBuildDefinitions) {
     // get all consecutive buildIds which map to definitions that have `parallel: true`
-    def parallelBuildIds = buildIds.takeWhile { 
-        downstreamBuildDefinitions[it].parallel
+    return buildIds.takeWhile { 
+        findBuildDef(it, downstreamBuildDefinitions).parallel
     }
+}
+
+def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
+    def parallelBuildIds = getParallelBuildIds(buildIds, downstreamBuildDefinitions)
     logger "Parallel Build IDs identified: ${parallelBuildIds.join(',')}"
 
     // calculate the remaining build ids after the parallel builds run
