@@ -60,7 +60,7 @@ banzai {
     jdk = 'jdk 10.0.1'                          // value must be the name given to a configured JDK in the Global Tools sections of Jenkins
     downstreamBuildBranches = /develop/
     downstreamBuilds = [
-      develop: [
+      develop: [ // 'develop' signifies that this collection of downstream job definition's will only run when the 'develop' branch is matched
         [
           id: 'my-job',
           job: '/YOUR_PROJECT_FOLDER/Build/your-project/branch',
@@ -70,3 +70,6 @@ banzai {
     ]
 }
 ```
+
+### downstreamBuilds
+The downstream build definition supports all of the properties documented by [Jenkins Pipeline Build Step](https://jenkins.io/doc/pipeline/steps/pipeline-build-step/) as well as 2 custom properties `id` and `optional`. `id` is used to map Github PR labels in the event that `optional` is set to `true`.
