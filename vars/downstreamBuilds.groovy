@@ -15,7 +15,9 @@ String determineRepoName(url) {
 }
 
 Map findAndValidateTargetBuild(id, buildDefinitions) {
-    def targetBuild = buildDefinitions.find { it.id == id }
+    logger "Finding Build Definition with id ${id}"
+    def result = buildDefinitions.find { it.id == id }
+    def targetBuild = result.clone()
     validateBuildDef(targetBuild)
     removeCustomPropertiesFromBuildDef(targetBuild)
 
@@ -102,41 +104,7 @@ def executeBuilds(buildIds, downstreamBuildDefinitions) {
     logger "Executing Downstream Builds"
 
     if (buildIds.size() > 0 && downstreamBuildDefinitions[buildIds.get(0)].parallel) {
-        // get all consecutive buildIds which map to definitions that have `parallel: true`
-        def parallelBuildIds = buildIds.takeWhile { 
-            downstreamBuildDefinitions[it].parallel
-        }
-
-        // calculate the remaining build ids after the parallel builds run
-        def remainingBuildIds = buildIds.drop(parallelBuildIds.size())
-
-        // assemble our parallel builds
-        def parallelBuilds = parallelBuildIds.collect {
-            def targetBuild = findAndValidateTargetBuild(it, downstreamBuildDefinitions)
-
-            // if we have remaining buildIds then we need to wait for our parallel builds to finish
-            // so that we can use this build to then kick those off
-            def buildDefaults = [
-                propagate: false,
-                wait: (remainingBuildIds.size() > 0)
-            ]
-
-            // if the tagetBuild has the 'wait' property we remove it because users aren't allowed to set it on a parrallel job
-            targetBuild.remove('wait')
-
-            return [
-                "ParallelBuild:${it}": {
-                    build(buildDefaults << targetBuild)
-                }
-            ]
-        }
-
-        // execute our parallel builds
-        parallel(parallelBuilds)
-        
-        if (remainingBuildIds > 0) {
-            executeSerialBuild(remainingBuildIds, downstreamBuildDefinitions)
-        }
+        executeParallelBuilds(buildIds, downstreamBuildDefinitions)
     } else {
         executeSerialBuild(buildIds, downstreamBuildDefinitions)
     }
@@ -168,6 +136,44 @@ def executeSerialBuild(buildIds, downstreamBuildDefinitions) {
     // this syntax allows the 'jenkins pipeline build step' to add properties 
     // in the future and automatically be support with-out code change. (unless they use a prop name we're using, ie) 'id', 'optional'
     build(buildDefaults << targetBuild << [parameters: buildParams])
+}
+
+def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
+    // get all consecutive buildIds which map to definitions that have `parallel: true`
+    def parallelBuildIds = buildIds.takeWhile { 
+        downstreamBuildDefinitions[it].parallel
+    }
+
+    // calculate the remaining build ids after the parallel builds run
+    def remainingBuildIds = buildIds.drop(parallelBuildIds.size())
+
+    // assemble our parallel builds
+    def parallelBuilds = parallelBuildIds.collect {
+        def targetBuild = findAndValidateTargetBuild(it, downstreamBuildDefinitions)
+
+        // if we have remaining buildIds then we need to wait for our parallel builds to finish
+        // so that we can use this build to then kick those off
+        def buildDefaults = [
+            propagate: false,
+            wait: (remainingBuildIds.size() > 0)
+        ]
+
+        // if the tagetBuild has the 'wait' property we remove it because users aren't allowed to set it on a parrallel job
+        targetBuild.remove('wait')
+
+        return [
+            "ParallelBuild:${it}": {
+                build(buildDefaults << targetBuild)
+            }
+        ]
+    }
+
+    // execute our parallel builds
+    parallel(parallelBuilds)
+    
+    if (remainingBuildIds > 0) {
+        executeSerialBuild(remainingBuildIds, downstreamBuildDefinitions)
+    }
 }
 
 def call(config) {
