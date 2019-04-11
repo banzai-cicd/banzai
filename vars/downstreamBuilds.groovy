@@ -74,16 +74,22 @@ def executeBuilds(buildIds, downstreamBuildDefinitions) {
     if (buildIds.size() == 0) {
         buildIds.add("THE_END")
     }
-
-    // execute downstream build and pass on remaining buildIds and downstreamBuildDefinitions object
-    build(job: targetBuild.jobPath,
+    
+    def buildDefaults = [
         propagate: false,
-        wait: false,
+        wait: false
+    ]
+
+    def buildRequirements = [
         parameters: [
                 string(name: 'downstreamBuildIds', value: buildIds.join(',')),
                 string(name: 'downstreamBuildDefinitions', value: JsonOutput.toJson(downstreamBuildDefinitions))
             ]
         )
+    ]
+
+    // execute downstream build and pass on remaining buildIds and downstreamBuildDefinitions object
+    build(buildDefaults << targetBuild << buildRequirements)
 }
 
 def call(config) {

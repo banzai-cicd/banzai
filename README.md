@@ -63,7 +63,7 @@ banzai {
       develop: [
         [
           id: 'my-job',
-          jobPath: '/YOUR_PROJECT_FOLDER/Build/your-project/branch',
+          job: '/YOUR_PROJECT_FOLDER/Build/your-project/branch',
           optional: true // when true, the downstream build will only run if the Pull Request contains a label in the format 'build:<job-id>', ie) 'build:my-job'
         ]
       ]
