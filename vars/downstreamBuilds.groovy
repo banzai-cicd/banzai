@@ -3,7 +3,7 @@
 import java.util.regex.Pattern
 import java.util.regex.Matcher
 import groovy.json.JsonOutput
-
+import net.sf.json.JSONObject
 
 String determineOrgName(url) {
     def finder = (url =~ /:([^:]*)\//)
