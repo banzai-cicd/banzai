@@ -91,6 +91,21 @@ def validateBuildDef(build) {
 
 def executeBuilds(buildIds, downstreamBuildDefinitions) {
     logger "Executing Downstream Builds"
+
+    if (downstreamBuildDefinitions[buildIds.getAt(0)].parallel) {
+        // get all consecutive buildIds which map to definitions that have `parallel: true`
+        def parallelBuildIds = buildIds.takeWhile { 
+            downstreamBuildDefinitions[it].parallel
+        }
+        // calculate the remaining build ids after the parallel builds run
+        def remainingBuildIds = downstreamBuildDefinitions.drop(parallelBuildIds.size())
+        
+    } else {
+        executeSerialBuild(buildIds, downstreamBuildDefinitions)
+    }
+}
+
+def executeSerialBuild() {
     def targetBuildId = buildIds.removeAt(0)
     def targetBuild = downstreamBuildDefinitions.find { it.id == targetBuildId }
     validateBuildDef(targetBuild)
