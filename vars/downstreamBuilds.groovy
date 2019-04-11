@@ -101,7 +101,7 @@ def validateBuildDef(build) {
 def executeBuilds(buildIds, downstreamBuildDefinitions) {
     logger "Executing Downstream Builds"
 
-    if (downstreamBuildDefinitions[buildIds.getAt(0)].parallel) {
+    if (downstreamBuildDefinitions[buildIds.get(0)].parallel) {
         // get all consecutive buildIds which map to definitions that have `parallel: true`
         def parallelBuildIds = buildIds.takeWhile { 
             downstreamBuildDefinitions[it].parallel
