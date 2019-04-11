@@ -66,11 +66,37 @@ List<String> getBuildIdsWithOptional(config) {
     }
 }
 
+// remove any custom properties that we support which we know
+// aren't properties of the 'jenkins pipeline build step' https://jenkins.io/doc/pipeline/steps/pipeline-build-step/
+def removeCustomPropertiesFromBuildDef(build) {
+    build.remove('id')
+    build.remove('optional')
+}
+
+def validateBuildDef(build) {
+    def missingProps = []
+    def requiredProps = ['job', 'id']
+
+    requiredProps.each { 
+        if (!build.hasProperty(it)) { 
+            missingProps.add(it) 
+        }
+    }
+
+    if (missingProps.size() > 0) {
+        currentBuild.result = 'ABORTED'
+        error("Downstream Build Definition is missing the required field(s): ${missingProps.join(',')}")
+    }
+}
+
 def executeBuilds(buildIds, downstreamBuildDefinitions) {
     logger "Executing Downstream Builds"
     def targetBuildId = buildIds.removeAt(0)
     def targetBuild = downstreamBuildDefinitions.find { it.id == targetBuildId }
-    logger "Downstream Build Located: ${targetBuild.jobPath}"
+    validateBuildDef(targetBuild)
+    removeCustomPropertiesFromBuildDef(targetBuild)
+
+    logger "Downstream Build Located: ${targetBuild.job}"
     if (buildIds.size() == 0) {
         buildIds.add("THE_END")
     }
@@ -80,16 +106,18 @@ def executeBuilds(buildIds, downstreamBuildDefinitions) {
         wait: false
     ]
 
-    def buildRequirements = [
-        parameters: [
-                string(name: 'downstreamBuildIds', value: buildIds.join(',')),
-                string(name: 'downstreamBuildDefinitions', value: JsonOutput.toJson(downstreamBuildDefinitions))
-            ]
-        )
+    def buildParams = [
+        string(name: 'downstreamBuildIds', value: buildIds.join(',')),
+        string(name: 'downstreamBuildDefinitions', value: JsonOutput.toJson(downstreamBuildDefinitions))
     ]
 
-    // execute downstream build and pass on remaining buildIds and downstreamBuildDefinitions object
-    build(buildDefaults << targetBuild << buildRequirements)
+    if (targetBuild.parameters) {
+        buildParams = (targetBuild.parameters + buildParams)
+    }
+
+    // this syntax allows the 'jenkins pipeline build step' to add properties 
+    // in the future and automatically be support with-out code change. (unless they use a prop name we're using, ie) 'id', 'optional'
+    build(buildDefaults << targetBuild << [parameters: buildParams])
 }
 
 def call(config) {
