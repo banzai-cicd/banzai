@@ -78,7 +78,7 @@ def validateBuildDef(build) {
     def requiredProps = ['job', 'id']
 
     requiredProps.each { 
-        if (!build.hasProperty(it)) { 
+        if (!build.containsKey(it)) { 
             missingProps.add(it) 
         }
     }
