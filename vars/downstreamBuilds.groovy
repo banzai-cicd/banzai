@@ -14,6 +14,14 @@ String determineRepoName(url) {
     return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last().split("\\.")[0]
 }
 
+Map findAndValidateTargetBuild(id, buildDefinitions) {
+    def targetBuild = buildDefinitions.find { it.id == id }
+    validateBuildDef(targetBuild)
+    removeCustomPropertiesFromBuildDef(targetBuild)
+
+    return targetBuild
+}
+
 // get a list of all the buildIds after checking if optional builds are specified by github pr labels
 List<String> getBuildIdsWithOptional(config) {
     logger "Evaluating Github PR Labels..."
@@ -71,6 +79,7 @@ List<String> getBuildIdsWithOptional(config) {
 def removeCustomPropertiesFromBuildDef(build) {
     build.remove('id')
     build.remove('optional')
+    build.remove('parallel')
 }
 
 def validateBuildDef(build) {
@@ -97,19 +106,45 @@ def executeBuilds(buildIds, downstreamBuildDefinitions) {
         def parallelBuildIds = buildIds.takeWhile { 
             downstreamBuildDefinitions[it].parallel
         }
+
         // calculate the remaining build ids after the parallel builds run
-        def remainingBuildIds = downstreamBuildDefinitions.drop(parallelBuildIds.size())
+        def remainingBuildIds = buildIds.drop(parallelBuildIds.size())
+
+        // assemble our parallel builds
+        def parallelBuilds = parallelBuildIds.collect {
+            def targetBuild = findAndValidateTargetBuild(it, downstreamBuildDefinitions)
+
+            // if we have remaining buildIds then we need to wait for our parallel builds to finish
+            // so that we can use this build to then kick those off
+            def buildDefaults = [
+                propagate: false,
+                wait: (remainingBuildIds.size() > 0)
+            ]
+
+            // if the tagetBuild has the 'wait' property we remove it because users aren't allowed to set it on a parrallel job
+            targetBuild.remove('wait')
+
+            return [
+                "ParallelBuild:${it}": {
+                    build(buildDefaults << targetBuild)
+                }
+            ]
+        }
+
+        // execute our parallel builds
+        parallel(parallelBuilds)
         
+        if (remainingBuildIds > 0) {
+            executeSerialBuild(remainingBuildIds, downstreamBuildDefinitions)
+        }
     } else {
         executeSerialBuild(buildIds, downstreamBuildDefinitions)
     }
 }
 
-def executeSerialBuild() {
+def executeSerialBuild(buildIds, downstreamBuildDefinitions) {
     def targetBuildId = buildIds.removeAt(0)
-    def targetBuild = downstreamBuildDefinitions.find { it.id == targetBuildId }
-    validateBuildDef(targetBuild)
-    removeCustomPropertiesFromBuildDef(targetBuild)
+    def targetBuild = findAndValidateTargetBuild(targetBuildId, downstreamBuildDefinitions)
 
     logger "Downstream Build Located: ${targetBuild.job}"
     if (buildIds.size() == 0) {
