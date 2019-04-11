@@ -101,7 +101,7 @@ def validateBuildDef(build) {
 def executeBuilds(buildIds, downstreamBuildDefinitions) {
     logger "Executing Downstream Builds"
 
-    if (downstreamBuildDefinitions[buildIds.get(0)].parallel) {
+    if (buildIds.size() > 0 && downstreamBuildDefinitions[buildIds.get(0)].parallel) {
         // get all consecutive buildIds which map to definitions that have `parallel: true`
         def parallelBuildIds = buildIds.takeWhile { 
             downstreamBuildDefinitions[it].parallel
@@ -205,8 +205,11 @@ def call(config) {
         if (config.downstreamBuilds[BRANCH_NAME].any { it.optional }) {
             logger "Optional Downstream Builds detected"
             buildIds = getBuildIdsWithOptional(config)
+            if (buildIds.size() == 0) {
+                return
+            }
         } else {
-            buildIds config.downstreamBuilds[BRANCH_NAME].collect { it.id }
+            buildIds = config.downstreamBuilds[BRANCH_NAME].collect { it.id }
         }
 
         executeBuilds(buildIds, config.downstreamBuilds[BRANCH_NAME])
