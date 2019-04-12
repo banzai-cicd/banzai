@@ -160,7 +160,8 @@ def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
     def remainingBuildIds = buildIds.drop(parallelBuildIds.size())
 
     // assemble our parallel builds
-    def parallelBuilds = parallelBuildIds.collect {
+    def parallelBuilds = [:]
+    parallelBuildIds.each {
         def targetBuild = findAndValidateTargetBuild(it, downstreamBuildDefinitions)
 
         // if we have remaining buildIds then we need to wait for our parallel builds to finish
@@ -173,11 +174,7 @@ def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
         // if the tagetBuild has the 'wait' property we remove it because users aren't allowed to set it on a parrallel job
         targetBuild.remove('wait')
         logger "Scheduling Parallel Build ${it}"
-        return [
-            "ParallelBuild:${it}": {
-                build(buildDefaults << targetBuild)
-            }
-        ]
+        parallelBuilds["ParallelBuild:${it}"] = { build(buildDefaults << targetBuild) }
     }
 
     // execute our parallel builds
