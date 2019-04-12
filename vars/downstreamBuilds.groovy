@@ -190,7 +190,7 @@ def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
     // execute our parallel builds
     parallel(parallelBuilds)
     
-    if (remainingBuildIds > 0) {
+    if (remainingBuildIds.size() > 0) {
         executeSerialBuild(remainingBuildIds, downstreamBuildDefinitions)
     }
 }
