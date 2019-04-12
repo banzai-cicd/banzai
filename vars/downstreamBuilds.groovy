@@ -174,24 +174,30 @@ def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
     parallelBuildIds.each {
         def targetBuild = findAndValidateTargetBuild(it, downstreamBuildDefinitions)
 
-        // if we have remaining buildIds then we need to wait for our parallel builds to finish
-        // so that we can use this build to then kick those off
         def buildDefaults = [
             propagate: false,
-            wait: (remainingBuildIds.size() > 0)
+            wait: false
         ]
+
+        def buildParams = (buildDefaults << targetBuild)
+        // if there will be builds remaining after the parallel builds complete OR
+        // buildParams has propagate set to true we ensure `wait = true`
+        buildParams.wait = (remainingBuildIds.size() > 0 || buildObj.propogate) ? true : false
 
         // if the tagetBuild has the 'wait' property we remove it because users aren't allowed to set it on a parrallel job
         targetBuild.remove('wait')
         logger "Scheduling Parallel Build ${it}"
-        parallelBuilds["ParallelBuild:${it}"] = { build(buildDefaults << targetBuild) }
+        parallelBuilds["ParallelBuild:${it}"] = { build(buildParams) }
     }
-
-    // execute our parallel builds
-    parallel(parallelBuilds)
     
     if (remainingBuildIds.size() > 0) {
+        // execute our parallel builds
+        logger "Will wait for parrallel builds to complete and continue with the remaining builds: ${remainingBuildIds}"
+        parallel(parallelBuilds)
         executeSerialBuild(remainingBuildIds, downstreamBuildDefinitions)
+    } else {
+        logger "Executing parallel builds, will not wait for completion"
+        parallel(parallelBuilds)
     }
 }
 
