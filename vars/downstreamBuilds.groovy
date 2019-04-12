@@ -144,12 +144,22 @@ def executeSerialBuild(buildIds, downstreamBuildDefinitions) {
     build(buildDefaults << targetBuild << [parameters: buildParams])
 }
 
-@NonCPS
+// have to write this abomination because we can't use takeWhile() on jenkins cause of CPS
 def getParallelBuildIds(buildIds, downstreamBuildDefinitions) {
-    // get all consecutive buildIds which map to definitions that have `parallel: true`
-    return buildIds.takeWhile { 
-        findBuildDef(it, downstreamBuildDefinitions).parallel
+    // get all consecutive buildIds which map to definitions that have `parallel: true`=
+    def parallelBuildIds = []
+    def falseSeen = false
+    buildIds.each {
+        def result = findBuildDef(it, downstreamBuildDefinitions).parallel
+        if (!result && !falseSeen) {
+            falseSeen = true
+        }
+        if (result && !falseSeen) {
+            parallelBuildIds.add(it)
+        }
     }
+    
+    return parallelBuildIds
 }
 
 def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
