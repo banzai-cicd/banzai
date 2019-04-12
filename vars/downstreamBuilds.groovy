@@ -182,7 +182,7 @@ def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
         def buildParams = (buildDefaults << targetBuild)
         // if there will be builds remaining after the parallel builds complete OR
         // buildParams has propagate set to true we ensure `wait = true`
-        buildParams.wait = (remainingBuildIds.size() > 0 || buildObj.propogate) ? true : false
+        buildParams.wait = (remainingBuildIds.size() > 0 || buildParams.propogate) ? true : false
 
         // if the tagetBuild has the 'wait' property we remove it because users aren't allowed to set it on a parrallel job
         targetBuild.remove('wait')
