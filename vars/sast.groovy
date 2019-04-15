@@ -43,10 +43,17 @@ def call(config) {
               sourceEncoding: '1',
               username: "${CHECKMARX_USER}",
               vulnerabilityThresholdResult: 'FAILURE',
-              waitForResultsEnabled: true
+              waitForResultsEnabled: true,
+              generatePdfReport: true
         ])
 
       }
-
+      if (config.sastReportEmailTo) {
+          logger "Emailing Checkmarx Scan Results..."
+          emailext attachmentsPattern: '**/ScanReport.pdf', body: "BUILD_URL: ${BUILD_URL}", 
+                    subject: "Checkmarx Scan Results: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}", 
+                    to: config.sastReportEmailTo 
+          logger "Sent Checkmarx Scan Results..."
+      }
     }
 }

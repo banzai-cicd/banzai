@@ -11,10 +11,18 @@ def call(config, configFilePropName, SCRIPT_DEFAULT, args=null) {
   if(!config[configFilePropName]) {
     logger "no ${configFilePropName} specified in config"
     // try and load defaults
-    def shellScript = new File("${WORKSPACE}/${SCRIPT_DEFAULT}.sh")
-    if (shellScript.exists()) {
+    //def shellScript = new File("${WORKSPACE}/${SCRIPT_DEFAULT}.sh")
+    
+    def SCRIPT_FILE = "${WORKSPACE}/${SCRIPT_DEFAULT}.sh"
+    SCRIPT_FILE_STATUS = sh (
+      script: 'if [ -e ${SCRIPT_FILE} ]; then echo "EXISTS" ; else echo "NOT-EXISTS" ; fi',
+      returnStdout: true
+    ).trim()
+    echo "SCRIPT_FILE_STATUS: ${SCRIPT_FILE_STATUS}" 
+    
+    if (SCRIPT_FILE_STATUS == 'EXISTS') {
       logger "${SCRIPT_DEFAULT}.sh detected"
-      runShellScript(shellScript.name, args)
+      runShellScript("${SCRIPT_DEFAULT}.sh", args)
     } else {
       throw new IllegalArgumentException("no ${SCRIPT_DEFAULT}[.sh|.groovy] exists!")
     }
