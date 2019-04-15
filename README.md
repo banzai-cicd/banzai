@@ -8,7 +8,7 @@ example Jenkinsfile
 banzai {
     sshCreds = ['dev-ssh']
     appName = 'config-reviewer-server'
-    gitCredId = 'sweeney-git'
+    gitTokenId = 'sweeney-git'
     gitAccount = 'ConfigReviewer'
     mergeBranches = /tag\-(.*)|develop/
     sast = true
@@ -30,7 +30,7 @@ banzai {
     sshCreds                                    // a list of any ssh creds that may be needed in your pipeline
     appName = 'config-reviewer-server'          // **required** currently used only by SAST for determining the namespace to publish to.
     debug = false                               // provides additional debug messaging
-    gitCredId = 'sweeney-git'                   // which credId in Jenkins to use for git.
+    gitTokenId = 'sweeney-git-token'            // a Jenkins credential id which points to a github token (required by downstreamBuilds)
     gitAccount = 'ConfigReviewer'               // the owner of the repo this pipeline is building for
     startFresh = true                           // wipe workspace before each build
     mergeBranches = /tag\-(.*)|develop/         // helps the pipeline dete
@@ -87,6 +87,7 @@ banzai {
 ```
 
 ### downstreamBuilds
+*Note: downstreamBuilds requires that `gitTokenId` is defined*
 The downstream build definition supports all of the properties documented by [Jenkins Pipeline Build Step](https://jenkins.io/doc/pipeline/steps/pipeline-build-step/) as well as 3 custom properties `id`, `optional` and `parallel`. `id` is used to map Github PR labels in the event that `optional` is set to `true`. When a build completes and the next build(s) have `parallel: true` then it will by default start those builds but will not wait for them to complete. There are 3 scenarios where the build will wait for parallel builds to complete:
 1. the parallel build also has `wait: true`
 2. the parallel build also has `propagate: true`
