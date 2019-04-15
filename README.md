@@ -8,7 +8,7 @@ example Jenkinsfile
 banzai {
     sshCreds = ['dev-ssh']
     appName = 'config-reviewer-server'
-    gitCredId = 'sweeney-git'
+    gitTokenId = 'sweeney-git'
     gitAccount = 'ConfigReviewer'
     mergeBranches = /tag\-(.*)|develop/
     sast = true
@@ -30,8 +30,7 @@ banzai {
     sshCreds                                    // a list of any ssh creds that may be needed in your pipeline
     appName = 'config-reviewer-server'          // **required** currently used only by SAST for determining the namespace to publish to.
     debug = false                               // provides additional debug messaging
-    gitCredId = 'sweeney-git'                   // which credId in Jenkins to use for git.
-    gitTokenId = 'sweeney-git-token'            // a jenkins credential which points to a github token (required by downstreamBuilds)
+    gitTokenId = 'sweeney-git-token'            // a Jenkins credential id which points to a github token (required by downstreamBuilds)
     gitAccount = 'ConfigReviewer'               // the owner of the repo this pipeline is building for
     startFresh = true                           // wipe workspace before each build
     mergeBranches = /tag\-(.*)|develop/         // helps the pipeline dete
