@@ -84,7 +84,7 @@ banzai {
       /develop/: [
           file: 'settings.xml',                     // the filePath to filter relative to the jenkins WORKSPACE root
           label: 'myPass',                          // should appear in the file in the format ${banzai:myPass}
-          secretId: '502700248-artifactory-pass'    // the id of the secret on Jenkins
+          secretId: 'my-jenkins-secret-id'          // the id of the secret on Jenkins
       ]
     ]
 }
