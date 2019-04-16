@@ -29,7 +29,7 @@ Map findAndValidateTargetBuild(id, buildDefinitions) {
 }
 
 // get a list of all the buildIds after checking if optional builds are specified by github pr labels
-List<String> getBuildIdsWithOptional(config) {
+List<String> getBuildIdsWithOptional(config, downstreamBuildsDefinitions) {
     logger "Evaluating Github PR Labels..."
     withCredentials([string(credentialsId: config.gitTokenId, variable: 'TOKEN')]) {
         // determine base repo/branch git url info
@@ -61,7 +61,7 @@ List<String> getBuildIdsWithOptional(config) {
             }.minus(null)
             
             // iterate through builds and add ids that pass optional check
-            buildIds = config.downstreamBuilds[BRANCH_NAME].collect {
+            buildIds = downstreamBuildsDefinitions.collect {
                 if (!it.optional || labelIds.contains(it.id)) {
                     return it.id
                 }
@@ -69,7 +69,7 @@ List<String> getBuildIdsWithOptional(config) {
         } else {
             // just filter out any listed as optional since no labels were found
             logger "No labels found for the associated pr. No optional downstream builds will be triggered"
-            buildIds = config.downstreamBuilds[BRANCH_NAME].collect {
+            buildIds = downstreamBuildsDefinitions.collect {
                 if (!it.optional) {
                     return it.id
                 }
@@ -202,17 +202,16 @@ def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
 }
 
 def call(config) {
+    // check and see if the current branch matches the config
+    def configKey = config.downstreamBuilds.keySet().find { it ==~ BRANCH_NAME }
+    if (!configKey) {
+        logger "downstreamBuilds does not contain an entry that matches the branch: ${BRANCH_NAME}"
+        return
+    }
+
+    def downstreamBuildsDefinitions = config.downstreamBuilds[configKey]
+
     stage ('Downstream Builds') {
-        
-        if (config.downstreamBuildBranches) {
-            Pattern pattern = Pattern.compile(config.downstreamBuildBranches)
-
-            if (!(BRANCH_NAME ==~ pattern)) {
-                logger "${BRANCH_NAME} does not match the downstreamBuildBranches pattern. Skipping Downstream Builds"
-                return
-            }
-        }
-
         // check to see if this build is part of an ongoing downstream build chain
         // params.downstreamBuildDefinitions is not the same as config.downstreamBuilds. The BRANCH_NAME has already been taken into account at this point
         // and params.downstreamBuildDefinitions just represents the collection of downstreamBuild definitions
@@ -244,16 +243,16 @@ def call(config) {
 
         // see if we have downstreamBuilds in the config
         def buildIds = []
-        if (config.downstreamBuilds[BRANCH_NAME].any { it.optional }) {
+        if (downstreamBuildsDefinitions.any { it.optional }) {
             logger "Optional Downstream Builds detected"
-            buildIds = getBuildIdsWithOptional(config)
+            buildIds = getBuildIdsWithOptional(config, downstreamBuildsDefinitions)
             if (buildIds.size() == 0) {
                 return
             }
         } else {
-            buildIds = config.downstreamBuilds[BRANCH_NAME].collect { it.id }
+            buildIds = downstreamBuildsDefinitions.collect { it.id }
         }
 
-        executeBuilds(buildIds, config.downstreamBuilds[BRANCH_NAME])
+        executeBuilds(buildIds, downstreamBuildsDefinitions)
     }
 }
