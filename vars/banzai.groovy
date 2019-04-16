@@ -119,12 +119,10 @@ def runPipeline(config) {
 
                 // support for filtering files and inserting Jenkins Secrets
                 if (config.filterSecrets) {
-                    config.filterSecrets.each {
-                        notify(config, 'Filter Secrets', 'Pending', 'PENDING')
-                        filterSecret(it)
-                        passStep('Filter Secrets')
-                        notify(config, 'Filter Secrets', 'Successful', 'SUCCESS')
-                    }
+                    notify(config, 'Filter Secrets', 'Pending', 'PENDING')
+                    filterSecrets(config.filterSecrets)
+                    passStep('Filter Secrets')
+                    notify(config, 'Filter Secrets', 'Successful', 'SUCCESS')
                 }
 
                 if (config.sast) {
