@@ -14,16 +14,10 @@ def call(secretConfig) {
 
     // copy target file to temp
     def filePath = "${env.WORKSPACE}/${file}"
-    def tempFilePath = "${filePath}.temp"
-    sh "mv ${filePath} ${tempFilePath}"
-
     // filter and replace deleted original file
     withCredentials([string(credentialsId: secretConfig.secretId, variable: 'SECRET')]) {
         sh "touch ${filePath}"
-        new File(filePath).withWriter { w ->
-            new File(tempFilePath).eachLine { line ->
-                w << line.replace("[banzai:${secretConfig.variable}]", SECRET) + System.getProperty("line.separator")
-            }
-        }
+        def replace = /\[banzai:${secretConfig.label}\]/
+        sh "sed -i -e 's/${replace}/${SECRET}/g' ${filePath}"
     }
 }
