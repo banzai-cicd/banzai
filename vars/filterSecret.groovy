@@ -4,12 +4,12 @@ import java.io.File
 def call(filterSecrets) {
 
     // determine if branch matches and filterSecrets branches
-    def secretConfigKey = filterSecrets.keySet.find { it ==~ BRANCH_NAME }
+    def secretConfigKey = filterSecrets.keySet().find { it ==~ BRANCH_NAME }
     if (!secretConfigKey) {
         logger "filterSecrets does not contain an entry that matches the branch: ${BRANCH_NAME}"
         return
     }
-    
+
     def secretConfig = filterSecrets[secretConfigKey]
     logger "Filtering Secret: ${secretConfig.secretId}"
     logger secretConfig
