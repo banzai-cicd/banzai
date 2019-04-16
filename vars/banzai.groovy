@@ -42,7 +42,17 @@ def runPipeline(config) {
         Jenkins Pipelines don't allow many groovy methods (CPS issues) like .findAll...hence the nastiness
         */
         def steps = []
-        for (entry in [!config.skipSCM, config.sast, config.build, config.publish, config.deploy, config.integrationTests, config.markForPromotion, config.promote, config.downstreamBuilds]) {
+        for (entry in [
+                !config.skipSCM,
+                config.sast, 
+                config.build, 
+                config.publish, 
+                config.deploy, 
+                config.integrationTests,
+                config.markForPromotion, 
+                config.promote, 
+                config.downstreamBuilds
+            ]) {
             if (entry == true) {
                 steps.push(entry)
             }
@@ -75,6 +85,13 @@ def runPipeline(config) {
                 env.NODEJS_HOME = "${tool nodeVersion}"
                 // on linux / mac
                 env.PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
+            }
+
+            // support for filtering files and inserting Jenkins Secrets
+            if (config.secretFilters) {
+                secretFilters.each {
+                    filterSecret(it)
+                }
             }
 
             sshagent(credentials: config.sshCreds) {

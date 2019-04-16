@@ -9,7 +9,6 @@ banzai {
     sshCreds = ['dev-ssh']
     appName = 'config-reviewer-server'
     gitTokenId = 'sweeney-git'
-    gitAccount = 'ConfigReviewer'
     mergeBranches = /tag\-(.*)|develop/
     sast = true
     sastBranches = /tag\-(.*)|develop/
@@ -31,11 +30,10 @@ banzai {
     appName = 'config-reviewer-server'          // **required** currently used only by SAST for determining the namespace to publish to.
     debug = false                               // provides additional debug messaging
     gitTokenId = 'sweeney-git-token'            // a Jenkins credential id which points to a github token (required by downstreamBuilds)
-    gitAccount = 'ConfigReviewer'               // the owner of the repo this pipeline is building for
     startFresh = true                           // wipe workspace before each build
     mergeBranches = /tag\-(.*)|develop/         // helps the pipeline dete
     skipSCM = true                              // skip pulling down the branch that kicked off the build
-    flowdock = true
+    flowdock = true                             // 
     flowdockCredId = 'flowdock-cred'
     flowdockAuthor = [
       name: 'Jenkins',
