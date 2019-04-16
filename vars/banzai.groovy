@@ -44,6 +44,7 @@ def runPipeline(config) {
         def steps = []
         for (entry in [
                 !config.skipSCM,
+                config.filterSecrets,
                 config.sast, 
                 config.build, 
                 config.publish, 
@@ -53,6 +54,7 @@ def runPipeline(config) {
                 config.promote, 
                 config.downstreamBuilds
             ]) {
+
             if (entry == true) {
                 steps.push(entry)
             }
@@ -87,13 +89,6 @@ def runPipeline(config) {
                 env.PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
             }
 
-            // support for filtering files and inserting Jenkins Secrets
-            if (config.secretFilters) {
-                config.secretFilters.each {
-                    filterSecret(it)
-                }
-            }
-
             sshagent(credentials: config.sshCreds) {
                 // TODO notify Flowdock build starting
                 echo "My branch is: ${env.BRANCH_NAME}"
@@ -108,7 +103,7 @@ def runPipeline(config) {
                     try {
                         notify(config, 'Checkout', 'Pending', 'PENDING')
                         checkoutSCM(config)
-                        passStep('CHECKOUT')
+                        passStep('Checkout')
                         notify(config, 'Checkout', 'Successful', 'SUCCESS')
                     } catch (err) {
                         echo "Caught: ${err}"
@@ -119,6 +114,16 @@ def runPipeline(config) {
                             notify(config, 'Checkout', 'Failed', 'FAILURE')
                         }
                         throw err
+                    }
+                }
+
+                // support for filtering files and inserting Jenkins Secrets
+                if (config.filterSecrets) {
+                    config.filterSecrets.each {
+                        notify(config, 'Filter Secrets', 'Pending', 'PENDING')
+                        filterSecret(it)
+                        passStep('Filter Secrets')
+                        notify(config, 'Filter Secrets', 'Successful', 'SUCCESS')
                     }
                 }
 
