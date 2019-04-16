@@ -1,5 +1,4 @@
 #!/usr/bin/env groovy
-import java.nio.file.Files
 import java.io.File
 
 def call(secretConfig) {
@@ -16,8 +15,7 @@ def call(secretConfig) {
     // copy target file to temp
     def filePath = "${env.WORKSPACE}/${file}"
     def tempFilePath = "${filePath}.temp"
-    Files.copy(filePath, tempFilePath)
-    Files.delete(filePath)
+    sh "mv ${filePath} ${tempFilePath}"
 
     // filter and replace deleted original file
     withCredentials([string(credentialsId: config[secretConfig.secretId], variable: 'SECRET')]) {
