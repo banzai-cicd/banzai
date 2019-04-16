@@ -203,7 +203,7 @@ def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
 
 def call(config) {
     stage ('Downstream Builds') {
-
+        
         if (config.downstreamBuildBranches) {
             Pattern pattern = Pattern.compile(config.downstreamBuildBranches)
 
