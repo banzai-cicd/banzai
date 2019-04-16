@@ -1,6 +1,5 @@
 #!/usr/bin/env groovy
 import java.nio.file.Files
-import java.nio.file.Paths
 import java.io.File
 
 def call(secretConfig) {
@@ -15,8 +14,8 @@ def call(secretConfig) {
     }
 
     // copy target file to temp
-    def filePath = Paths.get(env.WORKSPACE, file)
-    def tempFilePath = Paths.get(env.WORKSPACE, "${file}.temp")
+    def filePath = "${env.WORKSPACE}/${file}"
+    def tempFilePath = "${filePath}.temp"
     Files.copy(filePath, tempFilePath)
     Files.delete(filePath)
 
