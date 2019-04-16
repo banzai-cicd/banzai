@@ -89,7 +89,7 @@ def runPipeline(config) {
 
             // support for filtering files and inserting Jenkins Secrets
             if (config.secretFilters) {
-                secretFilters.each {
+                config.secretFilters.each {
                     filterSecret(it)
                 }
             }
