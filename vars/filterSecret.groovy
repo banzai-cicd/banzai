@@ -18,7 +18,7 @@ def call(secretConfig) {
     sh "mv ${filePath} ${tempFilePath}"
 
     // filter and replace deleted original file
-    withCredentials([string(credentialsId: config[secretConfig.secretId], variable: 'SECRET')]) {
+    withCredentials([string(credentialsId: secretConfig.secretId, variable: 'SECRET')]) {
         new File(filePath).withWriter { w ->
             new File(tempFilePath).eachLine { line ->
                 w << line.replace("[banzai:${secretConfig.variable}]", SECRET) + System.getProperty("line.separator")
