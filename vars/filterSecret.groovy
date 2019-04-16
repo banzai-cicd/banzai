@@ -4,6 +4,7 @@ import java.io.File
 
 def call(secretConfig) {
     logger "Filtering Secret: ${secretConfig.secretId}"
+    logger secretConfig
 
     // sanitize the filename
     def file = secretConfig.file
