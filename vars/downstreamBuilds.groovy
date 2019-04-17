@@ -203,7 +203,7 @@ def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
 
 def call(config) {
     // check and see if the current branch matches the config
-    def configKey = config.downstreamBuilds.keySet().find { it ==~ BRANCH_NAME }
+    def configKey = config.downstreamBuilds.keySet().find { BRANCH_NAME ==~ it }
     if (!configKey) {
         logger "downstreamBuilds does not contain an entry that matches the branch: ${BRANCH_NAME}"
         return
