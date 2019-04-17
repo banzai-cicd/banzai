@@ -6,7 +6,7 @@ def call(config, stage, message, status, skipGit=false) {
       notifyFlowdock(config, stage, message)
     }
 
-    if (notifyGit != false && skipGit != false) {
+    if (notifyGit != false && !skipGit) {
       notifyGit(config, stage, "${message}", status)
     }
   } catch (Exception e) {
