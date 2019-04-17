@@ -82,7 +82,7 @@ def runPipeline(config) {
                 }
 
                 currentBuild.result = 'SUCCESS'
-                notify(config, 'Pipeline', 'All Stages Completed Successfully', 'SUCCESS', true)
+                notify(config, 'Pipeline', 'All Stages Complete', 'SUCCESS')
             } // ssh-agent
         } // node
 
