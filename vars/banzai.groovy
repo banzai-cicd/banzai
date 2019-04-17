@@ -86,6 +86,6 @@ def runPipeline(config) {
         promoteStep(config)
 
         currentBuild.result = 'SUCCESS'
-        notify(config, 'Pipeline Complete', 'Successful', 'SUCCESS', true)
+        notify(config, 'Pipeline', 'All Stages Completed Successfully', 'SUCCESS', true)
     }
 }
