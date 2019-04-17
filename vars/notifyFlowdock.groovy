@@ -3,7 +3,7 @@ import groovy.json.JsonOutput
 
 import java.util.regex.Pattern
 
-def call(config, stage, message) {
+def call(config, stage, message, status) {
     if (!config.mergeBranches || !config.flowdockCredId || !config.flowdockAuthor) {
       logger "'mergeBranches', 'flowdockFlowToken' and 'flowdockAuthor' are required in your Jenkinsfile when 'flowdock' = true"
       return
@@ -28,12 +28,18 @@ def call(config, stage, message) {
          threadId = "${threadId}+pr"
        }
 
-       def color = "green"
-       if (!currentBuild.result) {
-         color = "yellow"
-       } else if (currentBuild.result == "FAILURE" || currentBuild.result == "UNSTABLE") {
-         color = "red"
-       }
+       def color 
+       switch (status) {
+        case "PENDING":
+            color = "yellow"
+            break
+        case "FAILURE":
+            color = "red"
+            break
+        default:
+          color = 'green'
+          break
+      }   
 
        def payloadMap = [
          flow_token: FLOWDOCK_PASSWORD,
@@ -54,22 +60,6 @@ def call(config, stage, message) {
 
        if (message == "githubdown") {
          payloadMap.body = "https://image.ibb.co/bUkDfv/the_ge_github_is_down.png"
-        // TODO REVISIT WITH A SOLUTION TO geGithubIsDown() string exceeding max chars
-        //  payloadMap.event = "file"
-        // //  payloadMap.attachments = [
-        // //    [
-        // //     file_name: "ge_github_is_down.png",
-        // //     data: geGithubIsDown(),
-        // //     content_type: "image/png"
-        // //    ]
-        // //  ]
-        //  payloadMap.content = [
-        //   file_name: "ge_github_is_down.png",
-        //   data: geGithubIsDown(),
-        //   content_type: "image/png"
-        //  ]
-        //  payloadMap.tags = [":file"]
-        //  payloadMap.remove("body")
        }
 
        def payload = JsonOutput.toJson(payloadMap)
@@ -79,7 +69,6 @@ def call(config, stage, message) {
        }
 
        logger "Sending Flowdock notification : ${stage} : ${message}"
-       logger currentBuild.result
 
        sh """#!/bin/bash
          curl -H \"Content-Type: application/json\" -X POST -s -d \'${payload}\' ${flowdockURL}

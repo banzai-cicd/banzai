@@ -12,7 +12,7 @@ def call(config) {
     try {
         notify(config, 'Build', 'Pending', 'PENDING')
         banzaiBuild(config)
-        notify(config, 'Build', 'Successful', 'SUCCESS')
+        notify(config, 'Build', 'Successful', 'PENDING')
     } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'

@@ -6,7 +6,7 @@ def call(config) {
     try {
         notify(config, 'Checkout', 'Pending', 'PENDING')
         checkoutSCM(config)
-        notify(config, 'Checkout', 'Successful', 'SUCCESS')
+        notify(config, 'Checkout', 'Successful', 'PENDING')
     } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'UNSTABLE'

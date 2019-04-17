@@ -3,7 +3,7 @@
 def call(config, stage, message, status, skipGit=false) {
   try {
     if (config.flowdock) {
-      notifyFlowdock(config, stage, message)
+      notifyFlowdock(config, stage, message, status)
     }
 
     if (notifyGit != false && !skipGit) {

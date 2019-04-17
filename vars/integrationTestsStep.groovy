@@ -25,7 +25,7 @@ def call(config) {
           integrationTests(config)
       }
 
-      notify(config, 'IT', 'Successful', 'SUCCESS', true)
+      notify(config, 'IT', 'Successful', 'PENDING', true)
     } catch (err) {
       echo "Caught: ${err}"
       currentBuild.result = 'FAILURE'

@@ -13,7 +13,7 @@ def call(config) {
     notify(config, 'Filter Secrets', 'Pending', 'PENDING')
     def secretConfig = config.filterSecrets[secretConfigKey]
     filterSecrets(secretConfig)
-    notify(config, 'Filter Secrets', 'Successful', 'SUCCESS')
+    notify(config, 'Filter Secrets', 'Successful', 'PENDING')
   }
 
 }

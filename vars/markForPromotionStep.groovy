@@ -11,7 +11,7 @@ def call(config) {
     try {
         notify(config, 'MarkForPromotion', 'Pending', 'PENDING', true)
         markForPromotion(config)
-        notify(config, 'MarkForPromotion', 'Successful', 'SUCCESS', true)
+        notify(config, 'MarkForPromotion', 'Successful', 'PENDING', true)
     } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'

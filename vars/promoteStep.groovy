@@ -6,7 +6,7 @@ def call(config) {
     try {
       notify(config, 'Promote', 'Pending', 'PENDING', true)
       promote(config)
-      notify(config, 'Promote', 'Successful', 'SUCCESS', true)
+      notify(config, 'Promote', 'Successful', 'PENDING', true)
     } catch (err) {
       echo "Caught: ${err}"
       currentBuild.result = 'FAILURE'

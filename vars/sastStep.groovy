@@ -11,7 +11,7 @@ def call(config) {
     try {
         notify(config, 'SAST', 'Pending', 'PENDING')
         sast(config)
-        notify(config, 'SAST', 'Successful', 'SUCCESS')
+        notify(config, 'SAST', 'Successful', 'PENDING')
     } catch (err) {
       echo "Caught: ${err}"
       currentBuild.result = 'UNSTABLE'
