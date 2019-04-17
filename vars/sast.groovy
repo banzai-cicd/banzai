@@ -1,19 +1,7 @@
 #!/usr/bin/env groovy
 
-import java.util.regex.Pattern
-
 def call(config) {
-    if (config.sastBranches) {
-      def sastBranchesPattern = config.sastBranches
-      Pattern pattern = Pattern.compile(sastBranchesPattern)
 
-      if (!(BRANCH_NAME ==~ pattern)) {
-        logger "${BRANCH_NAME} does not match the sastBranches pattern. Skipping SAST"
-        return
-      }
-    }
-
-    // now build, based on the configuration provided
     stage ('SAST Tests') {
       def PROJECT_NAME = "${config.appName}-${env.BRANCH_NAME}"
       def PRESET = config.sastPreset ?: '17'
@@ -56,4 +44,5 @@ def call(config) {
           logger "Sent Checkmarx Scan Results..."
       }
     }
+
 }

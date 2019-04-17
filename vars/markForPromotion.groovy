@@ -1,18 +1,8 @@
 #!/usr/bin/env groovy
 
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
 def call(config) {
     stage ('Mark For Promotion') {
-		
-        if (config.markForPromotion) {
-	    Pattern pattern = Pattern.compile(config.promoteBranches)
-
-	    if (!(BRANCH_NAME ==~ pattern)) {
-		logger "${BRANCH_NAME} does not match the promoteBranches pattern. Skipping markForPromotion"
-		return
-	    }
+		// no logic run with-in the stage? just here to that a stage appears in Jenkins?
 	}
 	  
 	//def versionFileInfo = new File("${WORKSPACE}/versionInfo")

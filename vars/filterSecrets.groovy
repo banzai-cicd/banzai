@@ -1,18 +1,8 @@
 #!/usr/bin/env groovy
-import java.io.File
 
-def call(filterSecrets) {
-    // determine if branch matches and filterSecrets branches
-    def secretConfigKey = filterSecrets.keySet().find { it ==~ BRANCH_NAME }
-    if (!secretConfigKey) {
-        logger "filterSecrets does not contain an entry that matches the branch: ${BRANCH_NAME}"
-        return
-    }
+def call(secretConfig) {
 
     stage ('Filter Secrets') {
-        
-
-        def secretConfig = filterSecrets[secretConfigKey]
         logger "Filtering Secret: ${secretConfig.secretId}"
         logger secretConfig
 
@@ -32,5 +22,5 @@ def call(filterSecrets) {
             sh "sed -i -e 's/${replace}/${SECRET}/g' ${filePath}"
         }
     }
-    
+
 }

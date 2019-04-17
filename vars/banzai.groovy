@@ -99,138 +99,15 @@ def runPipeline(config) {
                     step([$class: 'WsCleanup'])
                 }
 
-                if (!config.skipSCM) {
-                    try {
-                        notify(config, 'Checkout', 'Pending', 'PENDING')
-                        checkoutSCM(config)
-                        passStep('Checkout')
-                        notify(config, 'Checkout', 'Successful', 'SUCCESS')
-                    } catch (err) {
-                        echo "Caught: ${err}"
-                        currentBuild.result = 'UNSTABLE'
-                        if (isGithubError(err)) {
-                            notify(config, 'Checkout', 'githubdown', 'FAILURE', true)
-                        } else {
-                            notify(config, 'Checkout', 'Failed', 'FAILURE')
-                        }
-                        throw err
-                    }
-                }
-
-                // support for filtering files and inserting Jenkins Secrets
-                if (config.filterSecrets) {
-                    notify(config, 'Filter Secrets', 'Pending', 'PENDING')
-                    filterSecrets(config.filterSecrets)
-                    passStep('Filter Secrets')
-                    notify(config, 'Filter Secrets', 'Successful', 'SUCCESS')
-                }
-
-                if (config.sast) {
-                    try {
-                        notify(config, 'SAST', 'Pending', 'PENDING')
-                        sast(config)
-                        passStep('SAST')
-                        notify(config, 'SAST', 'Successful', 'SUCCESS')
-                    } catch (err) {
-                        echo "Caught: ${err}"
-                        currentBuild.result = 'UNSTABLE'
-                        notify(config, 'Build', 'Failed', 'FAILURE')
-                        throw err
-                    }
-                }
-
-                if (config.build) {
-                    try {
-                        notify(config, 'Build', 'Pending', 'PENDING')
-                        banzaiBuild(config)
-                        passStep('BUILD')
-                        notify(config, 'Build', 'Successful', 'SUCCESS')
-                    } catch (err) {
-                        echo "Caught: ${err}"
-                        currentBuild.result = 'FAILURE'
-                        if (isGithubError(err)) {
-                            notify(config, 'Build', 'githubdown', 'FAILURE', true)
-                        } else {
-                            notify(config, 'Build', 'Failed', 'FAILURE')
-                        }
-                        throw err
-                    }
-                }
-
-                /*
-                all notify calls past the build stage will skip notifcations to github
-                */
-                if (config.publish) {
-                    try {
-                        notify(config, 'Publish', 'Pending', 'PENDING', true)
-                        publish(config)
-                        passStep('PUBLISH')
-                        notify(config, 'Publish', 'Successful', 'SUCCESS', true)
-                    } catch (err) {
-                        echo "Caught: ${err}"
-                        currentBuild.result = 'FAILURE'
-                        if (isGithubError(err)) {
-                            notify(config, 'Publish', 'githubdown', 'FAILURE', true)
-                        } else {
-                            notify(config, 'Publish', 'Failed', 'FAILURE', true)
-                        }
-                        throw err
-                    }
-                }
-
-                if (config.deploy) {
-                    try {
-                        notify(config, 'Deploy', 'Pending', 'PENDING', true)
-                        deploy(config)
-                        passStep('DEPLOY')
-                        notify(config, 'Deploy', 'Successful', 'SUCCESS', true)
-                        // TODO notify Flowdock
-                    } catch (err) {
-                        echo "Caught: ${err}"
-                        currentBuild.result = 'FAILURE'
-                        notify(config, 'Deploy', 'Failed', 'FAILURE', true)
-                        throw err
-                    }
-                }
-
-                if (config.integrationTests) {
-                    try {
-                        notify(config, 'IT', 'Pending', 'PENDING', true)
-
-                        if (config.xvfb) {
-                            def screen = config.xvfbScreen ?: '1800x900x24'
-
-                            wrap([$class: 'Xvfb', screen: screen]) {
-                                integrationTests(config)
-                            }
-                        } else {
-                            integrationTests(config)
-                        }
-
-                        passStep('IT')
-                        notify(config, 'IT', 'Successful', 'SUCCESS', true)
-                    } catch (err) {
-                        echo "Caught: ${err}"
-                        currentBuild.result = 'FAILURE'
-                        notify(config, 'IT', 'Failed', 'FAILURE', true)
-                        throw err
-                    }
-                }
-
-                if (config.markForPromotion) {
-                    try {
-                        notify(config, 'MarkForPromotion', 'Pending', 'PENDING', true)
-                        markForPromotion(config)
-                        passStep('MARK FOR PROMOTION')
-                        notify(config, 'MarkForPromotion', 'Successful', 'SUCCESS', true)
-                    } catch (err) {
-                        echo "Caught: ${err}"
-                        currentBuild.result = 'FAILURE'
-                        notify(config, 'MarkForPromotion', 'Failed', 'FAILURE', true)
-                        throw err
-                    }
-                }
-
+                skipSCMStep(config)
+                filterSecretsStep(config)
+                sastStep(config)
+                buildStep(config)
+                publishStep(config)
+                deployStep(config)
+                integrationTestsStep(config)
+                markForPromotionStep(config)
+                
                 if (config.postCleanup) {
                     logger "Cleaning up"
                     step([$class: 'WsCleanup'])
@@ -242,19 +119,6 @@ def runPipeline(config) {
             } // ssh-agent
         } // node
 
-        if (config.promote) {
-            try {
-                notify(config, 'Promote', 'Pending', 'PENDING', true)
-                promote(config)
-                passStep('PROMOTE')
-                notify(config, 'Promote', 'Successful', 'SUCCESS', true)
-                // TODO notify Flowdock
-            } catch (err) {
-                echo "Caught: ${err}"
-                currentBuild.result = 'FAILURE'
-                notify(config, 'Promote', 'Failed', 'FAILURE', true)
-                throw err
-            }
-        }
+        promoteStep(config)
     }
 }

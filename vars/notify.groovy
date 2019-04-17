@@ -1,12 +1,15 @@
 #!/usr/bin/env groovy
 
 def call(config, stage, message, status, skipGit=false) {
-  if (config.flowdock) {
-    notifyFlowdock(config, stage, message)
-  }
+  try {
+    if (config.flowdock) {
+      notifyFlowdock(config, stage, message)
+    }
 
-  if (notifyGit != false) {
-    notifyGit(config, stage, "${message}", status)
+    if (notifyGit != false && skipGit != false) {
+      notifyGit(config, stage, "${message}", status)
+    }
+  } catch (Exception e) {
+    error(e.message)
   }
-
 }
