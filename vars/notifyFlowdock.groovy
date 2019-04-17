@@ -79,6 +79,7 @@ def call(config, stage, message) {
        }
 
        logger "Sending Flowdock notification : ${stage} : ${message}"
+       logger currentBuild.result
 
        sh """#!/bin/bash
          curl -H \"Content-Type: application/json\" -X POST -s -d \'${payload}\' ${flowdockURL}
