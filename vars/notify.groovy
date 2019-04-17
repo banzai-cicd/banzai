@@ -6,7 +6,7 @@ def call(config, stage, message, status, skipGit=false) {
   }
 
   if (notifyGit != false) {
-    notifyGit(config, "${stage} ${message}", status)
+    notifyGit(config, stage, "${message}", status)
   }
 
 }
