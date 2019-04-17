@@ -1,6 +1,5 @@
 #!/usr/bin/env groovy
 import groovy.json.JsonOutput
-
 import java.util.regex.Pattern
 
 def call(config, stage, message, status) {

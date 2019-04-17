@@ -65,6 +65,7 @@ def runPipeline(config) {
 
                 skipSCMStep(config)
                 filterSecretsStep(config)
+                vulnerabilityScanStep(config)
                 sastStep(config)
                 buildStep(config)
                 publishStep(config)
