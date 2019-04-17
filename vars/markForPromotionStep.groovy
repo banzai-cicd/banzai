@@ -11,7 +11,6 @@ def call(config) {
     try {
         notify(config, 'MarkForPromotion', 'Pending', 'PENDING', true)
         markForPromotion(config)
-        passStep('MARK FOR PROMOTION')
         notify(config, 'MarkForPromotion', 'Successful', 'SUCCESS', true)
     } catch (err) {
         echo "Caught: ${err}"

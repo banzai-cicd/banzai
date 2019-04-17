@@ -6,7 +6,6 @@ def call(config) {
     try {
       notify(config, 'Promote', 'Pending', 'PENDING', true)
       promote(config)
-      passStep('PROMOTE')
       notify(config, 'Promote', 'Successful', 'SUCCESS', true)
     } catch (err) {
       echo "Caught: ${err}"

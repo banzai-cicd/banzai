@@ -6,7 +6,6 @@ def call(config) {
     try {
         notify(config, 'Checkout', 'Pending', 'PENDING')
         checkoutSCM(config)
-        passStep('Checkout')
         notify(config, 'Checkout', 'Successful', 'SUCCESS')
     } catch (err) {
         echo "Caught: ${err}"

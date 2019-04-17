@@ -25,7 +25,6 @@ def call(config) {
           integrationTests(config)
       }
 
-      passStep('IT')
       notify(config, 'IT', 'Successful', 'SUCCESS', true)
     } catch (err) {
       echo "Caught: ${err}"

@@ -11,7 +11,6 @@ def call(config) {
     try {
         notify(config, 'SAST', 'Pending', 'PENDING')
         sast(config)
-        passStep('SAST')
         notify(config, 'SAST', 'Successful', 'SUCCESS')
     } catch (err) {
       echo "Caught: ${err}"

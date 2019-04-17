@@ -37,42 +37,6 @@ def runPipeline(config) {
             )
         env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
-        /*
-        Determine the total number of steps in the pipeline that are activated
-        Jenkins Pipelines don't allow many groovy methods (CPS issues) like .findAll...hence the nastiness
-        */
-        def steps = []
-        for (entry in [
-                !config.skipSCM,
-                config.filterSecrets,
-                config.sast, 
-                config.build, 
-                config.publish, 
-                config.deploy, 
-                config.integrationTests,
-                config.markForPromotion, 
-                config.promote, 
-                config.downstreamBuilds
-            ]) {
-
-            if (entry == true) {
-                steps.push(entry)
-            }
-        }
-        def passedSteps = 0
-
-        def passStep = { step ->
-            passedSteps += 1
-            logger "BANZAI: ${step} PASSED : ${passedSteps}/${steps.size()} STEPS COMPLETE"
-            if (passedSteps >= steps.size()) {
-                currentBuild.result = 'SUCCESS'
-            }
-        }
-
-        def isGithubError = { err ->
-            return err.message.contains("The suplied credentials are invalid to login") ? true : false
-        }
-
         node() { 
             // support for jenkins 'tools'
             if (config.jdk) {
@@ -120,5 +84,7 @@ def runPipeline(config) {
         } // node
 
         promoteStep(config)
+
+        currentBuild.result = 'SUCCESS'
     }
 }

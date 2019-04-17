@@ -11,7 +11,6 @@ def call(config) {
     try {
       notify(config, 'Deploy', 'Pending', 'PENDING', true)
       deploy(config)
-      passStep('DEPLOY')
       notify(config, 'Deploy', 'Successful', 'SUCCESS', true)
     } catch (err) {
       echo "Caught: ${err}"

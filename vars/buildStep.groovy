@@ -12,7 +12,6 @@ def call(config) {
     try {
         notify(config, 'Build', 'Pending', 'PENDING')
         banzaiBuild(config)
-        passStep('BUILD')
         notify(config, 'Build', 'Successful', 'SUCCESS')
     } catch (err) {
         echo "Caught: ${err}"
