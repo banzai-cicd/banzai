@@ -80,12 +80,12 @@ def runPipeline(config) {
                 if (config.downstreamBuilds || params.downstreamBuildIds != 'empty') {
                     downstreamBuilds(config)
                 }
+
+                currentBuild.result = 'SUCCESS'
+                notify(config, 'Pipeline', 'All Stages Completed Successfully', 'SUCCESS', true)
             } // ssh-agent
         } // node
 
         promoteStep(config)
-
-        currentBuild.result = 'SUCCESS'
-        notify(config, 'Pipeline', 'All Stages Completed Successfully', 'SUCCESS', true)
     }
 }
