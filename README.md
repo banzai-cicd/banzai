@@ -41,11 +41,6 @@ banzai {
       email: 'Service.MyJenkins@ge.com'
     ]
     flowdockNotifyPRs = false                   // *default = false* whether or not to notify Flowdock with pr status changes
-    sast = true
-    sastBranches = /tag\-(.*)|develop/          // regex to determine which branches to run SAST against
-    sastCredId = 'ge-checkmarx'                 // which credId in Jenkins to use for SAST login
-    sastTeamUUID = 'fgdfg-5402-7635-4562-dfgfg' // SAST team id
-    sastReportEmailTo = 'test@ge.com'           // optional. SAST report to be sent to which email id
     build = true
     buildBranches = /tag\-(.*)|develop/         // regex to determine which branches to build
     buildScriptFile = 'buildScript.sh'          // location of buildScript. defaults to buildScript.sh
@@ -56,6 +51,17 @@ banzai {
     deployBranches = /tag\-(.*)|develop/        // regex to determine which branches to deploy
     deployScriptFile = 'deployScript.sh'        // location of deployScript. defaults to deployScript.sh
     jdk = 'jdk 10.0.1'                          // value must be the name given to a configured JDK in the Global Tools sections of Jenkins
+    vulnerabilityScans = [
+      /develop/: [                              // run this collection of scans against develop
+        [
+          type: 'checkmarx',
+          credId: 'ge-checkmarx',               // jenkins credential containing user/pass for checkmarx
+          resultEmails: ['your_email@ge.com'],
+          preset: '17',                         // defaults to '17'
+          teamUUID: 'your-checkmarx-team-uuid'
+        ]
+      ]
+    ]
     downstreamBuilds = [
       /develop/: [ // 'develop' signifies that this collection of downstream build definition's will only run when the 'develop' branch is matched
         [
