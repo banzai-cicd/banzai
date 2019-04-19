@@ -33,11 +33,14 @@ def call(config, opts) {
     ])
 
     }
-    if (opts.resultEmail) {
-        logger "Emailing Checkmarx Scan Results..."
-        emailext attachmentsPattern: '**/ScanReport.pdf', body: "BUILD_URL: ${BUILD_URL}", 
-                subject: "Checkmarx Scan Results: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}", 
-                to: opts.resultEmail 
-        logger "Sent Checkmarx Scan Results..."
+    if (opts.resultEmails) {
+        opts.resultEmails.each {
+                logger "Emailing Checkmarx Scan Results to ${it}"
+                emailext attachmentsPattern: '**/ScanReport.pdf', body: "BUILD_URL: ${BUILD_URL}", 
+                        subject: "Checkmarx Scan Results: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}", 
+                        to: it 
+                logger "Sent Checkmarx Scan Results..."
+        }
+        
     }
 }
