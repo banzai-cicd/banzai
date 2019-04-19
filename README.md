@@ -51,6 +51,7 @@ banzai {
     deployBranches = /tag\-(.*)|develop/        // regex to determine which branches to deploy
     deployScriptFile = 'deployScript.sh'        // location of deployScript. defaults to deployScript.sh
     jdk = 'jdk 10.0.1'                          // value must be the name given to a configured JDK in the Global Tools sections of Jenkins
+    vulnerabilityAbortOnError                 // globally set that all vulnerability scans should abort the pipeline if there is an Error
     vulnerabilityScans = [
       /develop/: [                              // run this collection of scans against develop
         [
@@ -58,7 +59,8 @@ banzai {
           credId: 'ge-checkmarx',               // jenkins credential containing user/pass for checkmarx
           resultEmails: ['your_email@ge.com'],
           preset: '17',                         // defaults to '17'
-          teamUUID: 'your-checkmarx-team-uuid'
+          teamUUID: 'your-checkmarx-team-uuid',
+          abortOnError: false                 // determines of this scan should cause the pipeline to abort if it results in an Error.
         ]
       ]
     ]
