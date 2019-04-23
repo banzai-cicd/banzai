@@ -10,8 +10,7 @@ def call(config, opts) {
     }
     
     withCredentials([file(credentialsId: opts.credId, variable: 'CRED_FILE')]) {
-      synopsys_coverity buildCommand: 'mvn clean install', 
-                buildStatusForIssues: 'SUCCESS', 
+      synopsys_coverity buildStatusForIssues: 'SUCCESS', 
                 changeSetExclusionPatterns: '', 
                 changeSetInclusionPatterns: '', 
                 checkForIssuesInView: false, 
