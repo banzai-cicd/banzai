@@ -2,7 +2,7 @@
 
 def call(config, opts) {
     def STREAM_NAME = opts.streamName ?: "${config.appName}-${env.BRANCH_NAME}"
-    def buildCmd = BUILD_CMD ?: opts.buildCmd
+    def buildCmd = env.BUILD_CMD ?: opts.buildCmd
 
     if (!opts.credId) {
         logger "Coverity: No credId specified: Skipping"
