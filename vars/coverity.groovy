@@ -64,7 +64,7 @@ def call(config, opts) {
       def covBuildCmd = "cov-build --dir ${iDir} ${buildCmd}"
       def covAnalyzeCmd = "cov-analyze --dir ${iDir}"
       def covCommitCmd = "cov-commit-defects --dir ${iDir} --stream \${COV_STREAM} ${credParams} --host \${COVERITY_HOST} --https-port \${COVERITY_PORT}"
-      commands.addll([covBuildCmd, covAnalyzeCmd, covCommitCmd])
+      commands.addAll([covBuildCmd, covAnalyzeCmd, covCommitCmd])
       
       // convert the list of command strings to a list of command objects
       def formattedCommands = commands.collect { [command: it] }
