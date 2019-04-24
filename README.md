@@ -61,6 +61,17 @@ banzai {
           preset: '17',                         // defaults to '17'
           teamUUID: 'your-checkmarx-team-uuid',
           abortOnError: false                 // determines of this scan should cause the pipeline to abort if it results in an Error.
+        ],
+        [
+          type: 'coverity',
+          credId: 'coverity-auth-key-file',   // jenkins credId of type 'file' representing your users authentication key (exported from coverity server UI)
+          toolId: 'coverity-2018.12',         // the id given to the Jenkins Global Tool installation for Coverity
+          serverHost: 'coverity.power.ge.com',
+          serverPort: '443',
+          resultEmails: ['simon.townsend1@ge.com'],
+          buildCmd: 'mvn -s ./settings.xml clean install -U', // the command coverity should wrap. alternatively, you can export BUILD_CMD in a previous pipeline step and it will be picked up.
+          projectName: 'your-coverity-project-name',
+          abortOnError: true
         ]
       ]
     ]
