@@ -6,28 +6,14 @@ def call(config, opts) {
     def iDir = "${env.WORKSPACE}/idir"
     
     // TODO: check all required params
-    if (!opts.serverHost) {
-        error("serverHost is required for Coverity")
-        return
-    }
-    if (!opts.serverPort) {
-        error("serverPort is required for Coverity")
-        return
-    }
-    if (!opts.toolId) {
-        error("toolId is required for Coverity")
-        return
-    }
-    if (!opts.credId) {
-        error("credId is required for Coverity")
-        return
-    }
-    if (!opts.projectName) {
-        error("projectName is required for Coverity")
-        return
-    }
+    def requiredOpts = ['serverHost', 'serverPort', 'toolId', 'credId', 'projectName']
+    def failedRequiredOpts = requiredOpts.findAll { !opts[it] }
     if (!buildCmd) {
-        error("buildCmd or env.BUILD_CMD is required for Coverity")
+        failedRequiredOpts.add('buildCmd or env.BUILD_CMD')
+    }
+    if (failedRequiredOpts.size() > 0) {
+        def isOrAre = failedRequiredOpts.size > 1 ? 'are' : 'is'
+        error("${failedRequiredOpts.join(', ')} ${isOrAre} required for Coverity")
         return
     }
 
