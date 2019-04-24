@@ -5,8 +5,11 @@ def call(config, opts) {
     def PRESET = opts.preset ?: '17'
       
     if (!opts.credId) {
-    logger "Checkmarx: No credId specified: Skipping"
-    return
+      error("credId is required for Checkmarx")
+      return
+    }
+    if (!opts.teamUUID) {
+      error("teamUUID is required for Checkmarx")
     }
 
     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: opts.credId,
