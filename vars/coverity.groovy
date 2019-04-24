@@ -27,14 +27,19 @@ def call(config, opts) {
       def coverityInstallDir = tool name: opts.toolId
       def covManage = "${coverityInstallDir}/bin/cov-manage-im"
       def listStreamsCmd = "unset https_proxy && ${covManage} --mode streams --show --name \"${streamName}\" --host ${opts.serverHost} --port ${opts.serverPort} --ssl ${credParams}"
-      logger "Executing: ${listStreamsCmd}"
-      def streamList = sh (
+      def streamList
+      try { // have to wrap this because a negative result by cov-manage-im is returned as a shell exit code of 1. awesome
+        streamList = sh (
           script: listStreamsCmd,
           returnStdout: true
         ).trim()
+      } catch (Exception e) {
+        logger "Stream '${streamName}' was not found on the Coverity server"
+      }
+      
       
       def addStream = false
-      if (!streamList.contains(streamName)) {
+      if (streamList && !streamList.contains(streamName)) {
         addStream = true
       }
 
