@@ -38,8 +38,6 @@ def call(config, opts) {
         logger "Stream '${streamName}' was not found on the Coverity server"
       }
       
-      logger "streamList"
-      logger streamList
       def addStream = false
       if (!streamList || !streamList.contains(streamName)) {
         addStream = true
