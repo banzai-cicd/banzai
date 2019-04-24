@@ -31,13 +31,15 @@ def call(config, opts) {
       try { // have to wrap this because a negative result by cov-manage-im is returned as a shell exit code of 1. awesome
         streamList = sh (
           script: listStreamsCmd,
-          returnStdout: true
+          returnStdout: true,
+          returnStatus: false
         ).trim()
       } catch (Exception e) {
         logger "Stream '${streamName}' was not found on the Coverity server"
       }
       
-      
+      logger "streamList"
+      logger streamList
       def addStream = false
       if (!streamList || !streamList.contains(streamName)) {
         addStream = true
