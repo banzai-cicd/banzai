@@ -12,7 +12,7 @@ def call(config, opts) {
         failedRequiredOpts.add('buildCmd or env.BUILD_CMD')
     }
     if (failedRequiredOpts.size() > 0) {
-        def isOrAre = failedRequiredOpts.size > 1 ? 'are' : 'is'
+        def isOrAre = failedRequiredOpts.size() > 1 ? 'are' : 'is'
         error("${failedRequiredOpts.join(', ')} ${isOrAre} required for Coverity")
         return
     }
