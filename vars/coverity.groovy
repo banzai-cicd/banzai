@@ -65,7 +65,7 @@ def call(config, opts) {
                 coverityAnalysisType: 'COV_ANALYZE', 
                 coverityRunConfiguration: 'ADVANCED', 
                 coverityToolName: opts.toolId, 
-                onCommandFailure: 'EXECUTE_REMAINING_COMMANDS', 
+                onCommandFailure: 'SKIP_REMAINING_COMMANDS', 
                 projectName: opts.projectName, 
                 streamName: streamName, 
                 viewName: ''
