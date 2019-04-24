@@ -28,7 +28,7 @@ def call(config, opts) {
       def covManage = "${coverityInstallDir}/bin/cov-manage-im"
       def listStreamsCmd = "unset https_proxy && ${covManage} --mode streams --show --name \"${streamName}\" --host ${opts.serverHost} --port ${opts.serverPort} --ssl ${credParams}"
       def streamList
-      try { // have to wrap this because a negative result by cov-manage-im is returned as a shell exit code of 1. awesome
+      try { // have to wrap this because a negative result by cov-manage-im is returned as a shell exit code of 1. awesome TODO, figure out how to get jenkins to ignore this failure in Blue Ocean
         streamList = sh (
           script: listStreamsCmd,
           returnStdout: true,
