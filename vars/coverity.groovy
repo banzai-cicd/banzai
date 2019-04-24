@@ -5,7 +5,7 @@ def call(config, opts) {
     def buildCmd = env.BUILD_CMD ?: opts.buildCmd // accept build command if set in the environment from a previous step.
     def iDir = "${env.WORKSPACE}/idir"
     
-    // TODO: check all required params
+    // check for all required opts
     def requiredOpts = ['serverHost', 'serverPort', 'toolId', 'credId', 'projectName']
     def failedRequiredOpts = requiredOpts.findAll { !opts[it] }
     if (!buildCmd) {
@@ -17,7 +17,7 @@ def call(config, opts) {
         return
     }
 
-    // Clear the intermediate directory if it already exists
+    // Clear the intermediate directory if it already exists from a previous run
     sh "if [ -e ${iDir} ]; then rm -rf ${iDir} ; fi"
     
     withCredentials([file(credentialsId: opts.credId, variable: 'CRED_FILE')]) {
@@ -38,7 +38,8 @@ def call(config, opts) {
         addStream = true
       }
 
-      // The synopsys_coverity steps provides some variables at runtime to the commands that you specify. Hilariously, the Coverity team decided to use the same ${} syntax that Groovy
+      // 2. run the remaining commsnds via synopsys_coverity build step
+      // *note* The synopsys_coverity steps provides some variables at runtime to the commands that you specify. Hilariously, the Coverity team decided to use the same ${} syntax that Groovy
       // uses for declaring the Coverity variables. So, we have to build our cov-commit-defects string using a combination of ${groovy} vars and escaped \${coverity} vars      
       def commands = []
       if (addStream) {
@@ -70,6 +71,7 @@ def call(config, opts) {
                 viewName: ''
     }
 
+    // email the summary.txt if applicable
     if (opts.resultEmails) {
         opts.resultEmails.each {
                 logger "Emailing Coverity Scan Results to ${it}"
