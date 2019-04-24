@@ -39,7 +39,7 @@ def call(config, opts) {
       
       
       def addStream = false
-      if (streamList && !streamList.contains(streamName)) {
+      if (!streamList || !streamList.contains(streamName)) {
         addStream = true
       }
 
