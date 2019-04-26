@@ -8,16 +8,17 @@ def call(config) {
       return 
     }
 
-    try {
+    stage ('Mark For Promotion') {
+		  try {
         notify(config, 'MarkForPromotion', 'Pending', 'PENDING', true)
         markForPromotion(config)
         notify(config, 'MarkForPromotion', 'Successful', 'PENDING', true)
-    } catch (err) {
-        echo "Caught: ${err}"
-        currentBuild.result = 'FAILURE'
-        notify(config, 'MarkForPromotion', 'Failed', 'FAILURE', true)
-        error(err.message)
-    }
+      } catch (err) {
+          echo "Caught: ${err}"
+          currentBuild.result = 'FAILURE'
+          notify(config, 'MarkForPromotion', 'Failed', 'FAILURE', true)
+          error(err.message)
+      }
+	  }
   }
-
 }

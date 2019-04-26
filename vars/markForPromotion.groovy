@@ -1,10 +1,6 @@
 #!/usr/bin/env groovy
 
 def call(config) {
-    stage ('Mark For Promotion') {
-		// no logic run with-in the stage? just here to that a stage appears in Jenkins?
-	}
-	  
 	//def versionFileInfo = new File("${WORKSPACE}/versionInfo")
 	def VER_FILE = "${WORKSPACE}/versionInfo"
 	def VER_FILE_STATUS = sh (
@@ -43,5 +39,4 @@ def call(config) {
 	sh "git -C ${deploymntRepoName} pull && git -C ${deploymntRepoName} push origin master"
 	  
 	echo "MARK-PROMOTION SCRIPT - Done updation for ${config.stackServiceName} module with version ${BUILD_VERSION_QA}"
-    }
 }

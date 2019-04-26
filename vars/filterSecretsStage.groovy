@@ -10,10 +10,11 @@ def call(config) {
         return
     }
 
-    notify(config, 'Filter Secrets', 'Pending', 'PENDING')
-    def secretConfig = config.filterSecrets[secretConfigKey]
-    filterSecrets(secretConfig)
-    notify(config, 'Filter Secrets', 'Successful', 'PENDING')
+    stage ('Filter Secrets') {
+      notify(config, 'Filter Secrets', 'Pending', 'PENDING')
+      def secretConfig = config.filterSecrets[secretConfigKey]
+      filterSecrets(secretConfig)
+      notify(config, 'Filter Secrets', 'Successful', 'PENDING')
+    }
   }
-
 }

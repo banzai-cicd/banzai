@@ -34,8 +34,7 @@ def call(config) {
     def approverSSO = ''
 	
 	echo "Environment Selection"
-	stage ('Environment Selection'){
-		
+	stage ('Environment Selection') {	
 		if (!config.deploymentRepo || !config.stackName) {
 			logger "'promoteRepo' and 'stackName' are required in your Jenkinsfile when 'promote' = true"
 			return

@@ -5,7 +5,7 @@ def call(config) {
   if (!config.skipSCM) {
     try {
         notify(config, 'Checkout', 'Pending', 'PENDING')
-        checkoutSCM(config)
+        checkout scm
         notify(config, 'Checkout', 'Successful', 'PENDING')
     } catch (err) {
         echo "Caught: ${err}"

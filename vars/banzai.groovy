@@ -63,14 +63,14 @@ def runPipeline(config) {
                     step([$class: 'WsCleanup'])
                 }
 
-                skipSCMStep(config)
-                filterSecretsStep(config)
-                vulnerabilityScansStep(config)
-                buildStep(config)
-                publishStep(config)
-                deployStep(config)
-                integrationTestsStep(config)
-                markForPromotionStep(config)
+                scmStage(config)
+                filterSecretsStage(config)
+                vulnerabilityScansStage(config)
+                buildStage(config)
+                publishStage(config)
+                deployStage(config)
+                integrationTestsStage(config)
+                markForPromotionStage(config)
                 
                 if (config.postCleanup) {
                     logger "Cleaning up"
@@ -86,6 +86,6 @@ def runPipeline(config) {
             } // ssh-agent
         } // node
 
-        promoteStep(config)
+        promoteStage(config)
     }
 }
