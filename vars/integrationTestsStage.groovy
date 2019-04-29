@@ -9,26 +9,28 @@ def call(config) {
       return
     }
 
-    try {
-      notify(config, 'IT', 'Pending', 'PENDING', true)
+    stage ('IT') {
+      try {
+        notify(config, 'IT', 'Pending', 'PENDING', true)
 
-      if (config.xvfb) {
+        if (config.xvfb) {
           def screen = config.xvfbScreen ?: '1800x900x24'
 
           wrap([$class: 'Xvfb', screen: screen]) {
-              integrationTests(config)
+            integrationTests(config)
           }
-      } else {
+        } else {
           integrationTests(config)
-      }
+        }
 
-      notify(config, 'IT', 'Successful', 'PENDING', true)
-    } catch (err) {
-      echo "Caught: ${err}"
-      currentBuild.result = 'FAILURE'
-      notify(config, 'IT', 'Failed', 'FAILURE', true)
-      
-      error(err.message)
+        notify(config, 'IT', 'Successful', 'PENDING', true)
+      } catch (err) {
+        echo "Caught: ${err}"
+        currentBuild.result = 'FAILURE'
+        notify(config, 'IT', 'Failed', 'FAILURE', true)
+
+        error(err.message)
+      }
     }
   }
 

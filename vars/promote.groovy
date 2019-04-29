@@ -1,7 +1,5 @@
 #!/usr/bin/env groovy
 
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 import hudson.model.User
 
 @NonCPS
@@ -33,7 +31,7 @@ def call(config) {
     def approverSSO = ''
 	
 	echo "Environment Selection"
-	stage ('Environment Selection'){
+	stage ('Environment Selection') {
 		
 		if (!config.deploymentRepo || !config.stackName) {
 			logger "'promoteRepo' and 'stackName' are required in your Jenkinsfile when 'promote' = true"
