@@ -14,13 +14,13 @@ def call(config) {
         notify(config, 'IT', 'Pending', 'PENDING', true)
 
         if (config.xvfb) {
-          def screen = config.xvfbScreen ?: '1800x900x24'
+            def screen = config.xvfbScreen ?: '1800x900x24'
 
-          wrap([$class: 'Xvfb', screen: screen]) {
-            integrationTests(config)
-          }
+            wrap([$class: 'Xvfb', screen: screen]) {
+                integrationTests(config)
+            }
         } else {
-          integrationTests(config)
+            integrationTests(config)
         }
 
         notify(config, 'IT', 'Successful', 'PENDING', true)
@@ -28,7 +28,7 @@ def call(config) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
         notify(config, 'IT', 'Failed', 'FAILURE', true)
-
+        
         error(err.message)
       }
     }
