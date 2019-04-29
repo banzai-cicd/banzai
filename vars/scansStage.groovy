@@ -5,7 +5,7 @@
 */
 def call(config, type) {
     def scanKey = "${type}Scans"
-    def stageName = "${type.capitalize()​} Scans"
+    def stageName = "${type.substring(0, 1).toUpperCase() + type.substring(1)} Scans"
     def abortKey = "${type}AbortOnError"
 
     if (config[scanKey]) {
