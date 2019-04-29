@@ -3,7 +3,7 @@
 def call(config) {
 
   if (config.publish) {
-    if (config.publishBranches && BRANCH_NAME !=~ config.publishBranches) {
+    if (config.publishBranches && !(BRANCH_NAME ==~ config.publishBranches)) {
       logger "${BRANCH_NAME} does not match the publishBranches pattern. Skipping"
       return 
     }

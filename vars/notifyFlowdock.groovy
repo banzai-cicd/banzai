@@ -1,6 +1,5 @@
 #!/usr/bin/env groovy
 import groovy.json.JsonOutput
-import java.util.regex.Pattern
 
 def call(config, stage, message, status) {
     if (!config.mergeBranches || !config.flowdockCredId || !config.flowdockAuthor) {
@@ -13,10 +12,9 @@ def call(config, stage, message, status) {
        def flowdockURL = "https://api.flowdock.com/messages"
 
        // determine if this is a merge or pr (should use diff threads)
-       Pattern mergePattern = Pattern.compile(config.mergeBranches)
        def threadId = "${config.appName}+${env.JOB_BASE_NAME}"
        def title = "${config.appName} : ${env.JOB_BASE_NAME}"
-       if ((BRANCH_NAME ==~ mergePattern)) {
+       if (BRANCH_NAME ==~ config.mergeBranches) {
          title = "${title} : merge"
        } else {
          if (!config.flowdockNotifyPRs && message != "githubdown" && stage != "IT") {

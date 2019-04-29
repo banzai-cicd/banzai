@@ -3,8 +3,8 @@
 def call(config) {
 
   if (config.deploy) {
-    if (config.deployBranches && BRANCH_NAME !=~ config.deployBranches) {
-      logger "${BRANCH_NAME} does not match the deployBranchesPattern pattern. Skipping"
+    if (config.deployBranches && !(BRANCH_NAME ==~ config.deployBranches)) {
+      logger "${BRANCH_NAME} does not match the deployBranches pattern. Skipping"
       return 
     }
 

@@ -3,7 +3,7 @@
 def call(config) {
 
   if (config.build) {
-    if (config.buildBranches && BRANCH_NAME !=~ config.buildBranches) {
+    if (config.buildBranches && !(BRANCH_NAME ==~ config.buildBranches)) {
       logger "${BRANCH_NAME} does not match the buildBranches pattern. Skipping"
       return 
     }
