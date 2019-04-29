@@ -31,13 +31,12 @@ def call(config) {
     def approverSSO = ''
 	
 	echo "Environment Selection"
-	stage ('Environment Selection') {
-		
+	stage ('Environment Selection') {	
 		if (!config.deploymentRepo || !config.stackName) {
 			logger "'promoteRepo' and 'stackName' are required in your Jenkinsfile when 'promote' = true"
 			return
 		}
-
+		
 		if (config.promoteBranches && !(BRANCH_NAME ==~ config.promoteBranches)) {
 		   logger "${env.BRANCH_NAME} does not match the promoteBranches pattern. Skipping Promote"
 		   return

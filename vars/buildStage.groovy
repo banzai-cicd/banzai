@@ -5,7 +5,7 @@ def call(config) {
   if (config.build) {
     if (config.buildBranches && !(BRANCH_NAME ==~ config.buildBranches)) {
       logger "${BRANCH_NAME} does not match the buildBranches pattern. Skipping"
-      return
+      return 
     }
 
     stage ('Build') {
@@ -21,11 +21,11 @@ def call(config) {
           } else {
               notify(config, 'Build', 'Failed', 'FAILURE')
           }
-
+          
           error(err.message)
       }
     }
-
+    
   }
 
 }

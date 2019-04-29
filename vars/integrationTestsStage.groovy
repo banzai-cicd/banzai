@@ -28,7 +28,7 @@ def call(config) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
         notify(config, 'IT', 'Failed', 'FAILURE', true)
-        
+
         error(err.message)
       }
     }
