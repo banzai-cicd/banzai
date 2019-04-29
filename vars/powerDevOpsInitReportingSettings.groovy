@@ -132,10 +132,15 @@ private def initializePublishSettings()
 }
 
 private def initializeDeploySettings(reportingConfig)
-{
-    def configKey = reportingConfig.environments.keySet().find { BRANCH_NAME ==~ it }
-    def config = reportingConfig.environments[configKey]
-    PipelineSettings.DeploySettings.environment = config.key
+{   
+    def envKey = 0
+    def branchKey = reportingConfig.environments.keySet().find { BRANCH_NAME ==~ it }
+    if (branchKey) {
+        def envConfig = reportingConfig.environments[branchKey]
+        envKey = envConfig.key
+    }
+
+    PipelineSettings.DeploySettings.environment = envKey
 }
 
 private def initializeReportingSettings(reportingConfig)

@@ -27,12 +27,14 @@ full list of Jenkins options
 @Library('Banzai') _ // only necessary if configured as a 'Global Pipeline Library'. IMPORTANT: the _ is required after @Library. 
 banzai {
     throttle = 'my-project'                     // comma-delimited list of throttle categories to apply. (https://github.com/jenkinsci/throttle-concurrent-builds-plugin)
-    sshCreds                                    // a list of any ssh creds that may be needed in your pipeline
+    sshCreds = ['cred1', 'cred2']                                    // a list of any ssh creds that may be needed in your pipeline
     appName = 'config-reviewer-server'          // **required** currently used only by SAST for determining the namespace to publish to.
     debug = false                               // provides additional debug messaging
     gitTokenId = 'sweeney-git-token'            // a Jenkins credential id which points to a github token (required by downstreamBuilds)
+    httpsProxyHost = 'myproxyhost'              // necessary for some external service communication
+    httpsProxyPort = 443                        // necessary for some external service communication
     startFresh = true                           // wipe workspace before each build
-    mergeBranches = /tag\-(.*)|develop/         // helps the pipeline dete
+    flowdockBranches = /tag\-(.*)|develop/      // which branches should report notifications to Flowdock
     skipSCM = true                              // skip pulling down the branch that kicked off the build
     flowdock = true                             // 
     flowdockCredId = 'flowdock-cred'
@@ -76,6 +78,13 @@ banzai {
         ]
       ]
     ]
+    qualityScans = [
+      /develop/: [
+        [
+          type: 'sonar'
+        ]
+      ]
+    ]
     downstreamBuilds = [
       /develop/: [ // 'develop' signifies that this collection of downstream build definition's will only run when the 'develop' branch is matched
         [
@@ -105,6 +114,23 @@ banzai {
           file: 'settings.xml',                     // the filePath to filter relative to the jenkins WORKSPACE root
           label: 'myPass',                          // should appear in the file in the format ${banzai:myPass}
           secretId: 'my-jenkins-secret-id'          // the id of the secret on Jenkins
+      ]
+    ],
+    powerDevOpsReporting: [
+      ci: 'your-ci',
+      uai: 'your-uai',
+      uaaCredId: 'uaa-cred-id',                     // UAA Bearer Token stored as Jenkins Cred
+      uaaUrl: 'https://a8a2ffc4-b04e-4ec1-bfed-7a51dd408725.predix-uaa.run.aws-usw02-pr.ice.predix.io/oauth/token?grant_type=client_credentials',
+      metricsUrl: 'https://dev-cicadavpc-secure-pipeline-services-vanguard.cicada.digital.ge.com',
+      environments: [
+        /develop/ : [
+          key: 0,
+          name: 'develop'
+        ],
+        /master/ : [
+          key: 1,
+          name: 'qa'
+        ]
       ]
     ]
 }
