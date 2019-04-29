@@ -117,6 +117,7 @@ banzai {
       ]
     ],
     powerDevOpsReporting: [
+      branches: /master|develop/
       ci: 'your-ci',
       uai: 'your-uai',
       uaaCredId: 'uaa-cred-id',                     // UAA Bearer Token stored as Jenkins Cred

@@ -132,7 +132,7 @@ private def initializePublishSettings()
 }
 
 private def initializeDeploySettings(reportingConfig)
-{   
+{
     def envKey = 0
     def branchKey = reportingConfig.environments.keySet().find { BRANCH_NAME ==~ it }
     if (branchKey) {
