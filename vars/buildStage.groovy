@@ -14,15 +14,15 @@ def call(config) {
         banzaiBuild(config)
         notify(config, 'Build', 'Successful', 'PENDING')
       } catch (err) {
-        echo "Caught: ${err}"
-        currentBuild.result = 'FAILURE'
-        if (isGithubError(err)) {
-          notify(config, 'Build', 'githubdown', 'FAILURE', true)
-        } else {
-          notify(config, 'Build', 'Failed', 'FAILURE')
-        }
+          echo "Caught: ${err}"
+          currentBuild.result = 'FAILURE'
+          if (isGithubError(err)) {
+            notify(config, 'Build', 'githubdown', 'FAILURE', true)
+          } else {
+            notify(config, 'Build', 'Failed', 'FAILURE')
+          }
 
-        error(err.message)
+          error(err.message)
       }
     }
   }

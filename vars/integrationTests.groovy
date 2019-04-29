@@ -8,4 +8,5 @@ def call(config) {
   }
 
   runScript(config, "integrationTestsScriptFile", "integrationTestsScript", [BRANCH_NAME])
+  
 }

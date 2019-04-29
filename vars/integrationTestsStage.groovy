@@ -6,7 +6,7 @@ def call(config) {
   if (config.integrationTests) {
     if (config.integrationTestsBranches && !(BRANCH_NAME ==~ config.integrationTestsBranches)) {
       logger "${BRANCH_NAME} does not match the integrationTestsBranches pattern. Skipping"
-      return
+      return 
     }
 
     stage ('IT') {
@@ -33,5 +33,4 @@ def call(config) {
       }
     }
   }
-
 }
