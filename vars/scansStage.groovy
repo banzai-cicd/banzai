@@ -22,10 +22,10 @@ def call(config, type) {
             try {
                 notify(config, stageName, 'Pending', 'PENDING')
                 switch (type) {
-                    case 'vulnerability'
+                    case 'vulnerability':
                         vulnerabilityScans(config, scansConfig)
                         break
-                    case 'quality'
+                    case 'quality':
                         qualityScans(config, scansConfig)
                         break
                     default:

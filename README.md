@@ -56,7 +56,7 @@ banzai {
     jdk = 'jdk 10.0.1'                          // value must be the name given to a configured JDK in the Global Tools sections of Jenkins
     vulnerabilityAbortOnError                 // globally set that all vulnerability scans should abort the pipeline if there is an Error
     vulnerabilityScans = [
-      /develop/: [                              // run this collection of scans against develop
+      /develop|master/: [                              // run this collection of scans against develop
         [
           type: 'checkmarx',
           credId: 'ge-checkmarx',               // jenkins credential containing user/pass for checkmarx
@@ -79,7 +79,7 @@ banzai {
       ]
     ]
     qualityScans = [
-      /develop/: [
+      /develop|master/: [
         [
           type: 'sonar'
         ]
