@@ -1,22 +1,23 @@
 #!/usr/bin/env groovy
 
 def call(config) {
+  def stageName = 'Deploy'
 
   if (config.deploy) {
     if (config.deployBranches && BRANCH_NAME !=~ config.deployBranches) {
-      logger "${BRANCH_NAME} does not match the deployBranchesPattern pattern. Skipping"
+      logger "${BRANCH_NAME} does not match the deployBranchesPattern pattern. Skipping ${stageName}"
       return 
     }
 
-    stage ('Deploy') {
+    stage (stageName) {
       try {
-        notify(config, 'Deploy', 'Pending', 'PENDING', true)
+        notify(config, stageName, 'Pending', 'PENDING', true)
         deploy(config)
-        notify(config, 'Deploy', 'Successful', 'PENDING', true)
+        notify(config, stageName, 'Successful', 'PENDING', true)
       } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
-        notify(config, 'Deploy', 'Failed', 'FAILURE', true)
+        notify(config, stageName, 'Failed', 'FAILURE', true)
         
         error(err.message)
       }

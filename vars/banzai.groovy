@@ -63,15 +63,24 @@ def runPipeline(config) {
                     step([$class: 'WsCleanup'])
                 }
 
+                if (config.powerDevOpsReporting) {
+                    powerDevOpsInitReportingSettings(config.powerDevOpsReporting << [
+                        proxyHost: config.httpsProxyHost,
+                        proxyPort: config.httpsProxyPort
+                    ])
+                }
                 scmStage(config)
                 filterSecretsStage(config)
-                vulnerabilityScansStage(config)
+                scansStage(config, 'vulnerability')
+                scansStage(config, 'quality')
                 buildStage(config)
                 publishStage(config)
                 deployStage(config)
                 integrationTestsStage(config)
+                powerDevOpsReportingStage(config)
                 markForPromotionStage(config)
                 
+
                 if (config.postCleanup) {
                     logger "Cleaning up"
                     step([$class: 'WsCleanup'])

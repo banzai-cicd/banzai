@@ -1,20 +1,21 @@
 #!/usr/bin/env groovy
 
 def call(config) {
+  def stageName = 'Filter Secrets'
 
   if (config.filterSecrets) {
     // determine if branch matches and filterSecrets branches
     def secretConfigKey = config.filterSecrets.keySet().find { it ==~ BRANCH_NAME }
     if (!secretConfigKey) {
-        logger "filterSecrets does not contain an entry that matches the branch: ${BRANCH_NAME}"
+        logger "filterSecrets does not contain an entry that matches the branch: ${BRANCH_NAME}. Skipping ${stageName}"
         return
     }
 
-    stage ('Filter Secrets') {
-      notify(config, 'Filter Secrets', 'Pending', 'PENDING')
+    stage (stageName) {
+      notify(config, stageName, 'Pending', 'PENDING')
       def secretConfig = config.filterSecrets[secretConfigKey]
       filterSecrets(secretConfig)
-      notify(config, 'Filter Secrets', 'Successful', 'PENDING')
+      notify(config, stageName, 'Successful', 'PENDING')
     }
   }
 }
