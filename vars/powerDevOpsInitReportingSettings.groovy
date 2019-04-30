@@ -82,6 +82,7 @@ private def initializeSonarQubeSettings(reportingConfig)
     */
     // Set project key to use when calling SQ REST API
     PipelineSettings.SonarQubeSettings.projectKey = "${PipelineSettings.CodeCheckoutSettings.repo}:${PipelineSettings.CodeCheckoutSettings.branch}";
+    logger "initializeSonarQubeSettings ${reportingConfig.sonarUrl}"
     PipelineSettings.SonarQubeSettings.sonarHostUrl = reportingConfig.sonarUrl;
 
     withCredentials([string(credentialsId: reportingConfig.sonarCredId, variable: 'SECRET')]) {
