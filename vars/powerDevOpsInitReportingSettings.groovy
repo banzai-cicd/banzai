@@ -51,7 +51,8 @@ def call(config)
 }
 
 private def initializeApplicationMetadata(uai, ci)
-{
+{   
+    logger "initializeApplicationMetadata ${uai}, ${ci}"
     /*
     *   Application Metadata settings
     */
@@ -62,6 +63,7 @@ private def initializeApplicationMetadata(uai, ci)
 
 private def initializeCodeCheckoutSettings()
 {
+    logger "initializeCodeCheckoutSettings"
     def gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim();
 
     /*
@@ -82,12 +84,12 @@ private def initializeCodeCheckoutSettings()
 
 private def initializeSonarQubeSettings(reportingConfig)
 {
+    logger "initializeSonarQubeSettings ${reportingConfig.sonarUrl}"
     /*
     *   SonarQube settings
     */
     // Set project key to use when calling SQ REST API
     PipelineSettings.SonarQubeSettings.projectKey = "${PipelineSettings.CodeCheckoutSettings.repo}:${PipelineSettings.CodeCheckoutSettings.branch}";
-    logger "initializeSonarQubeSettings ${reportingConfig.sonarUrl}"
     PipelineSettings.SonarQubeSettings.sonarHostUrl = reportingConfig.sonarUrl;
 
     withCredentials([string(credentialsId: reportingConfig.sonarCredId, variable: 'SECRET')]) {
@@ -99,6 +101,7 @@ private def initializeSonarQubeSettings(reportingConfig)
 
 private def initializeCheckmarxSettings()
 {
+    logger "initializeCheckmarxSettings"
     PipelineSettings.CheckmarxSettings.initializeSastMetrics();
 }
 
@@ -108,6 +111,7 @@ private def initializePipelineMetadata()
     *   Pipeline Metadata settings
     */
     // Pipeline introspection
+    logger "initializePipelineMetadata"
     PipelineSettings.PipelineMetadata.url = JENKINS_URL;
 
     // Version of shared library - just set null for now, it's not important
@@ -116,6 +120,7 @@ private def initializePipelineMetadata()
 
 private def initializeBuildSettings()
 {
+    logger "initializeBuildSettings"
     // conditionally open file path on java.io.File(workspace) if node is master
     def nodeWorkspace = null;
     if(NODE_NAME == 'master' || env.NODE_NAME == null)
@@ -143,6 +148,7 @@ private def initializeBuildSettings()
 
 private def initializePublishSettings()
 {
+    logger "initializePublishSettings"
     def nodeWorkspace = new FilePath(Jenkins.getInstance().getComputer(NODE_NAME).getChannel(), pwd());
     def publishScript = nodeWorkspace.child('publishScript.sh');
     def scriptContents = [];
@@ -163,6 +169,7 @@ private def initializePublishSettings()
 
 private def initializeDeploySettings(reportingConfig)
 {
+    logger "initializeDeploySettings"
     def envKey = 0
     def branchKey = reportingConfig.environments.keySet().find { BRANCH_NAME ==~ it }
     if (branchKey) {
@@ -175,6 +182,7 @@ private def initializeDeploySettings(reportingConfig)
 
 private def initializeReportingSettings(reportingConfig)
 {
+    logger "initializeReportingSettings"
     /*
     *   Reporting settings
     */
@@ -190,6 +198,7 @@ private def initializeReportingSettings(reportingConfig)
 
 private def initializeProxySettings(reportingConfig)
 {
+    logger "initializeProxySettings"
     /*
     *   Proxy settings
     */
