@@ -35,9 +35,9 @@ def call(config, opts) {
             returnStatus: false
           ).trim()
         } catch (Exception e) {
+          logger "Stream '${streamName}' was not found on the Coverity server"
           logger e.message
           logger streamList
-          logger "Stream '${streamName}' was not found on the Coverity server"
         }
         
         def addStream = false
@@ -59,12 +59,18 @@ def call(config, opts) {
         commands.addAll([covBuildCmd, covAnalyzeCmd, covCommitCmd])
         
         // run each command
+        def stdOut
         try {
           commands.each {
-            sh it
+            stdOut = sh (
+              script: it,
+              returnStdout: true,
+              returnStatus: false
+            ).trim()
           }
         } catch (e) {
           logger e.message
+          logger stdOut
         }
         
       } // with
