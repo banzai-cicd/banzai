@@ -10,10 +10,11 @@ import jenkins.model.Jenkins;
 def call(config)
 {
     if (!config.powerDevOpsReporting) {
+        logger "No config.powerDevOpsReporting, skipping powerDevOpsInitReportingSettings"
         return
     }
     logger "Initializing Power DevOps Reporting Settings"
-    
+
     def sonarUrl
     def sonarCredId
     if (config.qualityScans) {
