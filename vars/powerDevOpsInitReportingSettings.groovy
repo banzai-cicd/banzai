@@ -16,10 +16,13 @@ def call(config)
     def sonarUrl
     def sonarCredId
     if (config.qualityScans) {
+        logger "powerDevOpsInitReportingSettings qualityScans"
         def configKey = config.qualityScans.keySet().find { BRANCH_NAME ==~ it }
         if (configKey) {
+            logger "powerDevOpsInitReportingSettings configKey ${configKey}"
             def sonarConfig = config.qualityScans[configKey].find { it.type == 'sonar' }
             if (sonarConfig) {
+                logger "powerDevOpsInitReportingSettings sonarConfig"
                 sonarUrl = sonarConfig.serverUrl
                 sonarCredId = sonarConfig.credId
             }
