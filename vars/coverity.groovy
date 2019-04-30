@@ -43,6 +43,8 @@ def call(config, opts) {
         def addStream = false
         if (!streamList || !streamList.contains(streamName)) {
           addStream = true
+        } else {
+          logger "${COV_STREAM} already exists"
         }
 
         // 2. run the remaining commsnds 
