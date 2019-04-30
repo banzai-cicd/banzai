@@ -81,7 +81,9 @@ banzai {
     qualityScans = [
       /develop|master/: [
         [
-          type: 'sonar'
+          type: 'sonar',
+          serverUrl: 'https://my-sonar.ge.com'
+          credId: 'sonar-auth-token-id'        // jenkins credential (of type secret) containing a sonar server auth token
         ]
       ]
     ]
@@ -143,3 +145,7 @@ The downstream build definition supports all of the properties documented by [Je
 1. the parallel build also has `wait: true`
 2. the parallel build also has `propagate: true`
 3. there is one or more non-parallel builds defined after the parallel build(s) that need to be executed once the parallel build(s) complete.
+
+
+### Coverity
+Coverity functionality requires the Coverity ~2.0.0 Plugin to be installed on the host Jenkins https://synopsys.atlassian.net/wiki/spaces/INTDOCS/pages/623018/Synopsys+Coverity+for+Jenkins#SynopsysCoverityforJenkins-Version2.0.0

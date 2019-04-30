@@ -7,11 +7,33 @@ import main.groovy.cicd.pipeline.helpers.Utilities;
 import hudson.FilePath;
 import jenkins.model.Jenkins;
 
-def call(reportingConfig)
+def call(config)
 {
+    if (!config.powerDevOpsReporting) {
+        return
+    }
+
+    def sonarUrl
+    def sonarCredId
+    if (config.qualityScans) {
+        def configKey = config.qualityScans.keySet().find { BRANCH_NAME ==~ it }
+        def sonarConfig = config.qualityScans[configKey].find { it.type == 'sonar' }
+        if (sonarConfig) {
+            sonarUrl = sonarConfig.serverUrl
+            sonarCredId = sonarConfig.credId
+        }
+    }
+    
+    def reportingConfig = config.powerDevOpsReporting << [
+        proxyHost: config.httpsProxyHost,
+        proxyPort: config.httpsProxyPort,
+        sonarUrl:  sonarUrl,
+        sonarCredId: sonarCredId
+    ]
+
     initializeApplicationMetadata(reportingConfig.uai, reportingConfig.ci);
     initializeCodeCheckoutSettings();
-    initializeSonarQubeSettings();
+    initializeSonarQubeSettings(reportingConfig);
     initializeCheckmarxSettings();
     initializePipelineMetadata();
     initializeBuildSettings();
@@ -51,19 +73,19 @@ private def initializeCodeCheckoutSettings()
     PipelineSettings.CodeCheckoutSettings.currentCommit = gitCommit;
 }
 
-private def initializeSonarQubeSettings()
+private def initializeSonarQubeSettings(reportingConfig)
 {
     /*
     *   SonarQube settings
     */
     // Set project key to use when calling SQ REST API
     PipelineSettings.SonarQubeSettings.projectKey = "${PipelineSettings.CodeCheckoutSettings.repo}:${PipelineSettings.CodeCheckoutSettings.branch}";
+    PipelineSettings.SonarQubeSettings.sonarHostUrl = reportingConfig.sonarUrl;
 
-    // Environment variables set with global SQ closure
-    withSonarQubeEnv('SonarQube') {
-        PipelineSettings.SonarQubeSettings.sonarHostUrl = env.SONAR_HOST_URL;
-        PipelineSettings.SonarQubeSettings.sonarAuthToken = env.SONAR_AUTH_TOKEN;
+    withCredentials([string(credentialsId: reportingConfig.sonarCredId, variable: 'SECRET')]) {
+        PipelineSettings.SonarQubeSettings.sonarAuthToken = SECRET;
     }
+    
     PipelineSettings.SonarQubeSettings.initializeQualityMetrics();
 }
 
