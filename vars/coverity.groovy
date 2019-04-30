@@ -34,9 +34,9 @@ def call(config, opts) {
             returnStdout: true,
             returnStatus: false
           ).trim()
-        } catch (Exception e) {
+        } catch (Throwable e) {
           logger "Stream '${streamName}' was not found on the Coverity server"
-          logger e.message
+          logger e.getStackTrace()
           logger streamList
         }
         
@@ -68,8 +68,8 @@ def call(config, opts) {
               returnStatus: false
             ).trim()
           }
-        } catch (e) {
-          logger e.message
+        } catch (Throwable e) {
+          logger e.getStackTrace()
           logger stdOut
         }
         
