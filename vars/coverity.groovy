@@ -30,12 +30,11 @@ def call(config, opts) {
         def listStreamCmd = "unset https_proxy && cov-manage-im --mode streams --show --name  ${COV_STREAM} --host ${opts.serverHost} --port ${opts.serverPort} --ssl ${credParams}"
         def streamList
         try { // have to wrap this because a negative result by cov-manage-im is returned as a shell exit code of 1. awesome TODO, figure out how to get jenkins to ignore this failure in Blue Ocean
-          sh listStreamsCmd
-          // streamList = sh (
-          //   script: listStreamsCmd,
-          //   returnStdout: true,
-          //   returnStatus: false
-          // ).trim()
+          streamList = sh (
+            script: listStreamsCmd,
+            returnStdout: true,
+            returnStatus: false
+          ).trim()
         } catch (Throwable e) {
           logger "Stream '${streamName}' was not found on the Coverity server"
           logger e.getMessage()
