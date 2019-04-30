@@ -36,6 +36,7 @@ def call(config, opts) {
           ).trim()
         } catch (Exception e) {
           logger e.message
+          logger streamList
           logger "Stream '${streamName}' was not found on the Coverity server"
         }
         
