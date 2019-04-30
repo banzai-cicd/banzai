@@ -26,7 +26,7 @@ def call(config, opts) {
         def credParams = "--on-new-cert trust --auth-key-file ${CRED_FILE}"
         // We have to first check and see if the stream exists since synopsys_coverity step doesn't allow us to react to cmd feedback.
         // 1. check for the existence of the stream 
-        def listStreamsCmd = "unset https_proxy && trap 'cov-manage-im --mode streams --show --name ${COV_STREAM} --url ${COV_URL} --ssl ${credParams}' 0"
+        def listStreamsCmd = "unset https_proxy && cov-manage-im --mode streams --show --name ${COV_STREAM} --url ${COV_URL} --ssl ${credParams} | grep ${COV_STREAM}"
         def streamList
         try { // have to wrap this because a negative result by cov-manage-im is returned as a shell exit code of 1. awesome TODO, figure out how to get jenkins to ignore this failure in Blue Ocean
           streamList = sh (
@@ -38,9 +38,9 @@ def call(config, opts) {
           logger "Stream '${streamName}' was not found on the Coverity server"
           logger e.getStackTrace()
           logger streamList
+          return
         }
-
-        logger streamList
+        
         def addStream = false
         if (!streamList || !streamList.contains(streamName)) {
           addStream = true
