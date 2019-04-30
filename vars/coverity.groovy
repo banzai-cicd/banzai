@@ -60,6 +60,7 @@ def call(config, opts) {
         commands.each {
           sh it
         }
+      } // with
     }
 
     // email the summary.txt if applicable
