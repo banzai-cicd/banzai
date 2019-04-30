@@ -21,7 +21,7 @@ def call(config, opts) {
     sh "if [ -e ${iDir} ]; then rm -rf ${iDir} ; fi"
 
     // wrap Coverity Env
-    withCoverityEnvironment(coverityInstanceUrl: 'https://coverity.power.ge.com:443', projectName: opts.projectName, streamName: streamName, viewName: '') {
+    withCoverityEnvironment(coverityInstanceUrl: "https://${opts.serverHost}:${opts.serverPort}", projectName: opts.projectName, streamName: streamName, viewName: '') {
       withCredentials([file(credentialsId: opts.credId, variable: 'CRED_FILE')]) {
         def credParams = "--on-new-cert trust --auth-key-file ${CRED_FILE}"
         def hostAndPort = "--host ${opts.serverHost} --port ${opts.serverPort}"
