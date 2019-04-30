@@ -12,7 +12,8 @@ def call(config)
     if (!config.powerDevOpsReporting) {
         return
     }
-
+    logger "Initializing Power DevOps Reporting Settings"
+    
     def sonarUrl
     def sonarCredId
     if (config.qualityScans) {
