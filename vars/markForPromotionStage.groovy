@@ -4,8 +4,8 @@ def call(config) {
   def stageName = 'Mark For Promotion'
 
   if (config.markForPromotion) {
-    if (config.markForPromotion && BRANCH_NAME !=~ config.markForPromotion) {
-      logger "${BRANCH_NAME} does not match the markForPromotion pattern. Skipping ${stageName}"
+    if (config.markForPromotion && !(BRANCH_NAME ==~ config.markForPromotion)) {
+      logger "${BRANCH_NAME} does not match the markForPromotion pattern. Skipping"
       return 
     }
 

@@ -1,14 +1,11 @@
 #!/usr/bin/env groovy
 
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
 // named banzaiBuild to avoid collision with existing 'build' jenkins pipeline plugin
 def call(config) {
   def stageName = 'IT'
 
   if (config.integrationTests) {
-    if (config.integrationTestsBranches && BRANCH_NAME !=~ config.integrationTestsBranches) {
+    if (config.integrationTestsBranches && !(BRANCH_NAME ==~ config.integrationTestsBranches)) {
       logger "${BRANCH_NAME} does not match the integrationTestsBranches pattern. Skipping ${stageName}"
       return 
     }

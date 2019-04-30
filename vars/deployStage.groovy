@@ -4,8 +4,8 @@ def call(config) {
   def stageName = 'Deploy'
 
   if (config.deploy) {
-    if (config.deployBranches && BRANCH_NAME !=~ config.deployBranches) {
-      logger "${BRANCH_NAME} does not match the deployBranchesPattern pattern. Skipping ${stageName}"
+    if (config.deployBranches && !(BRANCH_NAME ==~ config.deployBranches)) {
+      logger "${BRANCH_NAME} does not match the deployBranches pattern. Skipping ${stageName}"
       return 
     }
 
