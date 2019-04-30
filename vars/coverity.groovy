@@ -24,10 +24,11 @@ def call(config, opts) {
     withCoverityEnvironment(coverityInstanceUrl: 'https://coverity.power.ge.com:443', projectName: opts.projectName, streamName: streamName, viewName: '') {
       withCredentials([file(credentialsId: opts.credId, variable: 'CRED_FILE')]) {
         def credParams = "--on-new-cert trust --auth-key-file ${CRED_FILE}"
+        def hostAndPort = "--host ${opts.serverHost} --port ${opts.serverPort}"
         // We have to first check and see if the stream exists since synopsys_coverity step doesn't allow us to react to cmd feedback.
         // 1. check for the existence of the stream 
         //def listStreamsCmd = "unset https_proxy && cov-manage-im --mode streams --show --name ${COV_STREAM} --url ${COV_URL} --ssl ${credParams} | grep ${COV_STREAM}"
-        def listStreamsCmd = "unset https_proxy && cov-manage-im --mode streams --show --name  ${COV_STREAM} --host ${opts.serverHost} --port ${opts.serverPort} --ssl ${credParams}"
+        def listStreamsCmd = "unset https_proxy && cov-manage-im --mode streams --show --name  ${COV_STREAM} ${hostAndPort} --ssl ${credParams}"
         def streamList
         try { // have to wrap this because a negative result by cov-manage-im is returned as a shell exit code of 1. awesome TODO, figure out how to get jenkins to ignore this failure in Blue Ocean
           streamList = sh (
@@ -50,8 +51,8 @@ def call(config, opts) {
         // 2. run the remaining commsnds 
         def commands = []
         if (addStream) {
-          def covAddStreamCmd = "cov-manage-im --mode streams --add --set name:${COV_STREAM} --set lang:mixed ${credParams} --url ${COV_URL} --ssl"
-          def covBindStreamCmd = "cov-manage-im --mode projects --name ${COV_PROJECT} --update --insert stream:${COV_STREAM} ${credParams} --url ${COV_URL} --ssl"
+          def covAddStreamCmd = "cov-manage-im --mode streams --add --set name:${COV_STREAM} --set lang:mixed ${credParams} ${hostAndPort} --ssl"
+          def covBindStreamCmd = "cov-manage-im --mode projects --name ${COV_PROJECT} --update --insert stream:${COV_STREAM} ${credParams} ${hostAndPort} --ssl"
           commands.addAll([covAddStreamCmd, covBindStreamCmd])
         }
 
@@ -61,18 +62,12 @@ def call(config, opts) {
         commands.addAll([covBuildCmd, covAnalyzeCmd, covCommitCmd])
         
         // run each command
-        def stdOut
-        try {
-          commands.each {
-            stdOut = sh (
-              script: it,
-              returnStdout: true,
-              returnStatus: false
-            ).trim()
-          }
-        } catch (Throwable e) {
-          logger e.getStackTrace()
-          logger stdOut
+        commands.each {
+          stdOut = sh (
+            script: it,
+            returnStdout: true,
+            returnStatus: false
+          ).trim()
         }
         
       } // with
