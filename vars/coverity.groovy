@@ -62,11 +62,7 @@ def call(config, opts) {
         
         // run each command
         commands.each {
-          stdOut = sh (
-            script: it,
-            returnStdout: true,
-            returnStatus: false
-          ).trim()
+          sh it
         }
         
       } // with
