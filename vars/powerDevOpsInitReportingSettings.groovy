@@ -17,10 +17,12 @@ def call(config)
     def sonarCredId
     if (config.qualityScans) {
         def configKey = config.qualityScans.keySet().find { BRANCH_NAME ==~ it }
-        def sonarConfig = config.qualityScans[configKey].find { it.type == 'sonar' }
-        if (sonarConfig) {
-            sonarUrl = sonarConfig.serverUrl
-            sonarCredId = sonarConfig.credId
+        if (configKey) {
+            def sonarConfig = config.qualityScans[configKey].find { it.type == 'sonar' }
+            if (sonarConfig) {
+                sonarUrl = sonarConfig.serverUrl
+                sonarCredId = sonarConfig.credId
+            }
         }
     }
     
@@ -85,7 +87,7 @@ private def initializeSonarQubeSettings(reportingConfig)
     withCredentials([string(credentialsId: reportingConfig.sonarCredId, variable: 'SECRET')]) {
         PipelineSettings.SonarQubeSettings.sonarAuthToken = SECRET;
     }
-    
+
     PipelineSettings.SonarQubeSettings.initializeQualityMetrics();
 }
 
