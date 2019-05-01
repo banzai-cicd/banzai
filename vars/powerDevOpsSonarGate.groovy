@@ -10,7 +10,7 @@ def call(Boolean proxiesOn = false)
     def sqHelper = new SonarQubeHelper();
     PipelineSettings.SonarQubeSettings.initializeQualityMetrics();
     
-    if(proxiesOn)
+    if (proxiesOn)
         sqService.enableProxies(PipelineSettings.ProxySettings.proxyHost, PipelineSettings.ProxySettings.proxyPort);
 
     // TODO - grab scan results and decorate based on branch regex (PR or not)
