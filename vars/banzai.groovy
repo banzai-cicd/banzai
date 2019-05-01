@@ -38,7 +38,7 @@ def runPipeline(config) {
         env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
         node() {
-            //printEnv()
+            printEnv()
             // support for jenkins 'tools'
             if (config.jdk) {
                 jdk = tool name: config.jdk
