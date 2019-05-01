@@ -210,7 +210,7 @@ private def initializeProxySettings(reportingConfig)
     /*
     *   Proxy settings
     */
-    def proxy = env.https_proxy :? env.http_proxy
+    def proxy = env.https_proxy ?: env.http_proxy
     if (proxy) {
         def hostAndPort = proxy.split(":")
         PipelineSettings.ProxySettings.proxyHost = hostAndPort[0];
