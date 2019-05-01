@@ -35,7 +35,8 @@ def call(config)
         proxyHost: config.httpsProxyHost,
         proxyPort: config.httpsProxyPort,
         sonarUrl:  sonarUrl,
-        sonarCredId: sonarCredId
+        sonarCredId: sonarCredId,
+        gitTokenId: config.gitTokenId
     ]
 
     initializeApplicationMetadata(reportingConfig.uai, reportingConfig.ci);
