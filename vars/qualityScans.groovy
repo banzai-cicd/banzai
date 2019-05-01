@@ -1,4 +1,5 @@
 #!/usr/bin/env groovy
+import main.groovy.cicd.pipeline.settings.PipelineSettings;
 
 def call(config, scansConfig) {
     def stages = [:]
@@ -11,7 +12,19 @@ def call(config, scansConfig) {
                         try {
                             notify(config, 'Sonar', 'Pending', 'PENDING')
                             sonarqubeQualityCheck();
-                            powerDevOpsSonarGate();
+
+                            def proxyOn = false
+                            def sonarHost = PipelineSettings.SonarQubeSettings.sonarHostUrl.replaceFirst(/(http|https):\/\//, "")
+                            logger "env.no_proxy contains ${sonarHost}? ${env.no_proxy.contains(sonarHost)}"
+                            if (!env.no_proxy || !env.no_proxy.contains(sonarHost)) {
+                                if (PipelineSettings.ProxySettings.proxyHost && PipelineSettings.ProxySettings.proxyPort) {
+                                    logger "setting sonar proxy ${PipelineSettings.ProxySettings.proxyHost}:${PipelineSettings.ProxySettings.proxyPort}"
+                                    proxyOn = true
+                                }
+                            }
+
+                            powerDevOpsSonarGate(proxyOn);
+
                             notify(config, 'Sonar', 'Successful', 'PENDING')
                         } catch (err) {
                             echo "Caught: ${err}"
