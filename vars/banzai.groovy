@@ -17,9 +17,10 @@ def call(body) {
 }
 
 def printEnv() {
+    logger "Printing Available Environment Variables"
     def envs = sh(returnStdout: true, script: 'env').split('\n')
     envs.each { name  ->
-        println "Name: $name"
+        logger "Name: $name"
     }
 }
 

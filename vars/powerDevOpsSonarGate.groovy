@@ -10,8 +10,6 @@ def call()
     def sqHelper = new SonarQubeHelper();
     PipelineSettings.SonarQubeSettings.initializeQualityMetrics();
 
-    logger "${env.no_proxy}"
-    logger "${PipelineSettings.SonarQubeSettings.sonarHostUrl}"
     def sonarHost = PipelineSettings.SonarQubeSettings.sonarHostUrl.replaceFirst(/(http|https):\/\//, "")
     if (!env.no_proxy || !env.no_proxy.contains(sonarHost)) {
         if (PipelineSettings.ProxySettings.proxyHost && PipelineSettings.ProxySettings.proxyPort) {
