@@ -12,8 +12,8 @@ def call()
 
     logger "${env.no_proxy}"
     logger "${PipelineSettings.SonarQubeSettings.sonarHostUrl}"
-    
-    if (!env.no_proxy || !env.no_proxy.contains(PipelineSettings.SonarQubeSettings.sonarHostUrl)) {
+    def sonarHost = PipelineSettings.SonarQubeSettings.sonarHostUrl.replaceFirst(/(http|https):\/\//, "")
+    if (!env.no_proxy || !env.no_proxy.contains(sonarHost)) {
         if (PipelineSettings.ProxySettings.proxyHost && PipelineSettings.ProxySettings.proxyPort) {
             logger "setting sonar proxy ${PipelineSettings.ProxySettings.proxyHost}:${PipelineSettings.ProxySettings.proxyPort}"
             sqService.enableProxies(PipelineSettings.ProxySettings.proxyHost, PipelineSettings.ProxySettings.proxyPort);
