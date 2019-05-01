@@ -62,9 +62,9 @@ def runPipeline(config) {
                     logger "Starting Fresh"
                     step([$class: 'WsCleanup'])
                 }
-
-                powerDevOpsInitReportingSettings(config)
+                
                 scmStage(config)
+                powerDevOpsInitReportingSettings(config)
                 filterSecretsStage(config)
                 scansStage(config, 'vulnerability')
                 scansStage(config, 'quality')

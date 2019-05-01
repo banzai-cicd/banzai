@@ -35,8 +35,7 @@ def call(config)
         proxyHost: config.httpsProxyHost,
         proxyPort: config.httpsProxyPort,
         sonarUrl:  sonarUrl,
-        sonarCredId: sonarCredId,
-        gitTokenId: config.gitTokenId
+        sonarCredId: sonarCredId
     ]
 
     initializeApplicationMetadata(reportingConfig.uai, reportingConfig.ci);
@@ -65,34 +64,41 @@ private def initializeApplicationMetadata(uai, ci)
 private def initializeCodeCheckoutSettings()
 {
     logger "initializeCodeCheckoutSettings"
+    def gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim();
 
     /*
     *   Code Checkout settings
     */
-    // Pipeline introspection
-    // def repoLocationTokens = JOB_NAME.split('/');
-    // PipelineSettings.CodeCheckoutSettings.org = repoLocationTokens[1];
-    // PipelineSettings.CodeCheckoutSettings.repo = repoLocationTokens[2];
-    // PipelineSettings.CodeCheckoutSettings.branch = repoLocationTokens[3];
-    withCredentials([string(credentialsId: config.gitTokenId, variable: 'TOKEN')]) {
-        // determine base repo/branch git url info
-        def url = scm.getUserRemoteConfigs()[0].getUrl()
-        def orgName = determineOrgName(url)
-        def repoName = determineRepoName(url)
+    // SCM config - magic strings
+    // TODO - pass these in as envvars or params
+    PipelineSettings.CodeCheckoutSettings.scm = 'github';
+    PipelineSettings.CodeCheckoutSettings.baseUrl = 'https://github.build.ge.com';
 
-        // get latest commit hash from the current branch
-        def branchInfoUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/branches/${BRANCH_NAME}"
-        def branchInfoResponse = httpRequest(url: branchInfoUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
-        def branchInfo = readJSON(text: branchInfoResponse.content)
+    // Pipeline introspection
+    def repoLocationTokens = JOB_NAME.split('/');
+    PipelineSettings.CodeCheckoutSettings.org = repoLocationTokens[1];
+    PipelineSettings.CodeCheckoutSettings.repo = repoLocationTokens[2];
+    PipelineSettings.CodeCheckoutSettings.branch = repoLocationTokens[3];
+    PipelineSettings.CodeCheckoutSettings.currentCommit = gitCommit;
+
+    // withCredentials([string(credentialsId: config.gitTokenId, variable: 'TOKEN')]) {
+    //     // determine base repo/branch git url info
+    //     def url = scm.getUserRemoteConfigs()[0].getUrl()
+    //     def orgName = determineOrgName(url)
+    //     def repoName = determineRepoName(url)
+
+    //     // get latest commit hash from the current branch
+    //     def branchInfoUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/branches/${BRANCH_NAME}"
+    //     def branchInfoResponse = httpRequest(url: branchInfoUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
+    //     def branchInfo = readJSON(text: branchInfoResponse.content)
         
-        PipelineSettings.CodeCheckoutSettings.scm = 'github';
-        PipelineSettings.CodeCheckoutSettings.baseUrl = 'https://github.build.ge.com';
-        PipelineSettings.CodeCheckoutSettings.org = orgName;
-        PipelineSettings.CodeCheckoutSettings.repo = repoName;
-        PipelineSettings.CodeCheckoutSettings.branch = BRANCH_NAME;
-        PipelineSettings.CodeCheckoutSettings.currentCommit = branchInfo.commit.sha;
-    }
-    
+    //     PipelineSettings.CodeCheckoutSettings.scm = 'github';
+    //     PipelineSettings.CodeCheckoutSettings.baseUrl = 'https://github.build.ge.com';
+    //     PipelineSettings.CodeCheckoutSettings.org = orgName;
+    //     PipelineSettings.CodeCheckoutSettings.repo = repoName;
+    //     PipelineSettings.CodeCheckoutSettings.branch = BRANCH_NAME;
+    //     PipelineSettings.CodeCheckoutSettings.currentCommit = branchInfo.commit.sha;
+    // }
 }
 
 private def initializeSonarQubeSettings(reportingConfig)
