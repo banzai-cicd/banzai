@@ -32,8 +32,6 @@ def call(config)
     }
     
     def reportingConfig = config.powerDevOpsReporting << [
-        proxyHost: config.httpsProxyHost,
-        proxyPort: config.httpsProxyPort,
         sonarUrl:  sonarUrl,
         sonarCredId: sonarCredId
     ]
@@ -212,6 +210,10 @@ private def initializeProxySettings(reportingConfig)
     /*
     *   Proxy settings
     */
-    PipelineSettings.ProxySettings.proxyHost = reportingConfig.proxyHost;
-    PipelineSettings.ProxySettings.proxyPort = reportingConfig.proxyPort;
+    def proxy = env.https_proxy :? env.http_proxy
+    if (proxy) {
+        def hostAndPort = proxy.split(":")
+        PipelineSettings.ProxySettings.proxyHost = hostAndPort[0];
+        PipelineSettings.ProxySettings.proxyPort = hostAndPort[1];
+    }
 }
