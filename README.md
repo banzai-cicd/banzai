@@ -31,8 +31,11 @@ banzai {
     appName = 'config-reviewer-server'          // **required** currently used only by SAST for determining the namespace to publish to.
     debug = false                               // provides additional debug messaging
     gitTokenId = 'sweeney-git-token'            // a Jenkins credential id which points to a github token (required by downstreamBuilds)
-    httpsProxyHost = 'myproxyhost'              // necessary for some external service communication
-    httpsProxyPort = 443                        // necessary for some external service communication
+    httpsProxy = [
+      envVar: 'https_proxy',                    // optionally use an env variable from the host to set the proxy info. should be in "{host}:{port}" format.
+      host: 'proxyhost',
+      port: '80'
+    ]
     startFresh = true                           // wipe workspace before each build
     flowdockBranches = /tag\-(.*)|develop/      // which branches should report notifications to Flowdock
     skipSCM = true                              // skip pulling down the branch that kicked off the build
