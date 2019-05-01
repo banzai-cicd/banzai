@@ -14,7 +14,7 @@ def call(config) {
     stage (stageName) {
       try {
         notify(config, stageName, 'Pending', 'PENDING')
-        if (config.httpsProxyHost && config.httpsProxyPort) {
+        if (config.httpsProxy) {
           authenticateService(true)
         }
         reportPipelineStatePublish();
