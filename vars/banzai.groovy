@@ -26,18 +26,19 @@ def printEnv() {
 def runPipeline(config) {
     pipeline {
         // clean up old builds (experimental, not sure if this is actually working or not. time will tell)
-            properties(
-              [
-                buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10')),
-                parameters([
-                    string(name: 'downstreamBuildIds', defaultValue: 'empty', description: 'list of buildIds to execute against'), 
-                    string(name: 'downstreamBuildDefinitions', defaultValue: 'empty', description: 'serialized downstreamBuildDefinitions collection automatically passed during a downstream build chain')
-                ])
-              ]
-            )
+        properties(
+            [
+            buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10')),
+            parameters([
+                string(name: 'downstreamBuildIds', defaultValue: 'empty', description: 'list of buildIds to execute against'), 
+                string(name: 'downstreamBuildDefinitions', defaultValue: 'empty', description: 'serialized downstreamBuildDefinitions collection automatically passed during a downstream build chain')
+            ])
+            ]
+        )
         env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
-        node() { 
+        node() {
+            printEnv()
             // support for jenkins 'tools'
             if (config.jdk) {
                 jdk = tool name: config.jdk
