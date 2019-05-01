@@ -178,12 +178,15 @@ private def initializeDeploySettings(reportingConfig)
 {
     logger "initializeDeploySettings"
     def envKey = 0
-    def branchKey = reportingConfig.environments.keySet().find { BRANCH_NAME ==~ it }
-    if (branchKey) {
-        def envConfig = reportingConfig.environments[branchKey]
-        envKey = envConfig.key
+    if (reportingConfig.environments) {
+        def branchKey = reportingConfig.environments.keySet().find { BRANCH_NAME ==~ it }
+        if (branchKey) {
+            def envConfig = reportingConfig.environments[branchKey]
+            envKey = envConfig.key
+        }
     }
 
+    logger "settings environment to ${envKey}"
     PipelineSettings.DeploySettings.environment = envKey
 }
 
