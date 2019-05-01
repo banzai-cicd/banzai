@@ -2,7 +2,7 @@ import main.groovy.cicd.pipeline.services.SonarQubeService;
 import main.groovy.cicd.pipeline.helpers.SonarQubeHelper;
 import main.groovy.cicd.pipeline.settings.PipelineSettings;
 
-def call(Boolean proxiesOn = false)
+def call()
 {
     sleep 30;
     // initialize web service and structures
@@ -10,7 +10,7 @@ def call(Boolean proxiesOn = false)
     def sqHelper = new SonarQubeHelper();
     PipelineSettings.SonarQubeSettings.initializeQualityMetrics();
     
-    if (proxiesOn)
+    if (PipelineSettings.ProxySettings.proxyHost && PipelineSettings.ProxySettings.proxyPort)
         sqService.enableProxies(PipelineSettings.ProxySettings.proxyHost, PipelineSettings.ProxySettings.proxyPort);
 
     // TODO - grab scan results and decorate based on branch regex (PR or not)

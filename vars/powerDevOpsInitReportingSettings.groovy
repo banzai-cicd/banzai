@@ -212,9 +212,6 @@ private def initializeProxySettings(reportingConfig)
     /*
     *   Proxy settings
     */
-    if (reportingConfig.proxyHost && reportingConfig.proxyPort) {
-        PipelineSettings.ProxySettings.proxyHost = reportingConfig.proxyHost;
-        PipelineSettings.ProxySettings.proxyPort = reportingConfig.proxyPort;
-    }
-
+    PipelineSettings.ProxySettings.proxyHost = reportingConfig.proxyHost;
+    PipelineSettings.ProxySettings.proxyPort = reportingConfig.proxyPort;
 }
