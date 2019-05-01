@@ -17,27 +17,51 @@ def call(body) {
 }
 
 def printEnv() {
+    logger "Printing Available Environment Variables"
     def envs = sh(returnStdout: true, script: 'env').split('\n')
     envs.each { name  ->
-        println "Name: $name"
+        logger "Name: $name"
     }
 }
 
 def runPipeline(config) {
     pipeline {
         // clean up old builds (experimental, not sure if this is actually working or not. time will tell)
-            properties(
-              [
-                buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10')),
-                parameters([
-                    string(name: 'downstreamBuildIds', defaultValue: 'empty', description: 'list of buildIds to execute against'), 
-                    string(name: 'downstreamBuildDefinitions', defaultValue: 'empty', description: 'serialized downstreamBuildDefinitions collection automatically passed during a downstream build chain')
-                ])
-              ]
-            )
+        properties(
+            [
+            buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10')),
+            parameters([
+                string(name: 'downstreamBuildIds', defaultValue: 'empty', description: 'list of buildIds to execute against'), 
+                string(name: 'downstreamBuildDefinitions', defaultValue: 'empty', description: 'serialized downstreamBuildDefinitions collection automatically passed during a downstream build chain')
+            ])
+            ]
+        )
         env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
-        node() { 
+        node() {
+            printEnv()
+            
+            // set proxy info from Environment if applicable
+            if (config.httpsProxy && config.httpsProxy.envVar) {
+                logger "Setting HTTPS Proxy from environment variable ${config.httpsProxy.envVar}"
+                def hostAndPort = env[config.httpsProxy.envVar].split(":")
+                config.httpsProxy = {
+                    host: hostAndPort[0]
+                    port: hostAndPort[1]
+                }
+                config.noProxy = config.noProxy ?: env.no_proxy
+            }
+            if (config.httpProxy && config.httpProxy.envVar) {
+                logger "Setting HTTP Proxy from environment variable ${config.httpProxy.envVar}"
+                def hostAndPort = env[config.httpProxy.envVar].split(":")
+                config.httpProxy = {
+                    host: hostAndPort[0]
+                    port: hostAndPort[1]
+                }
+                config.noProxy = env.no_proxy
+                config.noProxy = config.noProxy ?: env.no_proxy
+            }
+
             // support for jenkins 'tools'
             if (config.jdk) {
                 jdk = tool name: config.jdk
@@ -62,16 +86,20 @@ def runPipeline(config) {
                     logger "Starting Fresh"
                     step([$class: 'WsCleanup'])
                 }
-
+                
                 scmStage(config)
+                powerDevOpsInitReportingSettings(config)
                 filterSecretsStage(config)
-                vulnerabilityScansStage(config)
+                scansStage(config, 'vulnerability')
+                scansStage(config, 'quality')
                 buildStage(config)
                 publishStage(config)
                 deployStage(config)
                 integrationTestsStage(config)
+                powerDevOpsReportingStage(config)
                 markForPromotionStage(config)
                 
+
                 if (config.postCleanup) {
                     logger "Cleaning up"
                     step([$class: 'WsCleanup'])

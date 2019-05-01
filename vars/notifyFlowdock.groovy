@@ -2,7 +2,8 @@
 import groovy.json.JsonOutput
 
 def call(config, stage, message, status) {
-    if (!config.mergeBranches || !config.flowdockCredId || !config.flowdockAuthor) {
+    def targetBranches = config.flowdockBranches ?: config.mergeBranches
+    if (!targetBranches || !config.flowdockCredId || !config.flowdockAuthor) {
       logger "'mergeBranches', 'flowdockFlowToken' and 'flowdockAuthor' are required in your Jenkinsfile when 'flowdock' = true"
       return
     }

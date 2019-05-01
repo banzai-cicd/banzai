@@ -1,18 +1,24 @@
 #!/usr/bin/env groovy
 
 def call(config) {
-  def stageName = 'Build'
-  
-  if (config.build) {
-    if (config.buildBranches && !(BRANCH_NAME ==~ config.buildBranches)) {
-      logger "${BRANCH_NAME} does not match the buildBranches pattern. Skipping ${stageName}"
+  def stageName = 'PowerDevOps Reporting'
+
+  if (config.powerDevOpsReporting) {    
+    logger "powerDevOpsReporting is not present. Skipping ${stageName}"
+
+    if (config.powerDevOpsReporting.branches && BRANCH_NAME !=~ config.powerDevOpsReporting.branches) {
+      logger "${BRANCH_NAME} does not match the powerDevOpsReporting.branches pattern. Skipping ${stageName}"
       return 
     }
 
     stage (stageName) {
       try {
         notify(config, stageName, 'Pending', 'PENDING')
-        banzaiBuild(config)
+        if (config.httpsProxyHost && config.httpsProxyPort) {
+          authenticateService(true)
+        }
+        reportPipelineStatePublish();
+        reportPipelineStateDeploy();
         notify(config, stageName, 'Successful', 'PENDING')
       } catch (err) {
           echo "Caught: ${err}"
@@ -26,7 +32,5 @@ def call(config) {
           error(err.message)
       }
     }
-    
   }
-
 }

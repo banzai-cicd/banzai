@@ -1,19 +1,20 @@
 #!/usr/bin/env groovy
 
 def call(config) {
+  def stageName = 'Checkout'
 
   if (!config.skipSCM) {
     try {
-        notify(config, 'Checkout', 'Pending', 'PENDING')
+        notify(config, stageName, 'Pending', 'PENDING')
         checkout scm
-        notify(config, 'Checkout', 'Successful', 'PENDING')
+        notify(config, stageName, 'Successful', 'PENDING')
     } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'UNSTABLE'
         if (isGithubError(err)) {
-            notify(config, 'Checkout', 'githubdown', 'FAILURE', true)
+            notify(config, stageName, 'githubdown', 'FAILURE', true)
         } else {
-            notify(config, 'Checkout', 'Failed', 'FAILURE')
+            notify(config, stageName, 'Failed', 'FAILURE')
         }
         error(err.message)
     }

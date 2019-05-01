@@ -27,12 +27,17 @@ full list of Jenkins options
 @Library('Banzai') _ // only necessary if configured as a 'Global Pipeline Library'. IMPORTANT: the _ is required after @Library. 
 banzai {
     throttle = 'my-project'                     // comma-delimited list of throttle categories to apply. (https://github.com/jenkinsci/throttle-concurrent-builds-plugin)
-    sshCreds                                    // a list of any ssh creds that may be needed in your pipeline
+    sshCreds = ['cred1', 'cred2']                                    // a list of any ssh creds that may be needed in your pipeline
     appName = 'config-reviewer-server'          // **required** currently used only by SAST for determining the namespace to publish to.
     debug = false                               // provides additional debug messaging
     gitTokenId = 'sweeney-git-token'            // a Jenkins credential id which points to a github token (required by downstreamBuilds)
+    httpsProxy = [
+      envVar: 'https_proxy',                    // optionally use an env variable from the host to set the proxy info. should be in "{host}:{port}" format.
+      host: 'proxyhost',
+      port: '80'
+    ]
     startFresh = true                           // wipe workspace before each build
-    mergeBranches = /tag\-(.*)|develop/         // helps the pipeline dete
+    flowdockBranches = /tag\-(.*)|develop/      // which branches should report notifications to Flowdock
     skipSCM = true                              // skip pulling down the branch that kicked off the build
     flowdock = true                             // 
     flowdockCredId = 'flowdock-cred'
@@ -54,7 +59,7 @@ banzai {
     jdk = 'jdk 10.0.1'                          // value must be the name given to a configured JDK in the Global Tools sections of Jenkins
     vulnerabilityAbortOnError                 // globally set that all vulnerability scans should abort the pipeline if there is an Error
     vulnerabilityScans = [
-      /develop/: [                              // run this collection of scans against develop
+      /develop|master/: [                              // run this collection of scans against develop
         [
           type: 'checkmarx',
           credId: 'ge-checkmarx',               // jenkins credential containing user/pass for checkmarx
@@ -73,6 +78,15 @@ banzai {
           buildCmd: 'mvn -s ./settings.xml clean install -U', // the command coverity should wrap. alternatively, you can export BUILD_CMD in a previous pipeline step and it will be picked up.
           projectName: 'your-coverity-project-name',
           abortOnError: true
+        ]
+      ]
+    ]
+    qualityScans = [
+      /develop|master/: [
+        [
+          type: 'sonar',
+          serverUrl: 'https://my-sonar.ge.com'
+          credId: 'sonar-auth-token-id'        // jenkins credential (of type secret) containing a sonar server auth token
         ]
       ]
     ]
@@ -106,6 +120,24 @@ banzai {
           label: 'myPass',                          // should appear in the file in the format ${banzai:myPass}
           secretId: 'my-jenkins-secret-id'          // the id of the secret on Jenkins
       ]
+    ],
+    powerDevOpsReporting: [
+      branches: /master|develop/
+      ci: 'your-ci',
+      uai: 'your-uai',
+      uaaCredId: 'uaa-cred-id',                     // UAA Bearer Token stored as Jenkins Cred
+      uaaUrl: 'https://a8a2ffc4-b04e-4ec1-bfed-7a51dd408725.predix-uaa.run.aws-usw02-pr.ice.predix.io/oauth/token?grant_type=client_credentials',
+      metricsUrl: 'https://dev-cicadavpc-secure-pipeline-services-vanguard.cicada.digital.ge.com',
+      environments: [
+        /develop/ : [
+          key: 0,
+          name: 'develop'
+        ],
+        /master/ : [
+          key: 1,
+          name: 'qa'
+        ]
+      ]
     ]
 }
 ```
@@ -116,3 +148,7 @@ The downstream build definition supports all of the properties documented by [Je
 1. the parallel build also has `wait: true`
 2. the parallel build also has `propagate: true`
 3. there is one or more non-parallel builds defined after the parallel build(s) that need to be executed once the parallel build(s) complete.
+
+
+### Coverity
+Coverity functionality requires the Coverity ~2.0.0 Plugin to be installed on the host Jenkins https://synopsys.atlassian.net/wiki/spaces/INTDOCS/pages/623018/Synopsys+Coverity+for+Jenkins#SynopsysCoverityforJenkins-Version2.0.0
