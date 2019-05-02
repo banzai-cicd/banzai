@@ -215,7 +215,7 @@ private def initializeProxySettings(reportingConfig)
         logger "PipelineSettings.ProxySettings.proxyHost = ${reportingConfig.proxy.host}"
         PipelineSettings.ProxySettings.proxyHost = reportingConfig.proxy.host;
         logger "PipelineSettings.ProxySettings.proxyPort = ${reportingConfig.proxy.port}"
-        PipelineSettings.ProxySettings.proxyPort = reportingConfig.proxy.port;
+        PipelineSettings.ProxySettings.proxyPort = reportingConfig.proxy.port.toInteger();
     }
     
 }
