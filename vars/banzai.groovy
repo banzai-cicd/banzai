@@ -41,26 +41,8 @@ def runPipeline(config) {
         node() {
             printEnv()
             
-            // set proxy info from Environment if applicable
-            if (config.httpsProxy && config.httpsProxy.envVar) {
-                logger "Setting HTTPS Proxy from environment variable ${config.httpsProxy.envVar}"
-                def hostAndPort = env[config.httpsProxy.envVar].split(":")
-                config.httpsProxy = {
-                    host: hostAndPort[0]
-                    port: hostAndPort[1]
-                }
-                config.noProxy = config.noProxy ?: env.no_proxy
-            }
-            if (config.httpProxy && config.httpProxy.envVar) {
-                logger "Setting HTTP Proxy from environment variable ${config.httpProxy.envVar}"
-                def hostAndPort = env[config.httpProxy.envVar].split(":")
-                config.httpProxy = {
-                    host: hostAndPort[0]
-                    port: hostAndPort[1]
-                }
-                config.noProxy = env.no_proxy
-                config.noProxy = config.noProxy ?: env.no_proxy
-            }
+            // ensure proxy fields are properly set
+            setProxy(config)
 
             // support for jenkins 'tools'
             if (config.jdk) {
