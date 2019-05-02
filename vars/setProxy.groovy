@@ -5,19 +5,19 @@ def call(config) {
     if (config.httpsProxy && config.httpsProxy.envVar) {
         logger "Setting HTTPS Proxy from environment variable ${config.httpsProxy.envVar}"
         def hostAndPort = env[config.httpsProxy.envVar].tokenize(":")
-        config.httpsProxy = {
+        config.httpsProxy = [
             host: hostAndPort[0]
             port: hostAndPort[1]
-        }
+        ]
         config.noProxy = config.noProxy ?: env.no_proxy
     }
     if (config.httpProxy && config.httpProxy.envVar) {
         logger "Setting HTTP Proxy from environment variable ${config.httpProxy.envVar}"
         def hostAndPort = env[config.httpProxy.envVar].tokenize(":")
-        config.httpProxy = {
+        config.httpProxy = [
             host: hostAndPort[0]
             port: hostAndPort[1]
-        }
+        ]
         config.noProxy = env.no_proxy
         config.noProxy = config.noProxy ?: env.no_proxy
     }
