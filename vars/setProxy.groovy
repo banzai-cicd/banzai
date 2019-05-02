@@ -6,7 +6,7 @@ def call(config) {
         logger "Setting HTTPS Proxy from environment variable ${config.httpsProxy.envVar}"
         def hostAndPort = env[config.httpsProxy.envVar].tokenize(":")
         config.httpsProxy = [
-            host: hostAndPort[0]
+            host: hostAndPort[0],
             port: hostAndPort[1]
         ]
         config.noProxy = config.noProxy ?: env.no_proxy
@@ -15,7 +15,7 @@ def call(config) {
         logger "Setting HTTP Proxy from environment variable ${config.httpProxy.envVar}"
         def hostAndPort = env[config.httpProxy.envVar].tokenize(":")
         config.httpProxy = [
-            host: hostAndPort[0]
+            host: hostAndPort[0],
             port: hostAndPort[1]
         ]
         config.noProxy = env.no_proxy
