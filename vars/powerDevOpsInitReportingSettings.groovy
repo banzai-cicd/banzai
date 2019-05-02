@@ -212,8 +212,10 @@ private def initializeProxySettings(reportingConfig)
     *   Proxy settings
     */
     if (reportingConfig.httpsProxy) {
-        PipelineSettings.ProxySettings.proxyHost = reportingConfig.httpsProxy.host;
-        PipelineSettings.ProxySettings.proxyPort = reportingConfig.httpsProxy.port;
+        logger "PipelineSettings.ProxySettings.proxyHost = ${reportingConfig.proxy.host}"
+        PipelineSettings.ProxySettings.proxyHost = reportingConfig.proxy.host;
+        logger "PipelineSettings.ProxySettings.proxyPort = ${reportingConfig.proxy.port}"
+        PipelineSettings.ProxySettings.proxyPort = reportingConfig.proxy.port;
     }
     
 }
