@@ -20,8 +20,9 @@ def call(config, scansConfig) {
                                 logger "setting sonar proxy ${config.httpsProxy.host}:${config.httpsProxy.port}"
                                 proxyOn = true
                             }
-
-                            powerDevOpsSonarGate(proxyOn);
+                            
+                            sonarqubeQualityResults(proxyOn);
+                            // powerDevOpsSonarGate(proxyOn);
 
                             notify(config, 'Sonar', 'Successful', 'PENDING')
                         } catch (err) {
