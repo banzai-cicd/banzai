@@ -42,6 +42,9 @@ def call(config) {
 	}
 
 	// commit service updates
-	sh "git commit -a -m 'Updating the following Services ${serviceIdsAndVersions}' || true"
-	sh "git pull && git ${deploymntRepoName} push origin master"
+	dir(WORKSPACE) {
+		sh "git add ."
+		sh "git commit -m 'Updating the following Services ${serviceIdsAndVersions}' || true"
+		sh "git pull && git push origin master"
+	}
 }
