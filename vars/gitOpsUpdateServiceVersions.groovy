@@ -3,7 +3,7 @@ import net.sf.json.JSONObject
 
 def call(config) {
 	// parse service versions obj from params
-	if (config.skipVersionUpdating && BRANCH_NAME ==~ config.skipVersionUpdating) {
+	if (config.gitOps.skipVersionUpdating && BRANCH_NAME ==~ config.gitOps.skipVersionUpdating) {
 		logger "skipVersionUpdating detected for branch '${params.gitOpsTriggeringBranch}'. Will not update versions"
 		return
 	}
