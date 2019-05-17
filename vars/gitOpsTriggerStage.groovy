@@ -3,7 +3,7 @@
 def call(config) {
   def stageName = 'Trigger GitOps'
 
-  if (config.gitOpsTrigger && !(BRANCH_NAME ==~ config.gitOpsTrigger.branches)) {
+  if (!config.gitOpsTrigger || !(BRANCH_NAME ==~ config.gitOpsTrigger.branches)) {
       logger "${BRANCH_NAME} does not match the gitOpsTrigger.branches pattern. Skipping"
       return 
   }

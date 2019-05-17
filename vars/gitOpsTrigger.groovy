@@ -6,20 +6,13 @@ import net.sf.json.JSONObject
 // Determine if gitOps job should run.
 def call(config) {
 	//def versionFileInfo = new File("${WORKSPACE}/gitOpsVersions")
-	def VER_FILE = "${WORKSPACE}/gitOpsVersions"
-	def VER_FILE_STATUS = sh (
-	    script: 'if [ -e ${VER_FILE} ]; then echo "EXISTS" ; else echo "NOT-EXISTS" ; fi',
-	    returnStdout: true
-	).trim()
-	echo "VER_FILE_STATUS: ${VER_FILE_STATUS}" 
-	
-	if (VER_FILE_STATUS == 'EXISTS') {
-	    logger "${WORKSPACE}/gitOpsVersions detected"
-	} else {
-	    throw new IllegalArgumentException("no ${WORKSPACE}/gitOpsVersions exists!")
-	}
+	def gitOpsVersionsFileName = "${WORKSPACE}/gitOpsVersions"
 
-	def gitOpsVersions = readFile "${WORKSPACE}/gitOpsVersions"
+	if (!fileExists(gitOpsVersionsFileName)) {
+		error("No gitOpsVersions file exists!")
+		return
+	}
+	def gitOpsVersions = readFile gitOpsVersionsFileName
 	logger "gitOpsVersions"
 	logger gitOpsVersions
 	// convert gitOpsVersions to groovy map
