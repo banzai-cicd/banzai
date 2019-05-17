@@ -33,7 +33,7 @@ def call(config) {
 		wait: false,
 		job: config.gitOpsTrigger.jenkinsJob,
 		parameters: [
-			string(name: 'gitOpsVersions', value:  JsonOutput.toJson(versionsObj))),
+			string(name: 'gitOpsVersions', value:  JsonOutput.toJson(versionsObj)),
 			string(name: 'gitOpsTriggeringBranch', value: BRANCH_NAME)
 		]
 	]
