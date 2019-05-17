@@ -1,4 +1,5 @@
 #!/usr/bin/env groovy
+import net.sf.json.JSONObject
 
 def call(config) {
 	// parse service versions obj from params

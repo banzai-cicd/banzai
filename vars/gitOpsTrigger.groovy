@@ -1,4 +1,6 @@
 #!/usr/bin/env groovy
+import groovy.json.JsonOutput
+import net.sf.json.JSONObject
 
 // Determine if gitOps job should run.
 def call(config) {
