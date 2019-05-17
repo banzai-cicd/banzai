@@ -24,7 +24,7 @@ def call(config) {
 	gitOpsVersions.trim().tokenize("\n").each {
 		def serviceIdAndVersion = it.trim().tokenize(" ")
 		// we should add or update the service to the /services dir.
-		versionObj[serviceIdAndVersion[0]] = serviceIdAndVersion[1]
+		versionsObj[serviceIdAndVersion[0]] = serviceIdAndVersion[1]
 	}
 	
 	// kick off gitops job and pass params
