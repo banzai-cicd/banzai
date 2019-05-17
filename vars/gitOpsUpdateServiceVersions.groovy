@@ -17,12 +17,13 @@ def call(config) {
 	*/
 	// ensure services dir exists
 	def serviceDirName = "${WORKSPACE}/services"
-	dir(serviceDirName)
-	if (!fileExists("/")) {
-		logger "No ${serviceDirName} dir exists. Creating..."
-		dir(WORKSPACE)
-		sh "mkdir ${serviceDirName}"
+	dir(serviceDirName) {
+		if (!fileExists("/")) {
+			logger "No ${serviceDirName} dir exists. Creating..."
+			sh "mkdir ${serviceDirName}"
+		}
 	}
+	
 	def serviceIdsAndVersions = [] // for logging later
 	serviceVersions.each { id, version ->
 		serviceIdsAndVersions.push("${id}:${version}")
