@@ -31,7 +31,7 @@ def call(config) {
 	def buildDef = [
 		propagate: false,
 		wait: false,
-		job: config.gitOps.jenkinsJob,
+		job: config.gitOpsTrigger.jenkinsJob,
 		parameters: [
 			string(name: 'gitOpsVersions', value:  JsonOutput.toJson(versionsObj))),
 			string(name: 'gitOpsTriggeringBranch', value: BRANCH_NAME)
