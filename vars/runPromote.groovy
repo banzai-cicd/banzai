@@ -3,16 +3,16 @@
 @NonCPS
 def updateStackYamlVersion(versionYmlData, stackYmlData) {
     versionYmlData.version.each{key, value ->
-	if (stackYmlData.services.containsKey(key))	{
-	    def existingImgName = stackYmlData.services[key].image
-	    def existingImgVersion = existingImgName.split(/:/)[-1]
-	    if(!(existingImgVersion.toLowerCase().contains('.com'))) {  // Ignore if no tag present with image name
-		def newImgVersion = value
-		def newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
-		stackYmlData.services[key].image = newImgName
-		latestImgNameList.add("${key}~${newImgName}")
-	    }
-	}
+		if (stackYmlData.services.containsKey(key))	{
+			def existingImgName = stackYmlData.services[key].image
+			def existingImgVersion = existingImgName.split(/:/)[-1]
+			if (!(existingImgVersion.toLowerCase().contains('.com'))) {  // Ignore if no tag present with image name
+				def newImgVersion = value
+				def newImgName = stackYmlData.services[key].image.replaceAll(existingImgVersion, newImgVersion)
+				stackYmlData.services[key].image = newImgName
+				latestImgNameList.add("${key}~${newImgName}")
+			}
+		}
     }	
     echo "Stack Yml Data after updating from Version file: ${stackYmlData.toMapString()}"	
 }
@@ -71,11 +71,11 @@ def call(config, environment) {
 	}
 	if (environment == 'qa') {
 	    stage ("Verify Deployment Info") {
-		timeout(time: 1, unit: 'DAYS') {
-		    script {
-			userVersionInfo = input(id: 'userInput', message: "Verify tags of ${config.stackName} application modules to be deployed to ${environment.toUpperCase()}", parameters: paramList)
-		    }
-		}
+			timeout(time: 1, unit: 'DAYS') {
+				script {
+					userVersionInfo = input(id: 'userInput', message: "Verify tags of ${config.stackName} application modules to be deployed to ${environment.toUpperCase()}", parameters: paramList)
+				}
+			}
 	    }
 	}
 	node(){
