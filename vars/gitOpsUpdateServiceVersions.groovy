@@ -19,7 +19,8 @@ def call(config) {
 	def serviceDirName = "${WORKSPACE}/services"
 	dir(serviceDirName)
 	if (!fileExists("/")) {
-		sh "mdkir ${serviceDirName}"
+		logger "No ${serviceDirName} dir exists. Creating..."
+		sh "mkdir ${serviceDirName}"
 		dir(WORKSPACE)
 	}
 	def serviceIdsAndVersions = [] // for logging later
