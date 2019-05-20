@@ -2,6 +2,14 @@
 import net.sf.json.JSONObject
 
 def call(config) {
+	if (!config.gitOps) {
+		logger "Current build is not a GitOps repo. Skipping gitOpsUpdateServiceVersions"
+		return
+	}
+	if (!params.gitOpsTriggeringBranch) {
+		logger "No params.gitOpsTriggeringBranch found. Will not attempt to update service versions."
+		return
+	}
 	// parse service versions obj from params
 	if (config.gitOps.skipVersionUpdating && BRANCH_NAME ==~ config.gitOps.skipVersionUpdating) {
 		logger "skipVersionUpdating detected for branch '${params.gitOpsTriggeringBranch}'. Will not update versions"
@@ -10,10 +18,10 @@ def call(config) {
 	def SERVICE_DIR_NAME = "${WORKSPACE}/services"
 	def ENV_DIR_NAME = "${WORKSPACE}/envs"
 
-	// determine if we should autoDeploy this
+	// determine if we should autoDeploy this in addition to updating service versions
 	def autoDepoyEnv
 	if (config.gitOps.autoDeploy) {
-		def key = config.gitOps.autoDeploy.keySet().find { BRANCH_NAME ==~ it }
+		def key = config.gitOps.autoDeploy.keySet().find { params.gitOpsTriggeringBranch ==~ it }
 		if (key) {
 			autoDepoyEnv = config.gitOps.autoDeploy[key]
 			logger "gitOps.autoDeploy detected. Will update ${autoDepoyEnv}/${params.gitOpsStackId}.yaml"
