@@ -44,6 +44,6 @@ def call(config) {
 	// commit service updates
 	dir(WORKSPACE) {
 		sh "git add . && git commit -m 'Updating the following Services ${serviceIdsAndVersions}'"
-		sh "git pull && git push origin master"
+		sh "git pull origin master && git push origin master"
 	}
 }
