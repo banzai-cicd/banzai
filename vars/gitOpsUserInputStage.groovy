@@ -37,7 +37,7 @@ def call(config) {
   def targetEnvironment
   stage ('Target Environment?') {
     // get all of the envs listed in the repo
-    def envs = findFiles("${WORKSPACE}/envs").findAll { it.isDirectory() }
+    def envs = findFiles(glob: "${WORKSPACE}/envs/*").findAll { it.isDirectory() }
     if (!envs || !envs.empty) {
       logger "No environments found. Ensure that /envs is not empty"
       return
@@ -59,7 +59,7 @@ def call(config) {
 
   def targetStack
   stage ('Stack?') {
-    def stackFiles = findFiles("${WORKSPACE}/envs/${targetEnvironment}").findAll { !it.isDirectory() && it.getName().endsWith(".yaml") }
+    def stackFiles = findFiles(glob: "${WORKSPACE}/envs/${targetEnvironment}/*").findAll { !it.isDirectory() && it.getName().endsWith(".yaml") }
     def stackIdChoices = stackFiles.collect { it.getName().replace('.yaml', '') }.join("\n")
     timeout(time: 10, unit: 'MINUTES') {
       script {
