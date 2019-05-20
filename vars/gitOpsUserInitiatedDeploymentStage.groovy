@@ -3,7 +3,7 @@
 
 def call(config) {
   def stageName = 'GitOps: User Input Stage'
-  if (!config.gitOps || params.gitOpsTriggeringBranch) {
+  if (!config.gitOps || params.gitOpsTriggeringBranch != 'empty') {
       logger "Does not appear to be a user-initiated GitOps build. Skipping '${stageName}'"
       return
   }
