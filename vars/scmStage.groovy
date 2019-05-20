@@ -6,7 +6,14 @@ def call(config) {
   if (!config.skipSCM) {
     try {
         notify(config, stageName, 'Pending', 'PENDING')
-        checkout scm
+        // checkout scm
+        checkout([
+          $class: 'GitSCM',
+          branches: scm.branches,
+          doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+          extensions: scm.extensions + [$class: 'LocalBranch', localBranch: "**"],
+          userRemoteConfigs: scm.userRemoteConfigs
+        ])
         notify(config, stageName, 'Successful', 'PENDING')
     } catch (err) {
         echo "Caught: ${err}"
