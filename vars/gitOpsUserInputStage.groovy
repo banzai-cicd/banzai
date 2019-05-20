@@ -40,6 +40,8 @@ def call(config) {
     def envs
     dir("${WORKSPACE}/envs") {
       envs = findFiles(glob: "*/")
+      logger "envs.getClass()"
+      logger envs.getClass()
       if (envs.getClass() == FILE_WRAPPER_CLASS) {
         envs = [envs]
       }
