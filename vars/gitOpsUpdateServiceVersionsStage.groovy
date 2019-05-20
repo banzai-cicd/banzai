@@ -4,7 +4,7 @@
   Detects if this pipeline was triggered by an upstream job's 'gitOpsTriggerStage' and updates service versions
 */
 def call(config) {
-  def stageName = 'GitOps Update Service Versions'
+  def stageName = 'GitOps: Update Service Versions'
 
   if (params.gitOpsTriggeringBranch == 'empty' || params.gitOpsVersions == 'empty') {
     logger "Job was not triggered by an upstream service version change. Skipping '${stageName}'"
