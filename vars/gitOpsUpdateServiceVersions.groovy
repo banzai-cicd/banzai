@@ -13,7 +13,11 @@ def call(config) {
 	// determine if we should autoDeploy this
 	def autoDepoyEnv
 	if (config.gitOps.autoDeploy) {
-		autoDepoyEnv = config.gitOps.autoDeploy.keySet().find { BRANCH_NAME ==~ it }
+		def key = config.gitOps.autoDeploy.keySet().find { BRANCH_NAME ==~ it }
+		if (key) {
+			autoDepoyEnv = config.gitOps.autoDeploy[key]
+			logger "gitOps.autoDeploy detected. Will update ${autoDepoyEnv}/${params.gitOpsStackId}.yaml"
+		}
 	}
 
 	def serviceVersions = readJSON(text: params.gitOpsVersions)
