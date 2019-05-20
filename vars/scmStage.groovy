@@ -6,7 +6,6 @@ def call(config) {
   if (!config.skipSCM) {
     try {
         notify(config, stageName, 'Pending', 'PENDING')
-        // checkout scm
         checkout([
           $class: 'GitSCM',
           branches: scm.branches,
