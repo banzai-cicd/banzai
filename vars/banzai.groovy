@@ -77,6 +77,7 @@ def runPipeline(config) {
                 filterSecretsStage(config)
                 // gitOpsStages
                 gitOpsUpdateServiceVersionsStage(config)
+                gitOpsUserInputStage(config)
                 // /end gitOpsStages
                 scansStage(config, 'vulnerability')
                 scansStage(config, 'quality')
