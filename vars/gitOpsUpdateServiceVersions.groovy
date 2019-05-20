@@ -7,6 +7,14 @@ def call(config) {
 		logger "skipVersionUpdating detected for branch '${params.gitOpsTriggeringBranch}'. Will not update versions"
 		return
 	}
+	def SERVICE_DIR_NAME = "${WORKSPACE}/services"
+	def ENV_DIR_NAME = "${WORKSPACE}/envs"
+
+	// determine if we should autoDeploy this
+	def autoDepoyEnv
+	if (config.gitOps.autoDeploy) {
+		autoDepoyEnv = config.gitOps.autoDeploy.keySet().find { BRANCH_NAME ==~ it }
+	}
 
 	def serviceVersions = readJSON(text: params.gitOpsVersions)
 	/*
@@ -16,32 +24,47 @@ def call(config) {
 		3. update the latest property
 	*/
 	// ensure services dir exists
-	def serviceDirName = "${WORKSPACE}/services"
-	dir(serviceDirName) {
+	dir(SERVICE_DIR_NAME) {
 		if (!fileExists("/")) {
-			logger "No ${serviceDirName} dir exists. Creating..."
-			sh "mkdir ${serviceDirName}"
+			logger "No ${SERVICE_DIR_NAME} dir exists. Creating..."
+			sh "mkdir ${SERVICE_DIR_NAME}"
 		}
 	}
 	
 	def serviceIdsAndVersions = [] // for logging later
+	def stackYaml
+	def stackFileName
+	if (autoDepoyEnv) {
+		stackFileName = "${ENV_DIR_NAME}/${autoDepoyEnv}/${params.gitOpsStackId}.yaml"
+		stackYaml = readYaml file: stackFileName
+	}
 	serviceVersions.each { id, version ->
 		serviceIdsAndVersions.push("${id}:${version}")
-		def serviceFileName = "${serviceDirName}/${id}.yaml"
+		def serviceFileName = "${SERVICE_DIR_NAME}/${id}.yaml"
 		if (!fileExists(serviceFileName)) {
 			def yamlTemplate = [latest: '', versions: []]
 			writeYaml file: serviceFileName, data: yamlTemplate
 		}
 
-		def yaml = readYaml file: serviceFileName
-		yaml.latest = version
-		if (!yaml.versions.contains(version)) {
+		def serviceYaml = readYaml file: serviceFileName
+		serviceYaml.latest = version
+		if (!serviceYaml.versions.contains(version)) {
 			yaml.versions.add(0, version)
 		}
 		// writeYaml will fail if the file already exists
 		sh "rm -rf ${serviceFileName}"
 		logger "Updating Service '${id}' to '${version}'"
-		writeYaml file: serviceFileName, data: yaml
+		writeYaml file: serviceFileName, data: serviceYaml
+
+		// if stackFile exists then update it as well as this is an autoDeploy
+		if (stackYaml) {
+			stackFile[id] = version
+		}
+	}
+	if (stackYaml) {
+		// save the updated stack yaml
+		sh "rm -rf ${stackFileName}"
+		writeYaml file: stackFileName, data: stackYaml
 	}
 
 	// commit service updates
@@ -50,6 +73,8 @@ def call(config) {
 		if (!gitStatus.contains('nothing to commit')) {
 			sh "git add . && git commit -m 'Updating the following Services ${serviceIdsAndVersions}'"
 			sh "git pull && git push origin master"
+		} else {
+			logger "No new Services versions commited to the GitOps repository."
 		}
 	}
 }

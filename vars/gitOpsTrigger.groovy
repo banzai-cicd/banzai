@@ -29,7 +29,8 @@ def call(config) {
 		job: config.gitOpsTrigger.jenkinsJob,
 		parameters: [
 			string(name: 'gitOpsVersions', value:  JsonOutput.toJson(versionsObj)),
-			string(name: 'gitOpsTriggeringBranch', value: BRANCH_NAME)
+			string(name: 'gitOpsTriggeringBranch', value: BRANCH_NAME),
+			string(name: 'gitOpsStackId', value: config.gitOpsTrigger.stackId)
 		]
 	]
 
