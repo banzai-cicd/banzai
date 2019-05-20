@@ -46,7 +46,10 @@ def call(config) {
 
 	// commit service updates
 	dir(WORKSPACE) {
-		sh "git add . && git commit -m 'Updating the following Services ${serviceIdsAndVersions}'"
-		sh "git pull && git push origin master"
+		def gitStatus = sh(returnStdout: true, script: 'git status')
+		if (!gitStatus.contains('nothing to commit')) {
+			sh "git add . && git commit -m 'Updating the following Services ${serviceIdsAndVersions}'"
+			sh "git pull && git push origin master"
+		}
 	}
 }
