@@ -40,13 +40,8 @@ def call(config) {
     def envs
     dir("${WORKSPACE}/envs") {
       envs = findFiles(glob: "*/")
-      logger "envs.getClass()"
-      logger envs.getClass()
-      if (envs.getClass() == FILE_WRAPPER_CLASS) {
-        envs = [envs]
-      }
     }
-    if (!envs || !envs.empty) {
+    if (!envs || envs.size() == 0) {
       logger "No environments found. Ensure that /envs is not empty"
       return
     }
@@ -70,11 +65,8 @@ def call(config) {
     def stackFiles
     dir("${WORKSPACE}/envs/${targetEnvironment}") {
       stackFiles = findFiles(glob: "*.yaml")
-      if (stackFiles.getClass() == FILE_WRAPPER_CLASS) {
-        stackFiles = [stackFiles]
-      }
     }
-    if (!stackFiles || !stackFiles.empty) {
+    if (!stackFiles || stackFiles.size() == 0) {
       logger "No stacks found. Ensure that /envs/${targetEnvironment} is not empty"
       return
     }
