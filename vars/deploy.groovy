@@ -25,11 +25,11 @@ def call(config) {
     if (config.deploySSHCredId) {
       /* should wrap in ssh creds */
       sshagent([config.deploySSHCredId]) {
-        runScript(config, "deployScriptFile", "deployScript")
+        runScript(config, "deployScriptFile", "deployScript", config.deployArgs)
       }
     } else {
       /* run without ssh creds */
-      runScript(config, "deployScriptFile", "deployScript")
+      runScript(config, "deployScriptFile", "deployScript", config.deployArgs)
     }
   }
 
