@@ -35,7 +35,10 @@ def call(config) {
 
 		def yaml = readYaml file: serviceFileName
 		yaml.latest = version
-		yaml.versions.add(0, version)
+		if (!yaml.versions.contains(version)) {
+			yaml.versions.add(0, version)
+		}
+		// writeYaml will fail if the file already exists
 		sh "rm -rf ${serviceFileName}"
 		logger "Updating Service '${id}' to '${version}'"
 		writeYaml file: serviceFileName, data: yaml
