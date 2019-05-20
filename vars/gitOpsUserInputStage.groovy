@@ -1,6 +1,10 @@
 #!/usr/bin/env groovy
 
 
+boolean isCollectionOrArray(object) {    
+    [Collection, Object[]].any { it.isAssignableFrom(object.getClass()) }
+}
+
 def versionSelectionStage(config, targetEnvironment, targetStack) {
   // for each service listed in the <stackId>.yaml ask for a version to use.
   def stackFileName = "${WORKSPACE}/${targetEnvironment}/${targetStack}.yaml"
@@ -40,6 +44,9 @@ def call(config) {
     def envs
     dir("${WORKSPACE}/envs") {
       envs = findFiles(glob: "*/")
+      if (!isCollectionOrArray(envs)) {
+        envs = [envs]
+      }
     }
     if (!envs || !envs.empty) {
       logger "No environments found. Ensure that /envs is not empty"
@@ -65,6 +72,13 @@ def call(config) {
     def stackFiles
     dir("${WORKSPACE}/envs/${targetEnvironment}") {
       stackFiles = findFiles(glob: "*.yaml")
+      if (!isCollectionOrArray(stackFiles)) {
+        stackFiles = [stackFiles]
+      }
+    }
+    if (!stackFiles || !stackFiles.empty) {
+      logger "No stacks found. Ensure that /envs/${targetEnvironment} is not empty"
+      return
     }
     def stackIdChoices = stackFiles.collect { it.getName().replace('.yaml', '') }.join("\n")
     timeout(time: 10, unit: 'MINUTES') {
