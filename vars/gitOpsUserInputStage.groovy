@@ -37,10 +37,12 @@ def call(config) {
   def targetEnvironment
   stage ('Target Environment?') {
     // get all of the envs listed in the repo
-    def envs
-    dir("${WORKSPACE}/envs") {
-      envs = findFiles(glob: "*/").collect { it.isDirectory() }
-    }
+    def envs = sh(
+      script: "ls -d ${WORKSPACE}/envs",
+      returnStdout: true
+    ).trim()
+    logger "envs"
+    logger envs
     if (!envs || envs.size() == 0) {
       logger "No environments found. Ensure that /envs is not empty"
       return
