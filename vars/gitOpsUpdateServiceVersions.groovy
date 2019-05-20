@@ -43,7 +43,7 @@ def call(config) {
 
 	// commit service updates
 	dir(WORKSPACE) {
-		sh "echo .git/config"
+		sh "cat .git/config"
 		sh "git add . && git commit -m 'Updating the following Services ${serviceIdsAndVersions}'"
 		sh "git pull origin master && git push origin master"
 	}
