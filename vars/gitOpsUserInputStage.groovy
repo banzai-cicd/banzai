@@ -12,19 +12,21 @@ def call(config) {
   // we will support 2 types first. 'version-selection' and 'environment promotion'
   
   stage (stageName) {
-    steps {
-      def deploymentType
-      timeout(time: 10, unit: 'MINUTES') {
-        script {
-          deploymentType = input(
-            id: 'deploymentTypeInput', 
-            message: 'What type of deployment?',
-            ok: 'Next Step',
-            parameters: [choice(name: 'deploymentType', choices: 'Version Selection\nEnvironment Promotion', description: 'What is the release scope?')]
-          )
-        }
+    stages {
+      stage ('Select Deployment Type') {
+        def deploymentType
+        timeout(time: 10, unit: 'MINUTES') {
+          script {
+            deploymentType = input(
+              id: 'deploymentTypeInput', 
+              message: 'What type of deployment?',
+              ok: 'Next Step',
+              parameters: [choice(name: 'deploymentType', choices: 'Version Selection\nEnvironment Promotion', description: 'What is the release scope?')]
+            )
+          }
 
-        logger "Choice selcted! ${deploymentType}"
+          logger "Choice selcted! ${deploymentType}"
+        }
       }
     }
   }
