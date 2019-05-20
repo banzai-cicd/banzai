@@ -1,10 +1,5 @@
 #!/usr/bin/env groovy
 
-
-boolean isCollectionOrArray(object) {    
-    [Collection, Object[]].any { it.isAssignableFrom(object.getClass()) }
-}
-
 def versionSelectionStage(config, targetEnvironment, targetStack) {
   // for each service listed in the <stackId>.yaml ask for a version to use.
   def stackFileName = "${WORKSPACE}/${targetEnvironment}/${targetStack}.yaml"
@@ -32,6 +27,7 @@ def versionSelectionStage(config, targetEnvironment, targetStack) {
 
 
 def call(config) {
+  def FILE_WRAPPER_CLASS = 'org.jenkinsci.plugins.pipeline.utility.steps.fs.FileWrapper'
   def stageName = 'GitOps: User Input Stages'
   if (!config.gitOps || params.gitOpsTriggeringBranch != 'empty') {
       logger "Does not appear to be a user-initiated GitOps build. Skipping '${stageName}'"
@@ -44,7 +40,7 @@ def call(config) {
     def envs
     dir("${WORKSPACE}/envs") {
       envs = findFiles(glob: "*/")
-      if (!isCollectionOrArray(envs)) {
+      if (envs.getClass() == FILE_WRAPPER_CLASS) {
         envs = [envs]
       }
     }
@@ -72,7 +68,7 @@ def call(config) {
     def stackFiles
     dir("${WORKSPACE}/envs/${targetEnvironment}") {
       stackFiles = findFiles(glob: "*.yaml")
-      if (!isCollectionOrArray(stackFiles)) {
+      if (stackFiles.getClass() == FILE_WRAPPER_CLASS) {
         stackFiles = [stackFiles]
       }
     }
