@@ -70,7 +70,7 @@ def call(config) {
 
 		// if stackFile exists then update it as well as this is an autoDeploy
 		if (stackYaml) {
-			stackFile[id] = version
+			stackYaml[id] = version
 		}
 	}
 	if (stackYaml) {
