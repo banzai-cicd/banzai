@@ -43,6 +43,7 @@ def call(config) {
 
 	// commit service updates
 	dir(WORKSPACE) {
+		sh "git status"
 		sh "cat .git/config"
 		sh "git add ."
 		sh "git status"
