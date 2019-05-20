@@ -25,6 +25,7 @@ def call(config) {
 		if (key) {
 			autoDepoyEnv = config.gitOps.autoDeploy[key]
 			logger "gitOps.autoDeploy detected. Will update ${autoDepoyEnv}/${params.gitOpsStackId}.yaml"
+			config.deploy = true
 		}
 	}
 
