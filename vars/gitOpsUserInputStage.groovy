@@ -39,7 +39,7 @@ def call(config) {
     // get all of the envs listed in the repo
     def envs
     dir("${WORKSPACE}/envs") {
-      envs = findFiles(glob: "*/")
+      envs = findFiles(glob: "*").collect { it.isDirectory() }
     }
     if (!envs || envs.size() == 0) {
       logger "No environments found. Ensure that /envs is not empty"
