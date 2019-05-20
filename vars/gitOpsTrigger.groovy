@@ -5,7 +5,6 @@ import net.sf.json.JSONObject
 
 // Determine if gitOps job should run.
 def call(config) {
-	//def versionFileInfo = new File("${WORKSPACE}/gitOpsVersions")
 	def gitOpsVersionsFileName = "${WORKSPACE}/gitOpsVersions"
 
 	if (!fileExists(gitOpsVersionsFileName)) {
