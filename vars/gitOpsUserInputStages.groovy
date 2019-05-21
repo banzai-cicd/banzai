@@ -228,8 +228,8 @@ def call(config) {
             // TODO: send email to approvers and watchers
 
             String subject = "Deployment of '${targetStack}' to '${targetEnvironment}' approved"
-            String approvedMsg = "${approvedSubject} by ${approver} with the following versions"
-            String versionsMsg = versions.inject('\n') {result, k,v -> result += "${k} : ${v}\n" }​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
+            String approvedMsg = "${subject} by ${approver} with the following versions"
+            String versionsMsg = versions.inject('\n') {result, k,v -> result += "${k} : ${v}\n"}​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
             String body = "${approvedMsg}${versionsMsg}"
             logger subject
             logger body
