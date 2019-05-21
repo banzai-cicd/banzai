@@ -67,7 +67,7 @@ Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) 
     }
   }
 
-  if (selectedVersions.getClass != 'java.util.HashMap') {
+  if (selectedVersions instanceOf String) {
     // only 1 service in a stack will result in selectedVersions being a string instead of a Map
     selectedVersions = ["${serviceIds[0]}": selectedVersions]
   }
@@ -225,8 +225,8 @@ def call(config) {
               ok: 'Approve',
               submitter: approverSSOs,
               submitterParameter: 'submitter'
-            // TODO: send email to approvers and watchers
 
+            logger approver
             String subject = "Deployment of '${targetStack}' to '${targetEnvironment}' approved"
             String approvedMsg = "${subject} by ${approver} with the following versions"
             String versionsMsg = versions.inject('\n') {result, k,v -> result += "${k} : ${v}\n"}​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
