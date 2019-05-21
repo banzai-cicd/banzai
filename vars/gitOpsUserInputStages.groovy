@@ -230,7 +230,8 @@ def call(config) {
             String approvedMsg = "${subject} by ${approver} with the following versions"
             def versionsMsg = versions.collect { "${it.key} : ${it.value}" }
             logger versionsMsg
-            String body = "${approvedMsg}\n${versionsMsg}"
+            logger versionsMsg.getClass()
+            String body = "${approvedMsg}\n${versionsMsg.join('\n')}"
             sendMail(approverEmails, watcherEmails, subject, body)
           } catch (err) {
             logger err.message
