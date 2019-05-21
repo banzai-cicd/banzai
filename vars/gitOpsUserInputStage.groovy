@@ -10,10 +10,10 @@ def selectVersionsStage(config, targetEnvironment, targetStack) {
   def params = serviceIds.collect {
     def serviceYaml = readYaml file: "${SERVICE_DIR_NAME}/${it}.yaml"
     def choices = serviceYaml.versions.join("\n")
-    choice(name: "${it}Version", choices: choices, description: 'What version of the Service should be deployed?')
+    choice(name: "${it}", choices: choices, description: 'What version of the Service should be deployed?')
   }
   def selectedVersions
-  stage ('Versions?') {
+  stage ('Versions') {
     timeout(time: 10, unit: 'MINUTES') {
       script {
         selectedVersions = input(
@@ -24,7 +24,7 @@ def selectVersionsStage(config, targetEnvironment, targetStack) {
         )
       }
 
-      logger "Versions selected! ${selectedVersions}"
+      logger "Versions selected! ${selectedVersions.getClass()}"
     }
   }
 }
@@ -43,7 +43,7 @@ def call(config) {
   }
 
   def targetEnvironment
-  stage ('Target Environment?') {
+  stage ('Target Environment') {
     // get all of the envs listed in the repo
 
     String envChoices
@@ -66,7 +66,7 @@ def call(config) {
           id: 'targetEnvInput', 
           message: 'What Environment do you want to deploy to?',
           ok: 'Next Step',
-          parameters: [choice(name: 'targetEnv', choices: envChoices, description: 'What is the target Environment?')]
+          parameters: [choice(name: 'Target Environment', choices: envChoices, description: 'What is the target Environment?')]
         ).trim()
       }
 
@@ -75,7 +75,7 @@ def call(config) {
   }
 
   String targetStack
-  stage ('Stack?') {
+  stage ('Stack') {
     def stackFiles
     dir("${ENV_DIR_NAME}/${targetEnvironment}") {
       stackFiles = findFiles(glob: "*.yaml")
@@ -91,7 +91,7 @@ def call(config) {
           id: 'targetStackInput', 
           message: 'What Stack do you want to deploy?',
           ok: 'Next Step',
-          parameters: [choice(name: 'targetStack', choices: stackIdChoices, description: 'What is the target stack?')]
+          parameters: [choice(name: 'Target Stack', choices: stackIdChoices, description: 'What is the target stack?')]
         )
       }
 
@@ -101,14 +101,14 @@ def call(config) {
   // prompt the user to determine which style of deployment they would like to achieve.
   // we will support 2 styles first. 'version-selection' and 'environment promotion'
   String deploymentStyle
-  stage ('Deployment Style?') {
+  stage ('Deployment Style') {
     timeout(time: 10, unit: 'MINUTES') {
       script {
         deploymentStyle = input(
           id: 'deploymentStyleInput', 
           message: 'What style of deployment?',
           ok: 'Next Step',
-          parameters: [choice(name: 'deploymentStyle', choices: 'Select Versions\nPromote Environment', description: 'What is the deployment style?')]
+          parameters: [choice(name: 'Deployment Style', choices: 'Select Versions\nPromote Environment', description: 'What is the deployment style?')]
         )
       }
 
