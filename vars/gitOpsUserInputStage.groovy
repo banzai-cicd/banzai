@@ -41,7 +41,7 @@ Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) 
   def params = serviceIds.collect {
     def serviceYaml = readYaml file: "${SERVICE_DIR_NAME}/${it}.yaml"
     def choices = serviceYaml.versions.join("\n")
-    choice(name: "${it}", choices: choices, description: 'What version of the Service should be deployed?')
+    choice(name: "${it} (current: ${stackYaml[it]})", choices: choices, description: 'What version of the Service should be deployed?')
   }
   def selectedVersions
   stage ('Versions') {
@@ -219,10 +219,10 @@ def call(config) {
             // TODO: send email to approvers and watchers
             logger "Deployment to '${targetEnvironment}' approved by ${approvalResult.approver}"
           } catch (err) {
-            logger "Deployment to '${targetEnvironment}' denied by ${err.getCauses()[0].getUser()}"
+            logger "Deployment to '${targetEnvironment}' denied by ${err.message}"
             currentBuild.result = 'ABORTED'
             // TODO: send email to approvers and watchers
-            error("Deployment to '${targetEnvironment}' denied by ${err.getCauses()[0].getUser()}")
+            error("Deployment to '${targetEnvironment}' denied by ${err.message}")
           }
         }
       }
