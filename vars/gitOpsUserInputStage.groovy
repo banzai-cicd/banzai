@@ -1,4 +1,5 @@
 #!/usr/bin/env groovy
+import groovy.io.FileType
 
 def versionSelectionStage(config, targetEnvironment, targetStack) {
   // for each service listed in the <stackId>.yaml ask for a version to use.
@@ -37,10 +38,12 @@ def call(config) {
   def targetEnvironment
   stage ('Target Environment?') {
     // get all of the envs listed in the repo
-    def envs = sh(
-      script: "ls -d ${WORKSPACE}/envs",
-      returnStdout: true
-    ).trim()
+
+    def envs = []
+    def envsDir = new File("${WORKSPACE}/envs")
+    envsDir.eachFile FileType.DIRECTORIES, {
+        envs << it.name
+    }
     logger "envs"
     logger envs
     if (!envs || envs.size() == 0) {
