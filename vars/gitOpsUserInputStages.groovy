@@ -226,17 +226,10 @@ def call(config) {
               submitter: approverSSOs,
               submitterParameter: 'submitter'
 
-            logger approver
-            logger versions
-            logger targetStack
-            logger targetEnvironment
             String subject = "Deployment of '${targetStack}' to '${targetEnvironment}' approved"
-            logger subject
             String approvedMsg = "${subject} by ${approver} with the following versions"
-            logger approvedMsg
-            String versionsMsg = versions.inject('\n') {result, k,v -> result += "${k} : ${v}\n"}​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
-            String body = "${approvedMsg}${versionsMsg}"
-            logger body
+            String versionsMsg = versions.collect { "${it.key} : ${it.value}"}.join​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​("\n")
+            String body = "${approvedMsg}\n${versionsMsg}"
             sendMail(approverEmails, watcherEmails, subject, body)
           } catch (err) {
             logger err.message
