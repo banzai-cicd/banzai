@@ -19,14 +19,15 @@ def call(config) {
 	def ENV_DIR_NAME = "${WORKSPACE}/envs"
 
 	// determine if we should autoDeploy this in addition to updating service versions
-	def autoDepoyEnv
 	if (config.gitOps.autoDeploy) {
 		def key = config.gitOps.autoDeploy.keySet().find { params.gitOpsTriggeringBranch ==~ it }
 		if (key) {
 			autoDepoyEnv = config.gitOps.autoDeploy[key]
-			logger "gitOps.autoDeploy detected. Will update ${autoDepoyEnv}/${params.gitOpsStackId}.yaml"
-			config.deploy = true
-			config.deployArgs = [autoDepoyEnv, params.gitOpsStackId]
+			logger "gitOps.autoDeploy detected. Preparing config.gitOps properties"
+			config.deploy = true // <-- VERY IMPORTANT THAT THIS IS SET
+			config.gitOps.TARGET_ENV = autoDepoyEnv
+			config.gitOps.TARGET_STACK = params.gitOpsStackId
+			config.gitOps.STACK_VERSIONS_TO_UPDATE = [:]
 		}
 	}
 
@@ -46,12 +47,7 @@ def call(config) {
 	}
 	
 	def serviceIdsAndVersions = [] // for logging later
-	def stackYaml
-	def stackFileName
-	if (autoDepoyEnv) {
-		stackFileName = "${ENV_DIR_NAME}/${autoDepoyEnv}/${params.gitOpsStackId}.yaml"
-		stackYaml = readYaml file: stackFileName
-	}
+	// We always update the /services versions regardless of a deployment
 	serviceVersions.each { id, version ->
 		serviceIdsAndVersions.push("${id}:${version}")
 		def serviceFileName = "${SERVICE_DIR_NAME}/${id}.yaml"
@@ -70,15 +66,11 @@ def call(config) {
 		logger "Updating Service '${id}' to '${version}'"
 		writeYaml file: serviceFileName, data: serviceYaml
 
-		// if stackFile exists then update it as well as this is an autoDeploy
-		if (stackYaml) {
-			stackYaml[id] = version
+		// if this is an autoDeploy
+		// update the stack versions that we will eventually update if approval passes
+		if (config.gitOps.STACK_VERSIONS_TO_UPDATE) {
+			config.gitOps.STACK_VERSIONS_TO_UPDATE[id] = version
 		}
-	}
-	if (stackYaml) {
-		// save the updated stack yaml
-		sh "rm -rf ${stackFileName}"
-		writeYaml file: stackFileName, data: stackYaml
 	}
 
 	// commit service updates

@@ -1,46 +1,5 @@
 #!/usr/bin/env groovy
 
-import hudson.model.User
-
-@NonCPS
-def getRoleBasedUsersList(role) {
-  echo "Retrieving users for ${role}..."
-  def users = [:]
-  def authStrategy = Jenkins.instance.getAuthorizationStrategy()
-  if (authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy) {
-    def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
-    sids.each { sid ->        
-      User usr = Jenkins.instance.getUser(sid)
-      def usrmail = usr.getProperty(hudson.tasks.Mailer.UserProperty.class)
-      if (usrmail.getAddress()) {
-          users[sid] = usrmail.getAddress()
-      }
-      //Jenkins.instance.getUser(sid).fullName
-      echo "${sid}: ${usrmail.getAddress()}"
-    }
-    return users
-  } else {
-    throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
-  }
-}
-
-String[] getUserEmails(users) {
-  return users.collect { 
-    def mail = Jenkins.instance.getUser(it).getProperty(hudson.tasks.Mailer.UserProperty.class)
-    return mail.getAddress()
-  }
-}
-
-def sendMail(to, cc, subject, body) {
-  logger "Sending Mail"
-  String jobInfo = "Job: ${env.JOB_NAME} #${env.BUILD_NUMBER} \nBuild URL: ${env.BUILD_URL}\n"
-  mail from: "JenkinsAdmin@ge.com",
-    to: to,
-    cc: cc,
-    subject: subject,
-    body: "${jobInfo}${body}"
-}
-
 Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) {
   String SERVICE_DIR_NAME = "${WORKSPACE}/services"
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
@@ -83,6 +42,9 @@ def call(config) {
   String SERVICE_DIR_NAME = "${WORKSPACE}/services"
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
   def stageName = 'GitOps: User Input Stages'
+  /////
+  // These Stages should only run for user-initiated builds of a GitOps repo
+  /////
   if (!config.gitOps || !isUserInitiated()) {
       logger "Does not appear to be a user-initiated GitOps build. Skipping '${stageName}'"
       return
@@ -120,6 +82,7 @@ def call(config) {
       }
 
       logger "Target Environment selected! ${targetEnvironment}"
+      config.gitOps.TARGET_ENV = targetEnvironment
     }
   }
 
@@ -148,6 +111,7 @@ def call(config) {
       }
 
       logger "Target Stack selected! ${targetStack}"
+      config.gitOps.TARGET_STACK = targetStack
     }
   }
   // prompt the user to determine which style of deployment they would like to achieve.
@@ -183,67 +147,8 @@ def call(config) {
       break
   }
   logger "Versions Determined: ${versions}"
+  config.gitOps.STACK_VERSIONS_TO_UPDATE = versions
 
-  /////
-  // if necessary, get approvals
-  /////
-  def envConfig = config.gitOps.envs[targetEnvironment]
-  String approverEmails
-  String approverSSOs
-  String watcherEmails
-  if (envConfig.approvers || envConfig.watchers) {
-    if (envConfig.approvers) {
-      approverSSOs = envConfig.approvers.join(",")
-      approverEmails = getUserEmails(envConfig.approvers).join(",")
-    }
-    if (envConfig.watchers) {
-      watcherEmails = getUserEmails(envConfig.watchers).join(",")
-    }
-	} else if (envConfig.approverRole || envConfig.watcherRole) {
-    if (envConfig.approverRole) {
-      def approverMap = getRoleBasedUsersList(envConfig.approverRole)
-      logger "approverMap: ${approverMap.toMapString()}"
-      approverEmails = approverMap.values().join(",")
-      approverSSOs = approverMap.keySet().join(",")
-    }
-    if (envConfig.watcherRole) {
-      def watcherMap = getRoleBasedUsersList(envConfig.watcherRole)
-      logger "watcherMap: ${watcherMap.toMapString()}"
-      watcherEmails = watcherMap.values().join(",")
-    }
-  }
-
-  if (approverEmails && approverSSOs) {
-    // notify approvers via email that there is a deployment
-    // requested and provide an input step
-    stage ("Approve Deployment to '${targetEnvironment}'") {
-      timeout(time: 3, unit: 'DAYS') {
-        def msg = "Deploy to '${targetEnvironment}'"
-        script {
-          try {
-            def approver = input message: msg,
-              ok: 'Approve',
-              submitter: approverSSOs,
-              submitterParameter: 'submitter'
-
-            String subject = "Deployment of '${targetStack}' to '${targetEnvironment}' approved"
-            String approvedMsg = "${subject} by ${approver} with the following versions"
-            def versionsMsg = versions.collect { "${it.key} : ${it.value}" }
-            logger versionsMsg
-            logger versionsMsg.getClass()
-            String body = "${approvedMsg}\n${versionsMsg.join('\n')}"
-            sendMail(approverEmails, watcherEmails, subject, body)
-          } catch (err) {
-            logger err.message
-            String deniedSubject = "Deployment of '${targetStack}' to '${targetEnvironment}' denied"
-            String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
-            currentBuild.result = 'ABORTED'
-            sendMail(approverEmails, watcherEmails, deniedSubject, deniedMsg)
-            error(deniedMsg)
-          }
-        }
-      }
-    }
-  }
-
+  // IMPORTANT! we now are ready to set config.deploy = true because all deployment info has been satisfied
+  config.deploy = true
 }

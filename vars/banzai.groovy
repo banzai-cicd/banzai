@@ -78,6 +78,7 @@ def runPipeline(config) {
                 // gitOpsStages
                 gitOpsUpdateServiceVersionsStage(config)
                 gitOpsUserInputStages(config)
+                gitOpsApprovalStage(config)
                 // /end gitOpsStages
                 scansStage(config, 'vulnerability')
                 scansStage(config, 'quality')
