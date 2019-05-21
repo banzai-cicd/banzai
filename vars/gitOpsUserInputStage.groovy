@@ -217,7 +217,7 @@ def call(config) {
               submitter: approverSSOs,
               submitterParameter: 'submitter'
             // TODO: send email to approvers and watchers
-            logger "Deployment to '${targetEnvironment}' approved by ${approvalResult.submitter}"
+            logger "Deployment to '${targetEnvironment}' approved by ${approvalResult}"
           } catch (err) {
             def errMsg = "Deployment to '${targetEnvironment}' denied by ${err.getCauses()[0].getUser()}"
             logger errMsg
