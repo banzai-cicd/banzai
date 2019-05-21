@@ -131,7 +131,7 @@ def call(config) {
             def approvalSubject = "Deployment of '${STACK}' Stack to '${ENV}' Environment has been requested"
             def approvalMsg = "${approvalSubject} with the following verisions:"
             def approvalBody = "${approvalSubject}\n${proposedServiceVersions}"
-            gitOpsSendEmail(approverEmails, null, approvalSubject)
+            gitOpsSendEmail(approverEmails, null, approvalSubject, approvalBody)
 
             // present input steps
             def approverId = input message: msg,
