@@ -1,6 +1,30 @@
 #!/usr/bin/env groovy
 
-def selectVersionsStage(config, targetEnvironment, targetStack) {
+import hudson.model.User
+
+@NonCPS
+def getRoleBasedUsersList(role) {
+    echo "Retrieving users for ${role}..."
+    def users = [:]
+    def authStrategy = Jenkins.instance.getAuthorizationStrategy()
+    if(authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy){
+      def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
+      sids.each { sid ->        
+	User usr = Jenkins.instance.getUser(sid)
+	def usrmail = usr.getProperty(hudson.tasks.Mailer.UserProperty.class)
+	if (usrmail.getAddress()) {
+	    users[sid] = usrmail.getAddress()
+	}
+	//Jenkins.instance.getUser(sid).fullName
+	echo "${sid}: ${usrmail.getAddress()}"
+      }
+      return users
+    } else {
+	throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
+    }
+}
+
+Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) {
   String SERVICE_DIR_NAME = "${WORKSPACE}/services"
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
   // for each service listed in the <stackId>.yaml ask for a version to use.
@@ -27,6 +51,13 @@ def selectVersionsStage(config, targetEnvironment, targetStack) {
       logger "Versions selected! ${selectedVersions.getClass()}"
     }
   }
+
+  if (selectedVersions.getClass != 'java.util.HashMap') {
+    // only 1 service in a stack will result in selectedVersions being a string instead of a Map
+    selectedVersions = ["${serviceIds[0]}": selectedVersions]
+  }
+  
+  return selectedVersions
 }
 
 def isUserInitiated() {
@@ -42,12 +73,15 @@ def call(config) {
       return
   }
 
+  /////
+  // determine target env/stack and deployment style
+  /////
   def targetEnvironment
   stage ('Target Environment') {
     // get all of the envs listed in the repo
 
     String envChoices
-    dir(ENV_DIR_NAME) {
+    dir (ENV_DIR_NAME) {
       envChoices = sh(
           script: "ls -d -- */ | sed 's/\\///g'",
           returnStdout: true
@@ -60,7 +94,7 @@ def call(config) {
       logger "No environments found. Ensure that /envs is not empty"
       return
     }
-    timeout(time: 10, unit: 'MINUTES') {
+    timeout (time: 10, unit: 'MINUTES') {
       script {
         targetEnvironment = input(
           id: 'targetEnvInput', 
@@ -77,7 +111,7 @@ def call(config) {
   String targetStack
   stage ('Stack') {
     def stackFiles
-    dir("${ENV_DIR_NAME}/${targetEnvironment}") {
+    dir ("${ENV_DIR_NAME}/${targetEnvironment}") {
       stackFiles = findFiles(glob: "*.yaml")
     }
     if (!stackFiles || stackFiles.size() == 0) {
@@ -85,7 +119,7 @@ def call(config) {
       return
     }
     def stackIdChoices = stackFiles.collect { it.getName().replace('.yaml', '') }.join("\n")
-    timeout(time: 10, unit: 'MINUTES') {
+    timeout (time: 10, unit: 'MINUTES') {
       script {
         targetStack = input(
           id: 'targetStackInput', 
@@ -102,7 +136,7 @@ def call(config) {
   // we will support 2 styles first. 'version-selection' and 'environment promotion'
   String deploymentStyle
   stage ('Deployment Style') {
-    timeout(time: 10, unit: 'MINUTES') {
+    timeout (time: 10, unit: 'MINUTES') {
       script {
         deploymentStyle = input(
           id: 'deploymentStyleInput', 
@@ -116,9 +150,13 @@ def call(config) {
     }
   }
 
+  /////
+  // determine versions
+  /////
+  Map versions
   switch (deploymentStyle) {
     case 'Select Versions':
-      selectVersionsStage(config, targetEnvironment, targetStack)
+      versions = selectVersionsStage(config, targetEnvironment, targetStack)
       break
     case 'Promote Environment':
       break
@@ -126,4 +164,55 @@ def call(config) {
       logger "Unable to match deployment style selection"
       break
   }
+
+  /////
+  // if necessary, get approvals
+  /////
+  def envConfig = config.gitOps.envs[targetEnvironment]
+  String watchListEmails
+  String approverEmails
+  String approverSSOs
+  if (envConfig.approverEmail && envConfig.approverSSO) {
+    watchListEmails = envConfig.approverEmail
+    approverEmails = envConfig.approverEmail
+    approverSSOs = envConfig.approverSSO
+	} else {
+    if (envConfig.approvers) {
+      def approverMap = getRoleBasedUsersList(envConfig.approvers)
+      echo "approverMap: ${approverMap.toMapString()}"
+      approverEmails = approverMap.values().join(",")
+      approverSSOs = approverMap.keySet().join(",")
+    }
+    if (envConfig.watchers) {
+      def watchListMap = getRoleBasedUsersList(envConfig.watchers)
+      echo "watchListMap: ${watchListMap.toMapString()}"
+      watchListEmails = watchListMap.values().join(",")
+    }
+  }
+
+  if (approverEmails && approverSSOs) {
+    // notify approvers via email that there is a deployment
+    // requested and provide an input step
+    stage ("Approve Deployment to '${targetEnvironment}'") {
+      timeout(time: 3, unit: 'DAYS') {
+        def msg = "Deploy to '${targetEnvironment}'"
+        script {
+          try {
+            def approvalResult = input message: msg,
+              ok: 'Approve',
+              submitter: approverSSOs,
+              submitterParameter: 'submitter'
+            // TODO: send email to approvers and watchers
+            logger "Deployment to '${targetEnvironment}' approved by ${approvalResult.approver}"
+          } catch (err) {
+            logger "Deployment to '${targetEnvironment}' denied by ${err.getCauses()[0].getUser()}"
+            currentBuild.result = 'ABORTED'
+            // TODO: send email to approvers and watchers
+            error("Deployment to '${targetEnvironment}' denied by ${err.getCauses()[0].getUser()}")
+          }
+        }
+      }
+    }
+  }
+
 }
