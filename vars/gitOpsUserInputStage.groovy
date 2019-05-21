@@ -4,24 +4,31 @@ import hudson.model.User
 
 @NonCPS
 def getRoleBasedUsersList(role) {
-    echo "Retrieving users for ${role}..."
-    def users = [:]
-    def authStrategy = Jenkins.instance.getAuthorizationStrategy()
-    if(authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy){
-      def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
-      sids.each { sid ->        
-	User usr = Jenkins.instance.getUser(sid)
-	def usrmail = usr.getProperty(hudson.tasks.Mailer.UserProperty.class)
-	if (usrmail.getAddress()) {
-	    users[sid] = usrmail.getAddress()
-	}
-	//Jenkins.instance.getUser(sid).fullName
-	echo "${sid}: ${usrmail.getAddress()}"
+  echo "Retrieving users for ${role}..."
+  def users = [:]
+  def authStrategy = Jenkins.instance.getAuthorizationStrategy()
+  if (authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy) {
+    def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
+    sids.each { sid ->        
+      User usr = Jenkins.instance.getUser(sid)
+      def usrmail = usr.getProperty(hudson.tasks.Mailer.UserProperty.class)
+      if (usrmail.getAddress()) {
+          users[sid] = usrmail.getAddress()
       }
-      return users
-    } else {
-	throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
+      //Jenkins.instance.getUser(sid).fullName
+      echo "${sid}: ${usrmail.getAddress()}"
     }
+    return users
+  } else {
+    throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
+  }
+}
+
+String[] getUserEmails(users) {
+  return users.collect { 
+    def mail = Jenkins.instance.getUser(it).getProperty(hudson.tasks.Mailer.UserProperty.class)
+    return mail.getAddress()
+  }
 }
 
 Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) {
@@ -169,24 +176,28 @@ def call(config) {
   // if necessary, get approvals
   /////
   def envConfig = config.gitOps.envs[targetEnvironment]
-  String watchListEmails
   String approverEmails
   String approverSSOs
-  if (envConfig.approverEmail && envConfig.approverSSO) {
-    watchListEmails = envConfig.approverEmail
-    approverEmails = envConfig.approverEmail
-    approverSSOs = envConfig.approverSSO
-	} else {
+  String watcherEmails
+  if (envConfig.approvers || envConfig.watchers) {
     if (envConfig.approvers) {
-      def approverMap = getRoleBasedUsersList(envConfig.approvers)
-      echo "approverMap: ${approverMap.toMapString()}"
+      approverSSOs = envConfig.approvers.join(",")
+      approverEmails = getUserEmails(envConfig.approvers).join(",")
+    }
+    if (envConfig.watchers) {
+      watcherEmails = getUserEmails(envConfig.watchers).join(",")
+    }
+	} else if (envConfig.approverRole || envConfig.watcherRole) {
+    if (envConfig.approverRole) {
+      def approverMap = getRoleBasedUsersList(envConfig.approverRole)
+      logger "approverMap: ${approverMap.toMapString()}"
       approverEmails = approverMap.values().join(",")
       approverSSOs = approverMap.keySet().join(",")
     }
-    if (envConfig.watchers) {
-      def watchListMap = getRoleBasedUsersList(envConfig.watchers)
-      echo "watchListMap: ${watchListMap.toMapString()}"
-      watchListEmails = watchListMap.values().join(",")
+    if (envConfig.watcherRole) {
+      def watcherMap = getRoleBasedUsersList(envConfig.watcherRole)
+      logger "watcherMap: ${watcherMap.toMapString()}"
+      watcherEmails = watcherMap.values().join(",")
     }
   }
 
