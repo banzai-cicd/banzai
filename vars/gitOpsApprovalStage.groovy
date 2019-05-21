@@ -140,6 +140,5 @@ def call(config) {
   } else {
       logger "No approvals required for deployment"
       finalizeDeployment(config)
-    }
   }
 }
