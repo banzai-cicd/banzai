@@ -226,22 +226,19 @@ def call(config) {
               submitter: approverSSOs,
               submitterParameter: 'submitter'
 
+            logger "versions.getClass(): ${versions.getClass()}"
             String subject = "Deployment of '${targetStack}' to '${targetEnvironment}' approved"
             String approvedMsg = "${subject} by ${approver} with the following versions"
-            String versionsMsg = versions.collect { "${it.key} : ${it.value}"}.join​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​("\n")
+            String versionsMsg = versions.collect { "${it.key} : ${it.value}" }.join("\n")​​​​​​​​​​​
             String body = "${approvedMsg}\n${versionsMsg}"
             sendMail(approverEmails, watcherEmails, subject, body)
           } catch (err) {
             logger err.message
-            try {
-              String deniedSubject = "Deployment of '${targetStack}' to '${targetEnvironment}' denied"
-              String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
-              currentBuild.result = 'ABORTED'
-              sendMail(approverEmails, watcherEmails, deniedSubject, deniedMsg)
-              error(deniedMsg)
-            } catch (err2) {
-              error(err2.message)
-            }
+            String deniedSubject = "Deployment of '${targetStack}' to '${targetEnvironment}' denied"
+            String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
+            currentBuild.result = 'ABORTED'
+            sendMail(approverEmails, watcherEmails, deniedSubject, deniedMsg)
+            error(deniedMsg)
           }
         }
       }
