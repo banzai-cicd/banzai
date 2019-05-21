@@ -62,14 +62,10 @@ def finalizeDeployment(config) {
   config.deployArgs = [config.gitOps.TARGET_ENV, config.gitOps.TARGET_STACK]
 }
 
-def sendApprovalEmail(config, approverId, approverEmails, watcherEmails) {
+def buildProposedVersionsBody(config) {
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
   String ENV = config.gitOps.TARGET_ENV
   String STACK = config.gitOps.TARGET_STACK
-  // build email
-  String approverName = Jenkins.instance.getUser(approverId).getDisplayName()
-  String subject = "Deployment of '${STACK}' Stack to '${ENV}' Environment approved"
-  String approvedMsg = "${subject} by ${approverName} with the following versions:"
   // include full proposed stack versions (not just services being updated)
   String stackFileName = "${ENV_DIR_NAME}/${ENV}/${STACK}.yaml"
   def stackYaml = readYaml file: stackFileName
@@ -77,8 +73,8 @@ def sendApprovalEmail(config, approverId, approverEmails, watcherEmails) {
     stackYaml[serviceId] = version
   }
   def formatedStack = stackYaml.collect { "${it.key} : ${it.value}" }
-  String body = "${approvedMsg}\n${formatedStack.join('\n')}"
-  gitOpsSendEmail(approverEmails, watcherEmails, subject, body)
+
+  return formatedStack.join('\n')
 }
 
 def call(config) {
@@ -130,12 +126,27 @@ def call(config) {
         def msg = "Deploy to '${ENV}'"
         script {
           try {
+            // build approval email
+            def proposedServiceVersions = buildProposedVersionsBody(config)
+            def approvalSubject = "Deployment of '${STACK}' Stack to '${ENV}' Environment has been requested"
+            def approvalMsg = "${approvalSubject} with the following verisions:"
+            def approvalBody = "${approvalSubject}\n${proposedServiceVersions}"
+            gitOpsSendEmail(approverEmails, null, approvalSubject)
+
+            // present input steps
             def approverId = input message: msg,
               ok: 'Approve',
               submitter: approverSSOs,
               submitterParameter: 'submitter'
 
-            sendApprovalEmail(config, approverId, approverEmails, watcherEmails)
+            // build approved email
+            String approverName = Jenkins.instance.getUser(approverId).getDisplayName()
+            String subject = "Deployment of '${STACK}' Stack to '${ENV}' Environment approved"
+            String approvedMsg = "${subject} by ${approverName} with the following versions:"
+            String approvedBody = "${approvedMsg}\n${proposedServiceVersions}"
+            gitOpsSendEmail(approverEmails, watcherEmails, subject, approvedBody)
+            
+            // Finalize!
             finalizeDeployment(config)
           } catch (err) {
             logger err.message
