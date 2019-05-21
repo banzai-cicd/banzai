@@ -124,7 +124,7 @@ def call(config) {
             def versionKVs = versions.collect { "${it.key} : ${it.value}" }
             String body = "${approvedMsg}\n${versionKVs.join('\n')}"
             gitOpsSendEmail(approverEmails, watcherEmails, subject, body)
-            
+
             finalizeDeployment(config)
           } catch (err) {
             logger err.message
@@ -136,7 +136,8 @@ def call(config) {
           }
         }
       }
-    } else {
+    } 
+  } else {
       logger "No approvals required for deployment"
       finalizeDeployment(config)
     }
