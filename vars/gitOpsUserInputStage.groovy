@@ -41,7 +41,7 @@ Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) 
   def params = serviceIds.collect {
     def serviceYaml = readYaml file: "${SERVICE_DIR_NAME}/${it}.yaml"
     def choices = serviceYaml.versions.join("\n")
-    choice(name: "${it} (current: ${stackYaml[it]})", choices: choices, description: 'What version of the Service should be deployed?')
+    choice(name: "${it} (current: ${stackYaml[it]})", choices: choices)
   }
   def selectedVersions
   stage ('Versions') {
@@ -49,7 +49,7 @@ Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) 
       script {
         selectedVersions = input(
           id: 'versionsInput', 
-          message: 'What version of each Service should be deployed?',
+          message: "What Service version(s) should be assigned to the '${targetStack}' Stack in the '${targetEnvironment}' Environment?",
           ok: 'Next Step',
           parameters: params
         )
@@ -107,7 +107,7 @@ def call(config) {
           id: 'targetEnvInput', 
           message: 'What Environment do you want to deploy to?',
           ok: 'Next Step',
-          parameters: [choice(name: 'Target Environment', choices: envChoices, description: 'What is the target Environment?')]
+          parameters: [choice(name: 'Target Environment', choices: envChoices)]
         ).trim()
       }
 
@@ -133,9 +133,9 @@ def call(config) {
       script {
         targetStack = input(
           id: 'targetStackInput', 
-          message: 'What Stack do you want to deploy?',
+          message: "What Stack do you want to deploy to the '${targetEnvironment}' Environment?",
           ok: 'Next Step',
-          parameters: [choice(name: 'Target Stack', choices: stackIdChoices, description: 'What is the target stack?')]
+          parameters: [choice(name: 'Target Stack', choices: stackIdChoices)]
         )
       }
 
@@ -152,7 +152,7 @@ def call(config) {
           id: 'deploymentStyleInput', 
           message: 'What style of deployment?',
           ok: 'Next Step',
-          parameters: [choice(name: 'Deployment Style', choices: 'Select Versions\nPromote Environment', description: 'What is the deployment style?')]
+          parameters: [choice(name: 'Deployment Style', choices: 'Select Versions\nPromote Environment')]
         )
       }
 
