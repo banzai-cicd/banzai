@@ -92,8 +92,8 @@ def call(config) {
   }
   // prompt the user to determine which style of deployment they would like to achieve.
   // we will support 2 styles first. 'version-selection' and 'environment promotion'
+  def deploymentStyle
   stage ('Deployment Style?') {
-    def deploymentStyle
     timeout(time: 10, unit: 'MINUTES') {
       script {
         deploymentStyle = input(
