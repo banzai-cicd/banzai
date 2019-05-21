@@ -212,12 +212,11 @@ def call(config) {
         def msg = "Deploy to '${targetEnvironment}'"
         script {
           try {
-            def approvalResult = input message: msg,
+            def approver = input message: msg,
               ok: 'Approve',
-              submitter: approverSSOs,
-              submitterParameter: 'submitter'
+              submitter: approverSSOs
             // TODO: send email to approvers and watchers
-            logger "Deployment to '${targetEnvironment}' approved by ${approvalResult}"
+            logger "Deployment to '${targetEnvironment}' approved by ${approver}"
           } catch (err) {
             def errMsg = "Deployment to '${targetEnvironment}' denied by ${err.getCauses()[0].getUser()}"
             logger errMsg

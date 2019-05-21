@@ -84,7 +84,7 @@ def runPipeline(config) {
                 buildStage(config)
                 publishStage(config)
                 deployStage(config)
-                gitOpsTriggerStage(config)
+                gitOpsTriggerStages(config)
                 integrationTestsStage(config)
                 powerDevOpsReportingStage(config)
                 markForPromotionStage(config)
