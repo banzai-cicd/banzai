@@ -128,9 +128,9 @@ def call(config) {
           try {
             // build approval email
             def proposedServiceVersions = buildProposedVersionsBody(config)
-            def approvalSubject = "Deployment of '${STACK}' Stack to '${ENV}' Environment has been requested"
+            def approvalSubject = "Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested"
             def approvalMsg = "${approvalSubject} with the following verisions:"
-            def approvalBody = "${approvalSubject}\n${proposedServiceVersions}"
+            def approvalBody = "${approvalMsg}\n${proposedServiceVersions}"
             gitOpsSendEmail(approverEmails, null, approvalSubject, approvalBody)
 
             // present input steps
@@ -141,7 +141,7 @@ def call(config) {
 
             // build approved email
             String approverName = Jenkins.instance.getUser(approverId).getDisplayName()
-            String subject = "Deployment of '${STACK}' Stack to '${ENV}' Environment approved"
+            String subject = "Deployment of the '${STACK}' Stack to the '${ENV}' Environment is approved"
             String approvedMsg = "${subject} by ${approverName} with the following versions:"
             String approvedBody = "${approvedMsg}\n${proposedServiceVersions}"
             gitOpsSendEmail(approverEmails, watcherEmails, subject, approvedBody)
