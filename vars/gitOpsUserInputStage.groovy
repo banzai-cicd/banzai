@@ -1,12 +1,12 @@
 #!/usr/bin/env groovy
-def SERVICE_DIR_NAME = "${WORKSPACE}/services"
-def ENV_DIR_NAME = "${WORKSPACE}/envs"
+SERVICE_DIR_NAME = "${WORKSPACE}/services"
+ENV_DIR_NAME = "${WORKSPACE}/envs"
 
 def selectVersionsStage(config, targetEnvironment, targetStack) {
   // for each service listed in the <stackId>.yaml ask for a version to use.
-  def stackFileName = "${ENV_DIR_NAME}/${targetEnvironment}/${targetStack}.yaml"
+  String stackFileName = "${ENV_DIR_NAME}/${targetEnvironment}/${targetStack}.yaml"
 	def	stackYaml = readYaml file: stackFileName
-  def serviceIds = stackYaml.keySet()
+  String[] serviceIds = stackYaml.keySet()
   def params = serviceIds.collect {
     def serviceYaml = readYaml file: "${SERVICE_DIR_NAME}/${it}.yaml"
     def choices = serviceYaml.versions.join("\n")
@@ -41,7 +41,7 @@ def call(config) {
   stage ('Target Environment?') {
     // get all of the envs listed in the repo
 
-    def envChoices = []
+    String[] envChoices = []
     dir(ENV_DIR_NAME) {
       envChoices = sh(
           script: "ls -d -- */ | sed 's/\\///g'",
@@ -69,7 +69,7 @@ def call(config) {
     }
   }
 
-  def targetStack
+  String targetStack
   stage ('Stack?') {
     def stackFiles
     dir("${ENV_DIR_NAME}/${targetEnvironment}") {
@@ -95,7 +95,7 @@ def call(config) {
   }
   // prompt the user to determine which style of deployment they would like to achieve.
   // we will support 2 styles first. 'version-selection' and 'environment promotion'
-  def deploymentStyle
+  String deploymentStyle
   stage ('Deployment Style?') {
     timeout(time: 10, unit: 'MINUTES') {
       script {
