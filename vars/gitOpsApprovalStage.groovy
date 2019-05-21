@@ -78,7 +78,7 @@ def call(config) {
   /////
   // if necessary, get approvals
   /////
-  def envConfig = config.gitOps.envs[targetEnvironment]
+  def envConfig = config.gitOps.envs[TARGET_ENV]
   String approverEmails
   String approverSSOs
   String watcherEmails
