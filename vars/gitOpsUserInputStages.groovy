@@ -224,7 +224,7 @@ def call(config) {
             def approver = input message: msg,
               ok: 'Approve',
               submitter: approverSSOs,
-              submitterParameter: 'approver'
+              submitterParameter: 'submitter'
             // TODO: send email to approvers and watchers
 
             String subject = "Deployment of '${targetStack}' to '${targetEnvironment}' approved"
@@ -235,14 +235,16 @@ def call(config) {
             logger body
             sendMail(approverEmails, watcherEmails, subject, body)
           } catch (err) {
-            throw err
-            // logger err.message
-            // String deniedSubject = "Deployment of '${targetStack}' to '${targetEnvironment}' denied"
-            // String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
-            // logger deniedMsg
-            // currentBuild.result = 'ABORTED'
-            // sendMail(approverEmails, watcherEmails, deniedSubject, deniedMsg)
-            // error(deniedMsg)
+            logger err.message
+            try {
+              String deniedSubject = "Deployment of '${targetStack}' to '${targetEnvironment}' denied"
+              String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
+              currentBuild.result = 'ABORTED'
+              sendMail(approverEmails, watcherEmails, deniedSubject, deniedMsg)
+              error(deniedMsg)
+            } catch (err2) {
+              error(err2.message)
+            }
           }
         }
       }
