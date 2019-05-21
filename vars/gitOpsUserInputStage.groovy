@@ -217,12 +217,13 @@ def call(config) {
               submitter: approverSSOs,
               submitterParameter: 'submitter'
             // TODO: send email to approvers and watchers
-            logger "Deployment to '${targetEnvironment}' approved by ${approvalResult.approver}"
+            logger "Deployment to '${targetEnvironment}' approved by ${approvalResult.submitter}"
           } catch (err) {
-            logger "Deployment to '${targetEnvironment}' denied by ${err.message}"
+            def errMsg = "Deployment to '${targetEnvironment}' denied by ${err.getCauses()[0].getUser()}"
+            logger errMsg
             currentBuild.result = 'ABORTED'
             // TODO: send email to approvers and watchers
-            error("Deployment to '${targetEnvironment}' denied by ${err.message}")
+            error(errMsg)
           }
         }
       }
