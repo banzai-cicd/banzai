@@ -1,8 +1,8 @@
 #!/usr/bin/env groovy
-SERVICE_DIR_NAME = "${WORKSPACE}/services"
-ENV_DIR_NAME = "${WORKSPACE}/envs"
 
 def selectVersionsStage(config, targetEnvironment, targetStack) {
+  String SERVICE_DIR_NAME = "${WORKSPACE}/services"
+  String ENV_DIR_NAME = "${WORKSPACE}/envs"
   // for each service listed in the <stackId>.yaml ask for a version to use.
   String stackFileName = "${ENV_DIR_NAME}/${targetEnvironment}/${targetStack}.yaml"
 	def	stackYaml = readYaml file: stackFileName
@@ -31,6 +31,8 @@ def selectVersionsStage(config, targetEnvironment, targetStack) {
 
 
 def call(config) {
+  String SERVICE_DIR_NAME = "${WORKSPACE}/services"
+  String ENV_DIR_NAME = "${WORKSPACE}/envs"
   def stageName = 'GitOps: User Input Stages'
   if (!config.gitOps || params.gitOpsTriggeringBranch != 'empty') {
       logger "Does not appear to be a user-initiated GitOps build. Skipping '${stageName}'"
