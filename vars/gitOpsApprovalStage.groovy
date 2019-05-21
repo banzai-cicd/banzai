@@ -54,7 +54,7 @@ def finalizeDeployment(config) {
 			sh "git add . && git commit -m 'Updating the following Stack: ${ENV}/${STACK}'"
 			sh "git pull && git push origin master"
 		} else {
-			logger "No new Services versions commited to the GitOps repository."
+			logger "No new channges to '/${ENV}/${STACK}.yaml' to be commited to the GitOps repository."
 		}
 	}
 
@@ -62,9 +62,26 @@ def finalizeDeployment(config) {
   config.deployArgs = [config.gitOps.TARGET_ENV, config.gitOps.TARGET_STACK]
 }
 
-def call(config) {
-  String SERVICE_DIR_NAME = "${WORKSPACE}/services"
+def sendApprovalEmail(config, approverId, approverEmails, watcherEmails) {
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
+  String ENV = config.gitOps.TARGET_ENV
+  String STACK = config.gitOps.TARGET_STACK
+  // build email
+  String approverName = Jenkins.instance.getUser(approverId).getDisplayName()
+  String subject = "Deployment of '${STACK}' Stack to '${ENV}' Environment approved"
+  String approvedMsg = "${subject} by ${approverName} with the following versions:"
+  // include full proposed stack versions (not just services being updated)
+  String stackFileName = "${ENV_DIR_NAME}/${ENV}/${STACK}.yaml"
+  def stackYaml = readYaml file: stackFileName
+  config.gitOps.STACK_VERSIONS_TO_UPDATE.each { serviceId, version ->
+    stackYaml[serviceId] = version
+  }
+  def formatedStack = stackYaml.collect { "${it.key} : ${it.value}" }
+  String body = "${approvedMsg}\n${formatedStack.join('\n')}"
+  gitOpsSendEmail(approverEmails, watcherEmails, subject, body)
+}
+
+def call(config) {
   /////
   // This Stage will always run for a GitOps repo when config.deploy = true
   /////
@@ -72,13 +89,13 @@ def call(config) {
       logger "Does not qualify for 'GitOps: Deployment Approval Stage'"
       return
   }
-  String TARGET_ENV = config.gitOps.TARGET_ENV
-  String TARGET_STACK = config.gitOps.TARGET_STACK
+  String ENV = config.gitOps.TARGET_ENV
+  String STACK = config.gitOps.TARGET_STACK
 
   /////
   // if necessary, get approvals
   /////
-  def envConfig = config.gitOps.envs[TARGET_ENV]
+  def envConfig = config.gitOps.envs[ENV]
   String approverEmails
   String approverSSOs
   String watcherEmails
@@ -108,9 +125,9 @@ def call(config) {
   if (approverEmails && approverSSOs) {
     // notify approvers via email that there is a deployment
     // requested and provide an input step
-    stage ("Approve Deployment to '${TARGET_ENV}'") {
+    stage ("Approve Deployment to '${ENV}'") {
       timeout(time: 3, unit: 'DAYS') {
-        def msg = "Deploy to '${TARGET_ENV}'"
+        def msg = "Deploy to '${ENV}'"
         script {
           try {
             def approverId = input message: msg,
@@ -118,17 +135,11 @@ def call(config) {
               submitter: approverSSOs,
               submitterParameter: 'submitter'
 
-            String approverName = Jenkins.instance.getUser(approverId).getDisplayName()
-            String subject = "Deployment of '${TARGET_STACK}' Stack to '${TARGET_ENV}' Environment approved"
-            String approvedMsg = "${subject} by ${approverName} with the following versions:"
-            def versionKVs = versions.collect { "${it.key} : ${it.value}" }
-            String body = "${approvedMsg}\n${versionKVs.join('\n')}"
-            gitOpsSendEmail(approverEmails, watcherEmails, subject, body)
-
+            sendApprovalEmail(config, approverId, approverEmails, watcherEmails)
             finalizeDeployment(config)
           } catch (err) {
             logger err.message
-            String deniedSubject = "Deployment of '${TARGET_STACK}' to '${TARGET_ENV}' denied"
+            String deniedSubject = "Deployment of '${STACK}' to '${ENV}' denied"
             String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
             logger deniedMsg
             currentBuild.result = 'ABORTED'
