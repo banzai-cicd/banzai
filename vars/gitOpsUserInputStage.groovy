@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-def versionSelectionStage(config, targetEnvironment, targetStack) {
+def selectVersionsStage(config, targetEnvironment, targetStack) {
   // for each service listed in the <stackId>.yaml ask for a version to use.
   def stackFileName = "${WORKSPACE}/${targetEnvironment}/${targetStack}.yaml"
 	def	stackYaml = readYaml file: stackFileName
@@ -59,7 +59,7 @@ def call(config) {
           message: 'What Environment do you want to deploy to?',
           ok: 'Next Step',
           parameters: [choice(name: 'targetEnv', choices: envChoices, description: 'What is the target Environment?')]
-        )
+        ).trim()
       }
 
       logger "Target Environment selected! ${targetEnvironment}"
@@ -100,19 +100,19 @@ def call(config) {
           id: 'deploymentStyleInput', 
           message: 'What style of deployment?',
           ok: 'Next Step',
-          parameters: [choice(name: 'deploymentType', choices: 'Version Selection\nEnvironment Promotion', description: 'What is the deployment style?')]
+          parameters: [choice(name: 'deploymentStyle', choices: 'Select Versions\nPromote Environment', description: 'What is the deployment style?')]
         )
       }
 
-      logger "Choice selected! ${deploymentType}"
+      logger "Choice selected! ${deploymentStyle}"
     }
   }
 
   switch (deploymentStyle) {
-    case 'Version Selection':
-      versionSelectionStage(config, targetEnvironment, targetStack)
+    case 'Select Versions':
+      selectVersionsStage(config, targetEnvironment, targetStack)
       break
-    case 'Environment Promotion':
+    case 'Promote Environment':
       break
     default:
       logger "Unable to match deployment style selection"
