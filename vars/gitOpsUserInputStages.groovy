@@ -32,7 +32,8 @@ String[] getUserEmails(users) {
 }
 
 def sendMail(to, cc, subject, body) {
-  def jobInfo = "Job: ${env.JOB_NAME} #${env.BUILD_NUMBER} \nBuild URL: ${env.BUILD_URL}\n"
+  logger "Sending Mail"
+  String jobInfo = "Job: ${env.JOB_NAME} #${env.BUILD_NUMBER} \nBuild URL: ${env.BUILD_URL}\n"
   mail from: "JenkinsAdmin@ge.com",
     to: to,
     cc: cc,
@@ -226,13 +227,15 @@ def call(config) {
               submitterParameter: 'approver'
             // TODO: send email to approvers and watchers
 
-            String approvedSubject = "Deployment of '${targetStack}' to '${targetEnvironment}' approved"
+            String subject = "Deployment of '${targetStack}' to '${targetEnvironment}' approved"
             String approvedMsg = "${approvedSubject} by ${approver} with the following versions"
             String versionsMsg = versions.inject('\n') {result, k,v -> result += "${k} : ${v}\n" }​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
-            sendMail(approverEmails, watcherEmails, approvedSubject, "${approvedMsg}${versionsMsg}")
-            logger "${approvedMsg}${versionsMsg}"
+            String body = "${approvedMsg}${versionsMsg}"
+            logger subject
+            logger body
+            sendMail(approverEmails, watcherEmails, subject, body)
           } catch (err) {
-            error(err)
+            throw err
             // logger err.message
             // String deniedSubject = "Deployment of '${targetStack}' to '${targetEnvironment}' denied"
             // String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
