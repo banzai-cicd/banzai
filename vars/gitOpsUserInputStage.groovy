@@ -41,7 +41,7 @@ def call(config) {
     def envChoices = []
     dir("${WORKSPACE}/envs") {
       envChoices = sh(
-          script: "ls -d -- */ | sed 's/\///g'",
+          script: "ls -d -- */ | sed 's/\\///g'",
           returnStdout: true
       ).trim()
     }
