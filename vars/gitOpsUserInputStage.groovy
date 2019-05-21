@@ -122,7 +122,10 @@ def call(config) {
       stackFiles = findFiles(glob: "*.yaml")
     }
     if (!stackFiles || stackFiles.size() == 0) {
-      logger "No stacks found. Ensure that /envs/${targetEnvironment} is not empty"
+      def errMsg = "No stacks found. Ensure that /envs/${targetEnvironment} is not empty"
+      logger errMsg
+      currentBuild.result = 'ABORTED'
+      error(errMsg)
       return
     }
     def stackIdChoices = stackFiles.collect { it.getName().replace('.yaml', '') }.join("\n")
