@@ -50,7 +50,7 @@ def call(config) {
       logger "No environments found. Ensure that /envs is not empty"
       return
     }
-    def envChoices = envs.collect { it.getName() }.join("\n")
+    def envChoices = envs.join("\n")
     timeout(time: 10, unit: 'MINUTES') {
       script {
         targetEnvironment = input(
