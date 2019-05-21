@@ -50,7 +50,7 @@ Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) 
   def params = serviceIds.collect {
     def serviceYaml = readYaml file: "${SERVICE_DIR_NAME}/${it}.yaml"
     def choices = serviceYaml.versions.join("\n")
-    choice(name: "${it} (current: ${stackYaml[it]})", choices: choices)
+    choice(name: "${it}", choices: choices, description: "current: ${stackYaml[it]}")
   }
   def selectedVersions
   stage ('Versions') {
