@@ -227,6 +227,7 @@ def call(config) {
               submitterParameter: 'submitter'
 
             logger approver
+            logger versions
             String subject = "Deployment of '${targetStack}' to '${targetEnvironment}' approved"
             String approvedMsg = "${subject} by ${approver} with the following versions"
             String versionsMsg = versions.inject('\n') {result, k,v -> result += "${k} : ${v}\n"}​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
