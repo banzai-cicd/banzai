@@ -63,8 +63,6 @@ Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) 
           parameters: params
         )
       }
-
-      logger "Versions selected! ${selectedVersions}"
     }
   }
 
@@ -172,7 +170,7 @@ def call(config) {
   /////
   // determine versions
   /////
-  Map versions
+  def versions
   switch (deploymentStyle) {
     case 'Select Versions':
       versions = selectVersionsStage(config, targetEnvironment, targetStack)
@@ -183,6 +181,7 @@ def call(config) {
       logger "Unable to match deployment style selection"
       break
   }
+  logger "Versions Determined: ${versions}"
 
   /////
   // if necessary, get approvals
