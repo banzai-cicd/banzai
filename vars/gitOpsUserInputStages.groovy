@@ -232,13 +232,14 @@ def call(config) {
             sendMail(approverEmails, watcherEmails, approvedSubject, "${approvedMsg}${versionsMsg}")
             logger "${approvedMsg}${versionsMsg}"
           } catch (err) {
-            logger err.message
-            String deniedSubject = "Deployment of '${targetStack}' to '${targetEnvironment}' denied"
-            String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
-            logger deniedMsg
-            currentBuild.result = 'ABORTED'
-            sendMail(approverEmails, watcherEmails, deniedSubject, deniedMsg)
-            error(deniedMsg)
+            error(err)
+            // logger err.message
+            // String deniedSubject = "Deployment of '${targetStack}' to '${targetEnvironment}' denied"
+            // String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
+            // logger deniedMsg
+            // currentBuild.result = 'ABORTED'
+            // sendMail(approverEmails, watcherEmails, deniedSubject, deniedMsg)
+            // error(deniedMsg)
           }
         }
       }
