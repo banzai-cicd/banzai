@@ -29,12 +29,15 @@ def selectVersionsStage(config, targetEnvironment, targetStack) {
   }
 }
 
+def isUserInitiated() {
+  return currentBuild.rawBuild.getCause(hudson.model.Cause$UserIdCause) != null
+}
 
 def call(config) {
   String SERVICE_DIR_NAME = "${WORKSPACE}/services"
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
   def stageName = 'GitOps: User Input Stages'
-  if (!config.gitOps || params.gitOpsTriggeringBranch != 'empty') {
+  if (!config.gitOps || !isUserInitiated()) {
       logger "Does not appear to be a user-initiated GitOps build. Skipping '${stageName}'"
       return
   }
