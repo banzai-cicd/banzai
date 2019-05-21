@@ -77,14 +77,14 @@ def runPipeline(config) {
                 filterSecretsStage(config)
                 // gitOpsStages
                 gitOpsUpdateServiceVersionsStage(config)
-                gitOpsUserInputStage(config)
+                gitOpsUserInputStages(config)
                 // /end gitOpsStages
                 scansStage(config, 'vulnerability')
                 scansStage(config, 'quality')
                 buildStage(config)
                 publishStage(config)
                 deployStage(config)
-                gitOpsTriggerStages(config)
+                gitOpsTriggerStage(config)
                 integrationTestsStage(config)
                 powerDevOpsReportingStage(config)
                 markForPromotionStage(config)
