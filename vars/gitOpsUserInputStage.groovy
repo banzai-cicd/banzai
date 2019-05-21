@@ -1,12 +1,16 @@
 #!/usr/bin/env groovy
+def SERVICE_DIR_NAME = "${WORKSPACE}/services"
+def ENV_DIR_NAME = "${WORKSPACE}/envs"
 
 def selectVersionsStage(config, targetEnvironment, targetStack) {
   // for each service listed in the <stackId>.yaml ask for a version to use.
-  def stackFileName = "${WORKSPACE}/${targetEnvironment}/${targetStack}.yaml"
+  def stackFileName = "${ENV_DIR_NAME}/${targetEnvironment}/${targetStack}.yaml"
 	def	stackYaml = readYaml file: stackFileName
   def serviceIds = stackYaml.keySet()
   def params = serviceIds.collect {
-    choice(name: "${it}Version", choices: "1.0.0\n1.1.1", description: 'What version of the Service should be deployed?')
+    def serviceYaml = readYaml file: "${SERVICE_DIR_NAME}/${it}.yaml"
+    def choices = serviceYaml.versions.join("\n")
+    choice(name: "${it}Version", choices: choices, description: 'What version of the Service should be deployed?')
   }
   def selectedVersions
   stage ('Versions?') {
@@ -27,7 +31,6 @@ def selectVersionsStage(config, targetEnvironment, targetStack) {
 
 
 def call(config) {
-  def FILE_WRAPPER_CLASS = 'org.jenkinsci.plugins.pipeline.utility.steps.fs.FileWrapper'
   def stageName = 'GitOps: User Input Stages'
   if (!config.gitOps || params.gitOpsTriggeringBranch != 'empty') {
       logger "Does not appear to be a user-initiated GitOps build. Skipping '${stageName}'"
@@ -39,7 +42,7 @@ def call(config) {
     // get all of the envs listed in the repo
 
     def envChoices = []
-    dir("${WORKSPACE}/envs") {
+    dir(ENV_DIR_NAME) {
       envChoices = sh(
           script: "ls -d -- */ | sed 's/\\///g'",
           returnStdout: true
@@ -69,7 +72,7 @@ def call(config) {
   def targetStack
   stage ('Stack?') {
     def stackFiles
-    dir("${WORKSPACE}/envs/${targetEnvironment}") {
+    dir("${ENV_DIR_NAME}/${targetEnvironment}") {
       stackFiles = findFiles(glob: "*.yaml")
     }
     if (!stackFiles || stackFiles.size() == 0) {
