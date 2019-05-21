@@ -40,7 +40,7 @@ def call(config) {
     // get all of the envs listed in the repo
 
     def envs = []
-    def envsDir = new File("${WORKSPACE}/envs")
+    def envsDir = new File("${WORKSPACE}/envs/.")
     envsDir.eachFile FileType.DIRECTORIES, {
         envs << it.name
     }
