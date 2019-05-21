@@ -43,7 +43,7 @@ def call(config) {
   stage ('Target Environment?') {
     // get all of the envs listed in the repo
 
-    String[] envChoices = []
+    String envChoices
     dir(ENV_DIR_NAME) {
       envChoices = sh(
           script: "ls -d -- */ | sed 's/\\///g'",
