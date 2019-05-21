@@ -64,7 +64,7 @@ Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) 
         )
       }
 
-      logger "Versions selected! ${selectedVersions.getClass()}"
+      logger "Versions selected! ${selectedVersions}"
     }
   }
 
