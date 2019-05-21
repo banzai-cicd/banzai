@@ -67,7 +67,7 @@ Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) 
     }
   }
 
-  if (selectedVersions instanceOf String) {
+  if (selectedVersions instanceof String) {
     // only 1 service in a stack will result in selectedVersions being a string instead of a Map
     selectedVersions = ["${serviceIds[0]}": selectedVersions]
   }
