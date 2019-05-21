@@ -31,6 +31,15 @@ String[] getUserEmails(users) {
   }
 }
 
+def sendMail(to, cc, subject, body) {
+  def jobInfo = "Job: ${env.JOB_NAME} #${env.BUILD_NUMBER} \nBuild URL: ${env.BUILD_URL}\n"
+  mail from: "JenkinsAdmin@ge.com",
+    to: to,
+    cc: cc,
+    subject: subject,
+    body: "${jobInfo}${body}"
+}
+
 Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) {
   String SERVICE_DIR_NAME = "${WORKSPACE}/services"
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
@@ -214,15 +223,22 @@ def call(config) {
           try {
             def approver = input message: msg,
               ok: 'Approve',
-              submitter: approverSSOs
+              submitter: approverSSOs,
+              submitterParameter: 'approver'
             // TODO: send email to approvers and watchers
-            logger "Deployment to '${targetEnvironment}' approved by ${approver}"
+
+            String approvedSubject = "Deployment of '${targetStack}' to '${targetEnvironment}' approved"
+            String approvedMsg = "${approvedSubject} by ${approver} with the following versions."
+            String versionsMsg = versions.inject('\n') {result, k,v -> result += "${k} : ${v}\n" }​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
+            sendMail(approverEmails, watcherEmails, approvedSubject, "${approvedMsg}${versionsMsg}")
+            logger "${approvedMsg}${versionsMsg}"
           } catch (err) {
-            def errMsg = "Deployment to '${targetEnvironment}' denied by ${err.getCauses()[0].getUser()}"
-            logger errMsg
+            String deniedSubject = "Deployment of '${targetStack}' to '${targetEnvironment}' denied"
+            String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
+            logger deniedMsg
             currentBuild.result = 'ABORTED'
-            // TODO: send email to approvers and watchers
-            error(errMsg)
+            sendMail(approverEmails, watcherEmails, deniedSubject, deniedMsg)
+            error(deniedMsg)
           }
         }
       }
