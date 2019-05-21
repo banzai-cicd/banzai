@@ -228,11 +228,12 @@ def call(config) {
             // TODO: send email to approvers and watchers
 
             String approvedSubject = "Deployment of '${targetStack}' to '${targetEnvironment}' approved"
-            String approvedMsg = "${approvedSubject} by ${approver} with the following versions."
+            String approvedMsg = "${approvedSubject} by ${approver} with the following versions"
             String versionsMsg = versions.inject('\n') {result, k,v -> result += "${k} : ${v}\n" }​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
             sendMail(approverEmails, watcherEmails, approvedSubject, "${approvedMsg}${versionsMsg}")
             logger "${approvedMsg}${versionsMsg}"
           } catch (err) {
+            logger err.message
             String deniedSubject = "Deployment of '${targetStack}' to '${targetEnvironment}' denied"
             String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
             logger deniedMsg
