@@ -84,7 +84,8 @@ Map<String, String> promoteStackStages(config, targetEnvironment, targetStack) {
 
   // we basically just copy the origin stack to the new stack
   String originStackFileName = "${ENV_DIR_NAME}/${originEnvironment}/${originStack}.yaml"
-  return readYaml file: stackFileName
+  def stack = readYaml file: stackFileName
+  return stack
 }
 
 String getEnvChoices() {
