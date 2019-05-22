@@ -167,7 +167,7 @@ def call(config) {
   stage ('Stack') {
     def stackIdChoices
     try {
-      stackIdChoices = getStackChoicesForEnv(targetEnv)
+      stackIdChoices = getStackChoicesForEnv(targetEnvironment)
     } catch (e) {
       error(e.message)
       return
