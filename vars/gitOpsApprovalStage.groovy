@@ -38,8 +38,14 @@ def finalizeDeployment(config) {
   String STACK = config.gitOps.TARGET_STACK
   // 1. update the stack yaml with the versions it should be set to
   String stackFileName = "${ENV_DIR_NAME}/${ENV}/${STACK}.yaml"
-	def stackYaml = readYaml file: stackFileName
-  config.gitOps.STACK_VERSIONS_TO_UPDATE.each { id, version ->
+	def stackYaml = [:]
+  try {
+    stackYaml = readYaml file: stackFileName
+  } catch (e) {
+    logger "Creating ${stackFileName} ..."
+  }
+  
+  config.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { id, version ->
     logger "Updating Service '${id}' to '${version}' in Stack ${STACK}"
     stackYaml[id] = version
   }
@@ -68,8 +74,14 @@ def buildProposedVersionsBody(config) {
   String STACK = config.gitOps.TARGET_STACK
   // include full proposed stack versions (not just services being updated)
   String stackFileName = "${ENV_DIR_NAME}/${ENV}/${STACK}.yaml"
-  def stackYaml = readYaml file: stackFileName
-  config.gitOps.STACK_VERSIONS_TO_UPDATE.each { serviceId, version ->
+  def stackYaml = [:]
+  try {
+    readYaml file: stackFileName
+  } catch (e) {
+    // the stack yaml my not yet exist if this is part of an environment promotion
+    logger "${stackFileName} does not yet exist. Will create if approved"
+  }
+  config.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { serviceId, version ->
     stackYaml[serviceId] = version
   }
   def formatedStack = stackYaml.collect { "${it.key} : ${it.value}" }

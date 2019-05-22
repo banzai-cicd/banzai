@@ -34,13 +34,98 @@ Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) 
   return selectedVersions
 }
 
+Map<String, String> promoteStackStages(config, targetEnvironment, targetStack) {
+  String ENV_DIR_NAME = "${WORKSPACE}/envs"
+  // get origin env
+  String envChoices = getEnvChoices()
+  if (!envChoices || envChoices.length() == 0) {
+    logger "No environments found. Ensure that /envs is not empty"
+    return
+  }
+
+  String originEnvironment
+  stage ("Origin Environment") {
+    timeout (time: 10, unit: 'MINUTES') {
+      script {
+        originEnvironment = input(
+          id: 'originEnvInput', 
+          message: 'What Environment would you like to promote from?',
+          ok: 'Next Step',
+          parameters: [choice(name: 'Origing Environment', choices: envChoices)]
+        ).trim()
+      }
+
+      logger "Origin Environment selected! ${originEnvironment}"
+    }
+  }
+
+  stage ("Origin Stack") {
+    def stackIdChoices
+    try {
+      stackIdChoices = getStackChoicesForEnv(originEnvironment)
+    } catch (e) {
+      error(e.message)
+      return
+    }
+
+    timeout (time: 10, unit: 'MINUTES') {
+      script {
+        originStack = input(
+          id: 'originStackInput', 
+          message: 'What Stack would you like to promote?',
+          ok: 'Next Step',
+          parameters: [choice(name: 'Origin Environment', choices: stackIdChoices)]
+        ).trim()
+      }
+
+      logger "Origin Stack selected! ${originStack}"
+    }
+  }
+
+  // we basically just copy the origin stack to the new stack
+  String originStackFileName = "${ENV_DIR_NAME}/${originEnvironment}/${originStack}.yaml"
+  return readYaml file: stackFileName
+}
+
+String getEnvChoices() {
+  String ENV_DIR_NAME = "${WORKSPACE}/envs"
+  String envChoices
+  dir (ENV_DIR_NAME) {
+    envChoices = sh(
+        script: "ls -d -- */ | sed 's/\\///g'",
+        returnStdout: true
+    ).trim()
+  }
+  return envChoices
+}
+
+getStackChoicesForEnv(env) {
+  def stackFiles = getStackFilesForEnv(env)
+  return stackFiles.collect { it.getName().replace('.yaml', '') }.join("\n")
+}
+
+getStackFilesForEnv(env) {
+    String ENV_DIR_NAME = "${WORKSPACE}/envs"
+    def stackFiles
+    dir ("${ENV_DIR_NAME}/${env}") {
+      stackFiles = findFiles(glob: "*.yaml")
+    }
+
+    if (!stackFiles || stackFiles.size() == 0) {
+      def errMsg = "No stacks found. Ensure that /envs/${targetEnvironment} is not empty"
+      logger errMsg
+      throw new Exception(errMsg)
+    }
+
+    return stackFiles
+}
+
 def isUserInitiated() {
   return currentBuild.rawBuild.getCause(hudson.model.Cause$UserIdCause) != null
 }
 
 def call(config) {
   String SERVICE_DIR_NAME = "${WORKSPACE}/services"
-  String ENV_DIR_NAME = "${WORKSPACE}/envs"
   def stageName = 'GitOps: User Input Stages'
   /////
   // These Stages should only run for user-initiated builds of a GitOps repo
@@ -57,16 +142,7 @@ def call(config) {
   stage ('Target Environment') {
     // get all of the envs listed in the repo
 
-    String envChoices
-    dir (ENV_DIR_NAME) {
-      envChoices = sh(
-          script: "ls -d -- */ | sed 's/\\///g'",
-          returnStdout: true
-      ).trim()
-    }
-
-    logger "envChoices"
-    logger envChoices
+    String envChoices = getEnvChoices()
     if (!envChoices || envChoices.length() == 0) {
       logger "No environments found. Ensure that /envs is not empty"
       return
@@ -75,7 +151,7 @@ def call(config) {
       script {
         targetEnvironment = input(
           id: 'targetEnvInput', 
-          message: 'What Environment do you want to deploy to?',
+          message: 'What Environment would you like to deploy to?',
           ok: 'Next Step',
           parameters: [choice(name: 'Target Environment', choices: envChoices)]
         ).trim()
@@ -88,23 +164,19 @@ def call(config) {
 
   String targetStack
   stage ('Stack') {
-    def stackFiles
-    dir ("${ENV_DIR_NAME}/${targetEnvironment}") {
-      stackFiles = findFiles(glob: "*.yaml")
-    }
-    if (!stackFiles || stackFiles.size() == 0) {
-      def errMsg = "No stacks found. Ensure that /envs/${targetEnvironment} is not empty"
-      logger errMsg
-      currentBuild.result = 'ABORTED'
-      error(errMsg)
+    def stackIdChoices
+    try {
+      stackIdChoices = getStackChoicesForEnv(targetEnv)
+    } catch (e) {
+      error(e.message)
       return
     }
-    def stackIdChoices = stackFiles.collect { it.getName().replace('.yaml', '') }.join("\n")
+    
     timeout (time: 10, unit: 'MINUTES') {
       script {
         targetStack = input(
           id: 'targetStackInput', 
-          message: "What Stack do you want to deploy to the '${targetEnvironment}' Environment?",
+          message: "What Stack would you like to deploy to the '${targetEnvironment}' Environment?",
           ok: 'Next Step',
           parameters: [choice(name: 'Target Stack', choices: stackIdChoices)]
         )
@@ -124,7 +196,7 @@ def call(config) {
           id: 'deploymentStyleInput', 
           message: 'What style of deployment?',
           ok: 'Next Step',
-          parameters: [choice(name: 'Deployment Style', choices: 'Select Versions\nPromote Environment')]
+          parameters: [choice(name: 'Deployment Style', choices: 'Select Versions\nPromote Stack')]
         )
       }
 
@@ -140,14 +212,15 @@ def call(config) {
     case 'Select Versions':
       versions = selectVersionsStage(config, targetEnvironment, targetStack)
       break
-    case 'Promote Environment':
+    case 'Promote Stack':
+      versions = promoteStackStages(config, targetEnvironment, targetStack)
       break
     default:
       logger "Unable to match deployment style selection"
       break
   }
   logger "Versions Determined: ${versions}"
-  config.gitOps.STACK_VERSIONS_TO_UPDATE = versions
+  config.gitOps.SERVICE_VERSIONS_TO_UPDATE = versions
 
   // IMPORTANT! we now are ready to set config.deploy = true because all deployment info has been satisfied
   config.deploy = true

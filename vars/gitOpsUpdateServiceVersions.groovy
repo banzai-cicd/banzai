@@ -27,7 +27,7 @@ def call(config) {
 			config.deploy = true // <-- VERY IMPORTANT THAT THIS IS SET
 			config.gitOps.TARGET_ENV = autoDepoyEnv
 			config.gitOps.TARGET_STACK = params.gitOpsStackId
-			config.gitOps.STACK_VERSIONS_TO_UPDATE = [:]
+			config.gitOps.SERVICE_VERSIONS_TO_UPDATE = [:]
 		}
 	}
 
@@ -67,9 +67,9 @@ def call(config) {
 		writeYaml file: serviceFileName, data: serviceYaml
 
 		// if this is an autoDeploy
-		// update the stack versions that we will eventually update if approval passes
-		if (config.gitOps.STACK_VERSIONS_TO_UPDATE) {
-			config.gitOps.STACK_VERSIONS_TO_UPDATE[id] = version
+		// update the services versions that we will eventually update if approval passes
+		if (config.gitOps.SERVICE_VERSIONS_TO_UPDATE) {
+			config.gitOps.SERVICE_VERSIONS_TO_UPDATE[id] = version
 		}
 	}
 
