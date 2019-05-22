@@ -51,7 +51,7 @@ Map<String, String> promoteStackStages(config, targetEnvironment, targetStack) {
           id: 'originEnvInput', 
           message: 'What Environment would you like to promote from?',
           ok: 'Next Step',
-          parameters: [choice(name: 'Origing Environment', choices: envChoices)]
+          parameters: [choice(name: 'Origin Environment', choices: envChoices)]
         ).trim()
       }
 
@@ -59,32 +59,9 @@ Map<String, String> promoteStackStages(config, targetEnvironment, targetStack) {
     }
   }
 
-  stage ("Origin Stack") {
-    def stackIdChoices
-    try {
-      stackIdChoices = getStackChoicesForEnv(originEnvironment)
-    } catch (e) {
-      error(e.message)
-      return
-    }
-
-    timeout (time: 10, unit: 'MINUTES') {
-      script {
-        originStack = input(
-          id: 'originStackInput', 
-          message: 'What Stack would you like to promote?',
-          ok: 'Next Step',
-          parameters: [choice(name: 'Origin Environment', choices: stackIdChoices)]
-        ).trim()
-      }
-
-      logger "Origin Stack selected! ${originStack}"
-    }
-  }
-
   // we basically just copy the origin stack to the new stack
-  String originStackFileName = "${ENV_DIR_NAME}/${originEnvironment}/${originStack}.yaml"
-  def stack = readYaml file: stackFileName
+  String originStackFileName = "${ENV_DIR_NAME}/${originEnvironment}/${targetStack}.yaml"
+  def stack = readYaml file: originStackFileName
   return stack
 }
 
