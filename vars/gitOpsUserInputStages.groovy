@@ -154,7 +154,7 @@ def call(config) {
       script {
         targetStack = input(
           id: 'targetStackInput', 
-          message: "What Stack would you like to deploy to the '${targetEnvironment}' Environment?",
+          message: "Which Stack would you like to deploy to the '${targetEnvironment}' Environment?",
           ok: 'Next Step',
           parameters: [choice(name: 'Target Stack', choices: stackIdChoices)]
         )
@@ -174,7 +174,7 @@ def call(config) {
           id: 'deploymentStyleInput', 
           message: 'What style of deployment?',
           ok: 'Next Step',
-          parameters: [choice(name: 'Deployment Style', choices: 'Select Versions\nPromote Stack')]
+          parameters: [choice(name: 'Deployment Style', choices: 'Select Specific Versions\nPromote Stack From Another Environment')]
         )
       }
 
@@ -187,10 +187,10 @@ def call(config) {
   /////
   def versions
   switch (deploymentStyle) {
-    case 'Select Versions':
+    case 'Select Specific Versions':
       versions = selectVersionsStage(config, targetEnvironment, targetStack)
       break
-    case 'Promote Stack':
+    case 'Promote Stack From Another Environment':
       versions = promoteStackStages(config, targetEnvironment, targetStack)
       break
     default:
