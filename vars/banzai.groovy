@@ -63,7 +63,7 @@ def runPipeline(config) {
             }
             
             if (!config.sshCreds) {
-                config.sshCreds = ''
+                config.sshCreds = []
             }
             sshagent(credentials: config.sshCreds) {
                 // TODO notify Flowdock build starting
