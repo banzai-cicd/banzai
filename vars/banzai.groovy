@@ -61,7 +61,10 @@ def runPipeline(config) {
                 // on linux / mac
                 env.PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
             }
-
+            
+            if (!config.sshCreds) {
+                config.sshCreds = ''
+            }
             sshagent(credentials: config.sshCreds) {
                 // TODO notify Flowdock build starting
                 echo "My branch is: ${env.BRANCH_NAME}"
