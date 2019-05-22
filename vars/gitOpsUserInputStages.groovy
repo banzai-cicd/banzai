@@ -100,12 +100,12 @@ String getEnvChoices() {
   return envChoices
 }
 
-getStackChoicesForEnv(env) {
+def getStackChoicesForEnv(env) {
   def stackFiles = getStackFilesForEnv(env)
   return stackFiles.collect { it.getName().replace('.yaml', '') }.join("\n")
 }
 
-getStackFilesForEnv(env) {
+def getStackFilesForEnv(env) {
     String ENV_DIR_NAME = "${WORKSPACE}/envs"
     def stackFiles
     dir ("${ENV_DIR_NAME}/${env}") {
