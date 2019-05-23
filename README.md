@@ -36,7 +36,8 @@ banzai {
       host: 'proxyhost',
       port: '80'
     ]
-    startFresh = true                           // wipe workspace before each build
+    preCleanWorkspace = true                           // wipe workspace before each build
+    postCleanWorkspace = true                          // wipe workspace after each build
     flowdockBranches = /tag\-(.*)|develop/      // which branches should report notifications to Flowdock
     skipSCM = true                              // skip pulling down the branch that kicked off the build
     flowdock = true                             // 
@@ -167,8 +168,8 @@ The downstream build definition supports all of the properties documented by [Je
 2. the parallel build also has `propagate: true`
 3. there is one or more non-parallel builds defined after the parallel build(s) that need to be executed once the parallel build(s) complete.
 
-### GitOps
-Banzai supports [GitOps-style](https://www.xenonstack.com/insights/what-is-gitops/) deployments. GitOps allows you to back your environments and handle their deployments from a single repository. Once configured, your Service repositories will complete all CI Banzai Pipeline steps. If Banzai determines that a new version has been created or a deployment should take place it will trigger a new Banzai Pipeline that builds your GitOps repository. The GitOps repository is responsible for recording all versions of each Service and updating your 'Stacks' with the correct versions in each environment. [You can view an example GitOps repo here](https://github.build.ge.com/Banzai-CICD/GitOps). For our purposes, a 'Stack' is merely a collection of indvidual Services that should be deployed together.
+### GitOps (Recommended)
+Banzai supports [GitOps-style](https://www.xenonstack.com/insights/what-is-gitops/) deployments. GitOps allows you to back your environments and handle their deployments from a single repository as well as decouple CI from CD (good for security). Once configured, your Service repositories will complete all CI Banzai Pipeline steps. If Banzai determines that a new version has been created or a deployment should take place it will trigger a new Banzai Pipeline that builds your GitOps repository. The GitOps repository is responsible for recording all versions of each Service and updating your 'Stacks' with the correct versions in each environment. [You can view an example GitOps repo here](https://github.build.ge.com/Banzai-CICD/GitOps). For our purposes, a 'Stack' is merely a collection of indvidual Services that should be deployed together.
 
 There are 2 methods of deployment via Banzai GitOps.
 1. automatic deployment

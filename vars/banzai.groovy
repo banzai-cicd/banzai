@@ -70,7 +70,7 @@ def runPipeline(config) {
                 echo "My branch is: ${env.BRANCH_NAME}"
 
                 // checkout the branch that triggered the build if not explicitly skipped
-                if (config.preCleanup) {
+                if (config.preCleanWorkspace) {
                     logger "Starting Fresh"
                     step([$class: 'WsCleanup'])
                 }
@@ -93,7 +93,7 @@ def runPipeline(config) {
                 powerDevOpsReportingStage(config)
                 markForPromotionStage(config)
 
-                if (config.postCleanup) {
+                if (config.postCleanWorkspace) {
                     logger "Cleaning up"
                     step([$class: 'WsCleanup'])
                 }
