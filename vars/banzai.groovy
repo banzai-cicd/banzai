@@ -71,7 +71,7 @@ def runPipeline(config) {
 
                 // checkout the branch that triggered the build if not explicitly skipped
                 if (config.preCleanWorkspace) {
-                    logger "Starting Fresh"
+                    logger "Cleaning Workspace"
                     step([$class: 'WsCleanup'])
                 }
                 
@@ -94,7 +94,7 @@ def runPipeline(config) {
                 markForPromotionStage(config)
 
                 if (config.postCleanWorkspace) {
-                    logger "Cleaning up"
+                    logger "Cleaning Workspace"
                     step([$class: 'WsCleanup'])
                 }
 
