@@ -48,8 +48,8 @@ def call(config) {
 	
 	def serviceIdsAndVersions = [] // for logging later
 	// We always update the /services versions regardless of a deployment
-	serviceVersions.each { id, version ->
-		serviceIdsAndVersions.push("${id}:${version}")
+	serviceVersions.each { id, data ->
+		serviceIdsAndVersions.push("${id}:${data.version}")
 		def serviceFileName = "${SERVICE_DIR_NAME}/${id}.yaml"
 		if (!fileExists(serviceFileName)) {
 			def yamlTemplate = [latest: '', versions: []]
@@ -57,19 +57,22 @@ def call(config) {
 		}
 
 		def serviceYaml = readYaml file: serviceFileName
-		serviceYaml.latest = version
-		if (!serviceYaml.versions.contains(version)) {
-			yaml.versions.add(0, version)
+		serviceYaml.latest = data.version
+		def versionList = serviceYaml.versions.collect { it.keySet()[0] } // each entry should have an object with a single key (the version)
+		if (!versionList.contains(data.version)) {
+			def versionObj = [:]
+			versionObj[data.version] = data.meta
+			yaml.versions.add(0, versionObj)
 		}
 		// writeYaml will fail if the file already exists
 		sh "rm -rf ${serviceFileName}"
-		logger "Updating Service '${id}' to '${version}'"
+		logger "Updating Service '${id}' to '${data.version}'"
 		writeYaml file: serviceFileName, data: serviceYaml
 
 		// if this is an autoDeploy
-		// update the services versions that we will eventually update if approval passes
+		// update the services versions that we will eventually update in the env/stack if approval passes
 		if (config.gitOps.SERVICE_VERSIONS_TO_UPDATE) {
-			config.gitOps.SERVICE_VERSIONS_TO_UPDATE[id] = version
+			config.gitOps.SERVICE_VERSIONS_TO_UPDATE[id] = data.version
 		}
 	}
 
