@@ -9,7 +9,13 @@ Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) 
   String[] serviceIds = stackYaml.keySet()
   def params = serviceIds.collect {
     def serviceYaml = readYaml file: "${SERVICE_DIR_NAME}/${it}.yaml"
-    def serviceVersions = serviceYaml.versions.collect { it.keySet()[0] }
+    def serviceVersions = serviceYaml.versions.collect { 
+      if (it instanceof String) {
+				return it // if the version has no meta
+			} else {
+				return it.keySet()[0]  // if the version has meta it will be an object
+			}
+    }
     def choices = serviceVersions.join("\n")
     choice(name: "${it}", choices: choices, description: "${it} (current: ${stackYaml[it]})")
   }

@@ -58,11 +58,22 @@ def call(config) {
 
 		def serviceYaml = readYaml file: serviceFileName
 		serviceYaml.latest = data.version
-		def versionList = serviceYaml.versions.collect { it.keySet()[0] } // each entry should have an object with a single key (the version)
+		def versionList = serviceYaml.versions.collect {
+			if (it instanceof String) {
+				return it
+			} else {
+				return it.keySet()[0] 
+			}
+		} // each entry should have an object with a single key (the version) OR a String (the version)
 		if (!versionList.contains(data.version)) {
-			def versionObj = [:]
-			versionObj[data.version] = data.meta
-			yaml.versions.add(0, versionObj)
+			if (data.meta) {
+				def versionObj = [:]
+				versionObj[data.version] = data.meta
+				yaml.versions.add(0, versionObj)
+			} else {
+				yaml.versions.add(0, data.version)
+			}
+			
 		}
 		// writeYaml will fail if the file already exists
 		sh "rm -rf ${serviceFileName}"
