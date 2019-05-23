@@ -69,9 +69,9 @@ def call(config) {
 			if (data.meta) {
 				def versionObj = [:]
 				versionObj[data.version] = data.meta
-				yaml.versions.add(0, versionObj)
+				serviceYaml.versions.add(0, versionObj)
 			} else {
-				yaml.versions.add(0, data.version)
+				serviceYaml.versions.add(0, data.version)
 			}
 			
 		}
