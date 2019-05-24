@@ -114,7 +114,7 @@ def call(config) {
 				}
 			}
 		}
-		if(env.DEPLOY_OPTION == 'Skip') {
+		if (env.DEPLOY_OPTION == 'Skip') {
 			echo "You want to skip PROD deployment!"
 		}
 		else if(env.DEPLOY_OPTION == 'Email Approver') {			

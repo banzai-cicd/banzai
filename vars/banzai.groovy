@@ -29,11 +29,14 @@ def runPipeline(config) {
         // clean up old builds (experimental, not sure if this is actually working or not. time will tell)
         properties(
             [
-            buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10')),
-            parameters([
-                string(name: 'downstreamBuildIds', defaultValue: 'empty', description: 'list of buildIds to execute against'), 
-                string(name: 'downstreamBuildDefinitions', defaultValue: 'empty', description: 'serialized downstreamBuildDefinitions collection automatically passed during a downstream build chain')
-            ])
+                buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10')),
+                parameters([
+                    string(name: 'downstreamBuildIds', defaultValue: 'empty', description: 'list of buildIds to execute against'), 
+                    string(name: 'downstreamBuildDefinitions', defaultValue: 'empty', description: 'serialized downstreamBuildDefinitions collection automatically passed during a downstream build chain'),
+                    string(name: 'gitOpsTriggeringBranch', defaultValue: 'empty', description: 'The BRANCH_NAME if the pipeline was triggered via the gitOpsTrigger in an upstream build'),
+                    string(name: 'gitOpsVersions', defaultValue: 'empty', description: "An object of 'serviceId' and 'version' pairs that should be updated in the gitOps repo of a given project"),
+                    string(name: 'gitOpsStackId', defaultValue: 'empty', description: 'The id of the stack which the triggering service belongs to.')
+                ])
             ]
         )
         env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
@@ -58,32 +61,40 @@ def runPipeline(config) {
                 // on linux / mac
                 env.PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
             }
-
+            
+            if (!config.sshCreds) {
+                config.sshCreds = []
+            }
             sshagent(credentials: config.sshCreds) {
                 // TODO notify Flowdock build starting
                 echo "My branch is: ${env.BRANCH_NAME}"
 
                 // checkout the branch that triggered the build if not explicitly skipped
-                if (config.preCleanup) {
-                    logger "Starting Fresh"
+                if (config.preCleanWorkspace) {
+                    logger "Cleaning Workspace"
                     step([$class: 'WsCleanup'])
                 }
                 
                 scmStage(config)
                 powerDevOpsInitReportingSettings(config)
                 filterSecretsStage(config)
+                // gitOpsStages
+                gitOpsUpdateServiceVersionsStage(config)
+                gitOpsUserInputStages(config)
+                gitOpsApprovalStage(config)
+                // /end gitOpsStages
                 scansStage(config, 'vulnerability')
                 scansStage(config, 'quality')
                 buildStage(config)
                 publishStage(config)
                 deployStage(config)
+                gitOpsTriggerStage(config)
                 integrationTestsStage(config)
                 powerDevOpsReportingStage(config)
                 markForPromotionStage(config)
-                
 
-                if (config.postCleanup) {
-                    logger "Cleaning up"
+                if (config.postCleanWorkspace) {
+                    logger "Cleaning Workspace"
                     step([$class: 'WsCleanup'])
                 }
 
