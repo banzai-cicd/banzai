@@ -6,18 +6,11 @@ Banzai
 example Jenkinsfile
 ```
 banzai {
-    sshCreds = ['dev-ssh']
-    appName = 'config-reviewer-server'
-    gitTokenId = 'sweeney-git'
-    mergeBranches = /tag\-(.*)|develop/
-    sast = true
-    sastBranches = /tag\-(.*)|develop/
-    sastCredId = 'ge-checkmarx'
-    build = true
-    publish = true
-    publishBranches = /tag\-(.*)|develop/
-    deploy = true
-    deployBranches = /tag\-(.*)|develop/
+  appName = 'config-reviewer-server'
+  sshCreds = ['dev-ssh']  
+  build = /.*/
+  publish =  /tag\-(.*)|develop/
+  deploy = /tag\-(.*)|develop/
 }
 ```
 
@@ -48,31 +41,40 @@ banzai {
       email: 'Service.MyJenkins@ge.com'
     ]
     flowdockNotifyPRs = false                   // *default = false* whether or not to notify Flowdock with pr status changes
-    build = true
-    buildBranches = /tag\-(.*)|develop/         // regex to determine which branches to build
-    buildScriptFile = 'buildScript.sh'          // location of buildScript. defaults to buildScript.sh
-    publish = true
-    publishBranches = /tag\-(.*)|develop/       // regex to determine which branches to publish
-    publishScriptFile = 'publishScriptFile.sh'  // location of publishScript. defaults to publishScript.sh
-    deploy = true
-    deployBranches = /tag\-(.*)|develop/        // regex to determine which branches to deploy
-    deployScriptFile = 'deployScript.sh'        // location of deployScript. defaults to deployScript.sh
-    jdk = 'jdk 10.0.1'                          // value must be the name given to a configured JDK in the Global Tools sections of Jenkins
-    vulnerabilityAbortOnError                 // globally set that all vulnerability scans should abort the pipeline if there is an Error
+    build =  /.*/                               // regex to determine which branches to build. defaults to running build.sh
+    build = [                                   // alternate build syntax
+      /.*/ : [
+        script: 'scripts/build.sh'
+      ]
+    ]
+    publish = /master/                          // regex to determine which branches to publish. defaults to running publish.sh
+    publish = [                                 // alternate publish syntax
+      /.*/ : [
+        script: 'scripts/build.sh'
+      ]
+    ]
+    deploy = /tag\-(.*)|develop/               // regex to determine which branches to deploy. defaults to running deploy.sh.sh
+    deploy = [                                 // alternate deploy syntax
+      /.*/ : [
+        script: 'scripts/build.sh'
+      ]
+    ]
+    jdk = 'jdk 10.0.1'                         // value must be the name given to a configured JDK in the Global Tools sections of Jenkins
+    vulnerabilityAbortOnError                  // globally set that all vulnerability scans should abort the pipeline if there is an Error
     vulnerabilityScans = [
-      /develop|master/: [                              // run this collection of scans against develop
+      /develop|master/: [                      // run this collection of scans against develop
         [
           type: 'checkmarx',
           credId: 'ge-checkmarx',               // jenkins credential containing user/pass for checkmarx
           resultEmails: ['your_email@ge.com'],
           preset: '17',                         // defaults to '17'
           teamUUID: 'your-checkmarx-team-uuid',
-          abortOnError: false                 // determines of this scan should cause the pipeline to abort if it results in an Error.
+          abortOnError: false                   // determines of this scan should cause the pipeline to abort if it results in an Error.
         ],
         [
           type: 'coverity',
-          credId: 'coverity-auth-key-file',   // jenkins credId of type 'file' representing your users authentication key (exported from coverity server UI)
-          toolId: 'coverity-2018.12',         // the id given to the Jenkins Global Tool installation for Coverity
+          credId: 'coverity-auth-key-file',     // jenkins credId of type 'file' representing your users authentication key (exported from coverity server UI)
+          toolId: 'coverity-2018.12',           // the id given to the Jenkins Global Tool installation for Coverity
           serverHost: 'coverity.power.ge.com',
           serverPort: '443',
           resultEmails: ['simon.townsend1@ge.com'],
@@ -92,11 +94,11 @@ banzai {
       ]
     ]
     downstreamBuilds = [
-      /develop/: [ // 'develop' signifies that this collection of downstream build definition's will only run when the 'develop' branch is matched
+      /develop/: [                             // 'develop' signifies that this collection of downstream build definition's will only run when the 'develop' branch is matched
         [
           id: 'my-job',
           job: '/YOUR_PROJECT_FOLDER/Build/your-project/branch',
-          optional: true // when true, the downstream build will only run if the Pull Request contains a label in the format 'build:<job-id>', ie) 'build:my-job'
+          optional: true                       // when true, the downstream build will only run if the Pull Request contains a label in the format 'build:<job-id>', ie) 'build:my-job'
         ],
         [
           id: 'my-parallel-job',
@@ -107,10 +109,10 @@ banzai {
           id: 'my-parallel-job-2',
           job: '/YOUR_PROJECT_FOLDER/Build/your-project/branch',
           parallel: true,
-          propagate: true // this would mark 'my-job' as failed if 'my-parallel-job-2' fails
+          propagate: true                     // this would mark 'my-job' as failed if 'my-parallel-job-2' fails
         ],
         [
-          id: 'my-serial-job', // this build would run in serial AFTER the 2 parallel builds complete
+          id: 'my-serial-job',                // this build would run in serial AFTER the 2 parallel builds complete
           job: '/YOUR_PROJECT_FOLDER/Build/your-project/branch'
         ]
       ]
@@ -140,20 +142,20 @@ banzai {
         ]
       ]
     ],
-    gitOpsTrigger = [                      # should be present with-in a Service's .banzai when leveraging GitOps-style deployments
-      jenkinsJob: '/Banzai/GitOps/master', # the path to the GitOps master job in jenkins
-      branches: /develop|tag-*/,           # branches that should trigger a GitOps build
-      stackId: 'dib'                       # the GitOps 'stack' that this service is a member of
+    gitOpsTrigger = [                      // should be present with-in a Service's .banzai when leveraging GitOps-style deployments
+      jenkinsJob: '/Banzai/GitOps/master', // the path to the GitOps master job in jenkins
+      branches: /develop|tag-*/,           // branches that should trigger a GitOps build
+      stackId: 'dib'                       // the GitOps 'stack' that this service is a member of
     ],
-    gitOps = [                             # should be present with-in a GitOps repo when leveraging GitOps-style deployments
+    gitOps = [                             // should be present with-in a GitOps repo when leveraging GitOps-style deployments
       autoDeploy: [
-            /develop/ : 'dev'              # in this example. when a Service's 'develop' branch triggers the GitOps job. It will automatically spawn a deployment to the 'dev' environment 
+            /develop/ : 'dev'              // in this example. when a Service's 'develop' branch triggers the GitOps job. It will automatically spawn a deployment to the 'dev' environment 
         ],
         envs: [
-            'dev' : [:],                   # register an env with no additional configuration
+            'dev' : [:],                   // register an env with no additional configuration
             'qa' : [
-                approvers: ['<jenkins-id>'], # approvers will be emailed for approval prior to this env moving forward with deployment
-                watchers: ['<jenkins-id>']   # watchers will be emailed when an enviroment is deployed
+                approvers: ['<jenkins-id>'], // approvers will be emailed for approval prior to this env moving forward with deployment
+                watchers: ['<jenkins-id>']   // watchers will be emailed when an enviroment is deployed
             ]
         ]
       ]
