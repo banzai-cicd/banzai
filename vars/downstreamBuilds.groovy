@@ -208,6 +208,10 @@ def call(config) {
         logger "downstreamBuilds does not contain an entry that matches the branch: ${BRANCH_NAME}"
         return
     }
+    if (!config.gitTokenId) {
+        logger "No config.gitTokenId. This is required by downstreamBuilds. Please configure"
+        return
+    }
 
     def downstreamBuildsDefinitions = config.downstreamBuilds[configKey]
 
