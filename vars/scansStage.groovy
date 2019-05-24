@@ -12,7 +12,7 @@ def call(config, type) {
         // check and see if the current branch matches the config
         def configKey = config[scanKey].keySet().find { BRANCH_NAME ==~ it }
         if (!configKey) {
-            logger "${configKey} does not contain an entry that matches the branch: ${BRANCH_NAME}"
+            logger "${scanKey} does not contain an entry that matches the branch: ${BRANCH_NAME}"
             return
         }
 
