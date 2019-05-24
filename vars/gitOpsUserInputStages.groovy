@@ -119,7 +119,7 @@ def call(config) {
       logger "Does not appear to be a user-initiated GitOps build. Skipping '${stageName}'"
       return
   }
-  if (params.gitOpsVersions) {
+  if (params.gitOpsVersions != 'empty') {
     logger "This builds appears to be due to a user-initated replay. Will not ask for input."
     return
   }
