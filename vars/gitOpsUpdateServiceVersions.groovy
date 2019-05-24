@@ -57,7 +57,7 @@ def call(config) {
 		2a. else, preprend to the list of versions
 		3. update the latest property
 	*/
-	String[] serviceIdsAndVersions = [] // formatted strings for logging later
+	def serviceIdsAndVersions = [] // formatted strings for logging later
 	serviceVersions.each { id, data ->
 		serviceIdsAndVersions.push("${id}:${data.version}")
 		def serviceFileName = "${SERVICE_DIR_NAME}/${id}.yaml"
