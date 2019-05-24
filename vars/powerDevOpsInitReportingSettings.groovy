@@ -195,7 +195,11 @@ private def initializeDeploySettings(reportingConfig)
 }
 
 private def initializeReportingSettings(reportingConfig)
-{
+{   
+    if (!reportingConfig.uaaCredId) {
+        logger "No uaaCredId cred id present in powerDevOpsReporting. Will not report"
+        return
+    }
     logger "initializeReportingSettings"
     /*
     *   Reporting settings
