@@ -4,7 +4,7 @@
 def call(config) {
   def stageName = 'IT'
   def stageConfig = getBranchBasedStageConfig(config.integrationTests)
-  if (!stageConfig) {
+  if (stageConfig == null) {
     logger "${BRANCH_NAME} does not match a 'integrationTests' branch pattern. Skipping ${stageName}"
     return
   }

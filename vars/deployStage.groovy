@@ -3,7 +3,7 @@
 def call(config) {
   def stageName = 'Deploy'
   def stageConfig = getBranchBasedStageConfig(config.deploy)
-  if (!stageConfig) {
+  if (stageConfig == null) {
     logger "${BRANCH_NAME} does not match a 'deploy' branch pattern. Skipping ${stageName}"
     return
   }
