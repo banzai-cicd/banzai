@@ -4,8 +4,6 @@ def call(config) {
   def stageName = 'PowerDevOps Reporting'
 
   if (config.powerDevOpsReporting) {    
-    logger "powerDevOpsReporting is not present. Skipping ${stageName}"
-
     if (config.powerDevOpsReporting.branches && !(BRANCH_NAME ==~ config.powerDevOpsReporting.branches)) {
       logger "${BRANCH_NAME} does not match the powerDevOpsReporting.branches pattern. Skipping ${stageName}"
       return 
