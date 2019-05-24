@@ -4,7 +4,6 @@
  returns false OR an object representing the config for the stage
 */
 def call(stageConfig) {
-    if ()
     if (stageConfig instanceof String) {
         return BRANCH_NAME ==~ stageConfig ? [:] : false
     } else if (stageConfig instanceof Map) {
