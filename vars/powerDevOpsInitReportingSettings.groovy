@@ -89,8 +89,13 @@ private def initializeCodeCheckoutSettings()
 }
 
 private def initializeSonarQubeSettings(reportingConfig)
-{
+{   
+    if (!reportingConfig.sonarUrl || !reportingConfig.sonarCredId) {
+        logger "Sonar not configured in powerDevOpsReporting, will not report results"
+        return
+    }
     logger "initializeSonarQubeSettings ${reportingConfig.sonarUrl}"
+    
     /*
     *   SonarQube settings
     */
