@@ -10,7 +10,6 @@ def call(config) {
 		logger "No params.gitOpsTriggeringBranch found. Will not attempt to update service versions."
 		return
 	}
-	// parse service versions obj from params
 	if (config.gitOps.skipVersionUpdating && BRANCH_NAME ==~ config.gitOps.skipVersionUpdating) {
 		logger "skipVersionUpdating detected for branch '${params.gitOpsTriggeringBranch}'. Will not update versions"
 		return
@@ -18,7 +17,8 @@ def call(config) {
 	def SERVICE_DIR_NAME = "${WORKSPACE}/services"
 	def ENV_DIR_NAME = "${WORKSPACE}/envs"
 
-	// determine if we should autoDeploy this in addition to updating service versions
+	// determine if this build qualifies for an autoDeploy
+	// if so, prepare the necessary gitOps vars and mark deploy = true
 	if (config.gitOps.autoDeploy) {
 		def key = config.gitOps.autoDeploy.keySet().find { params.gitOpsTriggeringBranch ==~ it }
 		if (key) {
@@ -31,13 +31,17 @@ def call(config) {
 		}
 	}
 
-	def serviceVersions = readJSON(text: params.gitOpsVersions)
-	/*
-		For each service version
-		1. look up the service in services/
-		2. append to the list of versions
-		3. update the latest property
+	// parse the incoming service versions
+	/**
+		gitOpsVersions take the format
+		{
+			serviceId : {
+				version: 1.0.0,
+				meta: {} // <- optional
+			}
+		}
 	*/
+	def serviceVersions = readJSON(text: params.gitOpsVersions)
 	// ensure services dir exists
 	dir(SERVICE_DIR_NAME) {
 		if (!fileExists("/")) {
@@ -46,16 +50,23 @@ def call(config) {
 		}
 	}
 	
-	def serviceIdsAndVersions = [] // for logging later
-	// We always update the /services versions regardless of a deployment
+	/*
+		For each service version
+		1. look up the service in services/
+		2. if the version already exists, replace it in-place
+		2a. else, preprend to the list of versions
+		3. update the latest property
+	*/
+	String[] serviceIdsAndVersions = [] // formatted strings for logging later
 	serviceVersions.each { id, data ->
 		serviceIdsAndVersions.push("${id}:${data.version}")
 		def serviceFileName = "${SERVICE_DIR_NAME}/${id}.yaml"
 		if (!fileExists(serviceFileName)) {
+			// if the <service>.yaml doesn't exist, create it.
 			def yamlTemplate = [latest: '', versions: []]
 			writeYaml file: serviceFileName, data: yamlTemplate
 		}
-
+		// serviceYaml.versions can contain String's or Objects
 		def serviceYaml = readYaml file: serviceFileName
 		serviceYaml.latest = data.version
 		def versionList = serviceYaml.versions.collect {
@@ -64,16 +75,30 @@ def call(config) {
 			} else {
 				return it.keySet()[0] 
 			}
-		} // each entry should have an object with a single key (the version) OR a String (the version)
+		}
+
 		if (!versionList.contains(data.version)) {
+			def newVersion
 			if (data.meta) {
-				def versionObj = [:]
-				versionObj[data.version] = data.meta
-				serviceYaml.versions.add(0, versionObj)
+				newVersion = [:]
+				newVersion[data.version] = data.meta
 			} else {
-				serviceYaml.versions.add(0, data.version)
+				newVersion = data.version
 			}
-			
+
+			serviceYaml.versions.add(0, newVersion)
+		} else {
+			// we need to overwrite the existing as it may have metadata that is changed
+			int i = versionList.findIndexOf { it == data.version }
+			def newVersion
+			if (data.meta) {
+				newVersion = [:]
+				newVersion[data.version] = data.meta
+			} else {
+				newVersion = data.version
+			}
+
+			serviceYaml.versions[i] = newVersion
 		}
 		// writeYaml will fail if the file already exists
 		sh "rm -rf ${serviceFileName}"
