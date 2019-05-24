@@ -2,29 +2,29 @@
 
 def call(config) {
   def stageName = 'Publish'
+  def stageConfig = getBranchBasedStageConfig(config.publish)
+  if (!stageConfig) {
+    logger "${BRANCH_NAME} does not match a 'publish' branch pattern. Skipping ${stageName}"
+    return
+  }
 
-  if (config.publish) {
-    if (config.publishBranches && !(BRANCH_NAME ==~ config.publishBranches)) {
-      logger "${BRANCH_NAME} does not match the publishBranches pattern. Skipping ${stageName}"
-      return 
-    }
-
-    stage (stageName) {
-      try {
-        notify(config, stageName, 'Pending', 'PENDING', true)
-        publish(config)
-        notify(config, stageName, 'Successful', 'PENDING', true)
-      } catch (err) {
-          echo "Caught: ${err}"
-          currentBuild.result = 'FAILURE'
-          if (isGithubError(err)) {
-              notify(config, stageName, 'githubdown', 'FAILURE', true)
-          } else {
-              notify(config, stageName, 'Failed', 'FAILURE', true)
-          }
-          
-          error(err.message)
-      }
+  stage (stageName) {
+    try {
+      notify(config, stageName, 'Pending', 'PENDING', true)
+      publish(config)
+      def script = stageConfig.publish ?: "publish.sh"
+      runScript(config, script)
+      notify(config, stageName, 'Successful', 'PENDING', true)
+    } catch (err) {
+        echo "Caught: ${err}"
+        currentBuild.result = 'FAILURE'
+        if (isGithubError(err)) {
+            notify(config, stageName, 'githubdown', 'FAILURE', true)
+        } else {
+            notify(config, stageName, 'Failed', 'FAILURE', true)
+        }
+        
+        error(err.message)
     }
   }
 }

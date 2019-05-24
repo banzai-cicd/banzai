@@ -2,25 +2,26 @@
 
 def call(config) {
   def stageName = 'Deploy'
+  def stageConfig = getBranchBasedStageConfig(config.deploy)
+  if (!stageConfig) {
+    logger "${BRANCH_NAME} does not match a 'deploy' branch pattern. Skipping ${stageName}"
+    return
+  }
 
-  if (config.deploy) {
-    if (config.deployBranches && !(BRANCH_NAME ==~ config.deployBranches)) {
-      logger "${BRANCH_NAME} does not match the deployBranches pattern. Skipping ${stageName}"
-      return 
-    }
-
-    stage (stageName) {
-      try {
-        notify(config, stageName, 'Pending', 'PENDING', true)
-        deploy(config)
-        notify(config, stageName, 'Successful', 'PENDING', true)
-      } catch (err) {
-        echo "Caught: ${err}"
-        currentBuild.result = 'FAILURE'
-        notify(config, stageName, 'Failed', 'FAILURE', true)
-        
-        error(err.message)
-      }
+  stage (stageName) {
+    try {
+      notify(config, stageName, 'Pending', 'PENDING', true)
+      deploy(config)
+      // TODO: refactor deployArgs
+      def script = stageConfig.script ?: "deploy.sh"
+      runScript(config, script, config.deployArgs)
+      notify(config, stageName, 'Successful', 'PENDING', true)
+    } catch (err) {
+      echo "Caught: ${err}"
+      currentBuild.result = 'FAILURE'
+      notify(config, stageName, 'Failed', 'FAILURE', true)
+      
+      error(err.message)
     }
   }
 
