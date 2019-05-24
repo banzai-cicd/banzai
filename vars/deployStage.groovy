@@ -11,7 +11,6 @@ def call(config) {
   stage (stageName) {
     try {
       notify(config, stageName, 'Pending', 'PENDING', true)
-      deploy(config)
       // TODO: refactor deployArgs
       def script = stageConfig.script ?: "deploy.sh"
       runScript(config, script, config.deployArgs)

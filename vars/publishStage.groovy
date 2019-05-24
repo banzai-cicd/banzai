@@ -11,7 +11,6 @@ def call(config) {
   stage (stageName) {
     try {
       notify(config, stageName, 'Pending', 'PENDING', true)
-      publish(config)
       def script = stageConfig.publish ?: "publish.sh"
       runScript(config, script)
       notify(config, stageName, 'Successful', 'PENDING', true)
