@@ -15,7 +15,7 @@ def call(config, scansConfig) {
 
                             def proxyOn = false
                             def sonarHost = PipelineSettings.SonarQubeSettings.sonarHostUrl.replaceFirst(/(http|https):\/\//, "")
-                            logger "config.noProxy contains ${sonarHost}? ${config.noProxy.contains(sonarHost)}"
+                            // logger "config.noProxy contains ${sonarHost}? ${config.noProxy.contains(sonarHost)}"
                             if ((!config.noProxy || !config.noProxy.contains(sonarHost)) && config.httpsProxy) {
                                 logger "setting sonar proxy ${config.httpsProxy.host}:${config.httpsProxy.port}"
                                 proxyOn = true
