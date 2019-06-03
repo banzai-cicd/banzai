@@ -89,7 +89,7 @@ def runPipeline(config) {
                 gitOpsTriggerStage(config)
                 integrationTestsStage(config)
                 powerDevOpsReportingStage(config)
-                markForPromotionStage(config)
+                // markForPromotionStage(config)
 
                 if (config.postCleanWorkspace) {
                     logger "Cleaning Workspace"
@@ -105,6 +105,6 @@ def runPipeline(config) {
             } // ssh-agent
         } // node
 
-        promoteStage(config)
+        // promoteStage(config)
     }
 }
