@@ -1,14 +1,9 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
 
-@NonCPS
-def parseCfg(cfg) {
-    return new BanzaiCfg(cfg)
-}
-
 def call(cfg) {
     // evaluate the body block, and collect configuration into the object
-    def config = parseCfg(cfg)
+    def config = new BanzaiCfg(cfg)
 
     if (config.throttle) {
         throttle(config.throttle.tokenize(',')) {
