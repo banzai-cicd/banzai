@@ -1,11 +1,9 @@
 #!/usr/bin/env groovy
+import com.ge.nola.BanzaiCfg
 
-def call(body) {
+def call(cfg) {
     // evaluate the body block, and collect configuration into the object
-    def config = [:]
-    body.resolveStrategy = Closure.DELEGATE_FIRST
-    body.delegate = config
-    body()
+    def config = new BanzaiCfg(cfg)
 
     if (config.throttle) {
         throttle(config.throttle.tokenize(',')) {

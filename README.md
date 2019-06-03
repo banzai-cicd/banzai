@@ -41,7 +41,7 @@ banzai {
       email: 'Service.MyJenkins@ge.com'
     ]
     flowdockNotifyPRs = false                   // *default = false* whether or not to notify Flowdock with pr status changes
-    build =  /.*/                               // regex to determine which branches to build. defaults to running build.sh
+    build = /.*/                                // regex to determine which branches to build. defaults to running build.sh
     build = [                                   // alternate build syntax
       /.*/ : [
         script: 'scripts/build.sh'
@@ -149,17 +149,17 @@ banzai {
     ],
     gitOps = [                             // should be present with-in a GitOps repo when leveraging GitOps-style deployments
       autoDeploy: [
-            /develop/ : 'dev'              // in this example. when a Service's 'develop' branch triggers the GitOps job. It will automatically spawn a deployment to the 'dev' environment 
-        ],
-        envs: [
-            'dev' : [:],                   // register an env with no additional configuration
-            'qa' : [
-                approvers: ['<jenkins-id>'], // approvers will be emailed for approval prior to this env moving forward with deployment
-                watchers: ['<jenkins-id>']   // watchers will be emailed when an enviroment is deployed
-            ]
+        /develop/ : 'dev'              // in this example. when a Service's 'develop' branch triggers the GitOps job. It will automatically spawn a deployment to the 'dev' environment 
+      ],
+      envs: [
+        'dev' : [:],                   // register an env with no additional configuration
+        'qa' : [
+            approvers: ['<jenkins-id>'], // approvers will be emailed for approval prior to this env moving forward with deployment
+            watchers: ['<jenkins-id>']   // watchers will be emailed when an enviroment is deployed
         ]
       ]
     ]
+  ]
 }
 ```
 
