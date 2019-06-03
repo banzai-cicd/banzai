@@ -24,6 +24,4 @@ class BanzaiCfg {
     Map<String, BanazaiFilterSecretsCfg> filterSecrets
     BanzaiDevOpsReportingCfg powerDevOpsReporting
     BanzaiGitOptsTriggerCfg gitOpsTrigger
-
-    BanzaiCfg() {}
 }
