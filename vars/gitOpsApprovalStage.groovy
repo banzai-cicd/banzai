@@ -65,7 +65,7 @@ def finalizeDeployment(config) {
 	}
 
   // 4. pass the deployArgs that will get picked up by the Deploy Stage
-  config.deployArgs = [config.gitOps.TARGET_ENV, config.gitOps.TARGET_STACK]
+  config.deployArgs = [config.internal.gitOps.TARGET_ENV, config.internal.gitOps.TARGET_STACK]
 }
 
 def buildProposedVersionsBody(config) {
