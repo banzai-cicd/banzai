@@ -3,6 +3,7 @@ package com.ge.nola;
 class BanzaiCfg {
     String appName
     String jdk
+    String nodejs
     String throttle
     List<String> sshCreds
     Boolean debug

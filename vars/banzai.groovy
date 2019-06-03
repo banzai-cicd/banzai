@@ -58,8 +58,8 @@ def runPipeline(config) {
                 logger "JAVA_HOME: ${jdk}"
             }
 
-            if (config.node) {
-                def nodeVersion = "node ${config.node}"
+            if (config.nodejs) {
+                def nodeVersion = "node ${config.nodejs}"
                 env.NODEJS_HOME = "${tool nodeVersion}"
                 // on linux / mac
                 env.PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
