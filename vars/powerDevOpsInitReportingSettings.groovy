@@ -31,7 +31,8 @@ def call(config)
         }
     }
     
-    def reportingConfig = config.powerDevOpsReporting.asMap() << [
+    def reportingConfig = config.powerDevOpsReporting.asMap()
+    reportingConfig  << [
         proxy: config.httpsProxy,
         sonarUrl:  sonarUrl,
         sonarCredId: sonarCredId
