@@ -7,6 +7,7 @@ class BanzaiCfg {
     List<String> sshCreds
     Boolean debug
     String gitTokenId
+    String noProxy
     BanzaiProxyCfg httpsProxy
     Boolean preCleanWorkspace
     Boolean postCleanWorkspace
