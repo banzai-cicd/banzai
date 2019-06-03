@@ -20,6 +20,7 @@ class BanzaiCfg {
     Map<String, BanzaiUserStepCfg> build
     Map<String, BanzaiUserStepCfg> publish
     Map<String, BanzaiUserStepCfg> deploy
+    Map<String, BanzaiIntegrationTestsCfg> integrationTests
     Boolean vulnerabilityAbortOnError
     Map<String, List<BanzaiVulnerabilityCfg>> vulnerabilityScans
     Map<String, List<BanzaiQualityCfg>> qualityScans
