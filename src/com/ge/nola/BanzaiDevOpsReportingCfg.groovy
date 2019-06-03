@@ -8,9 +8,4 @@ class BanzaiDevOpsReportingCfg {
     String uaaUrl
     String merticsUrl
     Map<String, BanzaiDevOpsReportingEnvCfg> environments
-
-    class BanzaiDevOpsReportingEnvCfg {
-        int key
-        String name
-    }
 }
