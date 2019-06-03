@@ -11,8 +11,8 @@ def call(BanzaiCfg config, String stage, String message, String status) {
       return
     }
 
-    if (!flockdockCfg.flowdockCredId || !flockdockCfg.flowdockAuthor) {
-      logger "'flowdockCredId' and 'flowdockAuthor' are required in your .banzai when 'flowdock' branches are defined"
+    if (!flockdockCfg.credId || !flockdockCfg.author) {
+      logger "'flowdock.credId' and 'flowdock.author' are required in your .banzai when 'flowdock' branches are defined"
       return
     }
 
