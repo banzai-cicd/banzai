@@ -3,7 +3,7 @@
 // named banzaiBuild to avoid collision with existing 'build' jenkins pipeline plugin
 def call(config) {
   def stageName = 'IT'
-  def stageConfig = getBranchBasedStageConfig(config.integrationTests)
+  def stageConfig = getBranchBasedConfig(config.integrationTests)
   if (stageConfig == null) {
     logger "${BRANCH_NAME} does not match a 'integrationTests' branch pattern. Skipping ${stageName}"
     return

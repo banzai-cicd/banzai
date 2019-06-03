@@ -2,7 +2,7 @@
 
 def call(config) {
   def stageName = 'Publish'
-  def stageConfig = getBranchBasedStageConfig(config.publish)
+  def stageConfig = getBranchBasedConfig(config.publish)
   if (stageConfig == null) {
     logger "${BRANCH_NAME} does not match a 'publish' branch pattern. Skipping ${stageName}"
     return
