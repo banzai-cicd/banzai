@@ -6,6 +6,6 @@ class BanzaiDevOpsReportingCfg {
     String uai
     String uaaCredId
     String uaaUrl
-    String merticsUrl
+    String metricsUrl
     Map<String, BanzaiDevOpsReportingEnvCfg> environments
 }
