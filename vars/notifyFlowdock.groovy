@@ -21,8 +21,8 @@ def call(BanzaiCfg config, String stage, String message, String status) {
        def flowdockURL = "https://api.flowdock.com/messages"
 
        // determine if this is a merge or pr (should use diff threads)
-       def threadId = "${flockdockCfg.appName}+${env.JOB_BASE_NAME}"
-       def title = "${flockdockCfg.appName} : ${env.JOB_BASE_NAME}"
+       def threadId = "${config.appName}+${env.JOB_BASE_NAME}"
+       def title = "${config.appName} : ${env.JOB_BASE_NAME}"
        if (!BRANCH_NAME.startsWith('PR-')) {
          title = "${title} : merge"
        } else {
