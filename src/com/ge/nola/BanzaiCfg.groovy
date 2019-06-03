@@ -26,5 +26,6 @@ class BanzaiCfg {
     Map<String, List<BanazaiDownstreamBuildCfg>> downstreamBuilds
     Map<String, BanazaiFilterSecretsCfg> filterSecrets
     BanzaiDevOpsReportingCfg powerDevOpsReporting
-    BanzaiGitOptsTriggerCfg gitOpsTrigger
+    BanzaiGitOpsTriggerCfg gitOpsTrigger
+    BanzaiGitOpsCfg gitOps
 }

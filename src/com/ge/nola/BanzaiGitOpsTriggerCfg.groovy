@@ -1,6 +1,6 @@
 package com.ge.nola;
 
-class BanzaiGitOptsTriggerCfg {
+class BanzaiGitOpsTriggerCfg {
     String jenkinsJob
     String branches
     String stackId
