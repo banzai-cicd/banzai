@@ -45,7 +45,7 @@ def finalizeDeployment(config) {
     logger "Creating ${stackFileName} ..."
   }
   
-  config.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { id, version ->
+  config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { id, version ->
     logger "Updating Service '${id}' to '${version}' in Stack ${STACK}"
     stackYaml[id] = version
   }
@@ -81,7 +81,7 @@ def buildProposedVersionsBody(config) {
     // the stack yaml my not yet exist if this is part of an environment promotion
     logger "${stackFileName} does not yet exist. Will create if approved"
   }
-  config.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { serviceId, version ->
+  config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { serviceId, version ->
     stackYaml[serviceId] = version
   }
   def formatedStack = stackYaml.collect { "${it.key} : ${it.value}" }
