@@ -8,5 +8,5 @@ class BanzaiInternalGitOpsCfg {
 }
 
 class BanzaiInternalCfg {
-    BanzaiInternalGitOpsCfg gitOps
+    BanzaiInternalGitOpsCfg gitOps = new BanzaiInternalGitOpsCfg()
 }
