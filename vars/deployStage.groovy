@@ -2,14 +2,15 @@
 
 def call(config) {
   def stageName = 'Deploy'
-  def stageConfig
   
   if (config.gitOps) {
     if (!config.internal.gitOps.DEPLOY) {
       // if this is a GitOps repo then config.internal.gitOps.DEPLOY must be set
-      logger "${BRANCH_NAME} does qualify for deployment. Skipping ${stageName}"
+      logger "${BRANCH_NAME} does qualify for GitOps deployment. Skipping ${stageName}"
       return
     }
+
+    stageConfig = [:]
   } else {
     // see if this is a project repo with a deployment configuration
     stageConfig = getBranchBasedConfig(config.deploy)
