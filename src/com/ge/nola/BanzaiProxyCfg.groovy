@@ -1,6 +1,7 @@
 package com.ge.nola;
 
-class BanzaiFlowdockCfg {
-    String credId
-    BanzaiFlowdockAuthorCfg author
+class BanzaiProxyCfg {
+    String envVar
+    String host
+    String port
 }
