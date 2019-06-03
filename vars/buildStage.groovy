@@ -3,7 +3,6 @@
 def call(config) {
   def stageName = 'Build'
   def stageConfig = getBranchBasedConfig(config.build)
-  logger "Build stageConfig ${stageConfig}"
   if (stageConfig == null) {
     logger "${BRANCH_NAME} does not match a 'build' branch pattern. Skipping ${stageName}"
     return
