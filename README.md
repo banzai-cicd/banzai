@@ -19,9 +19,10 @@ full list of Jenkins options
 ```
 @Library('Banzai@1.0.0') _ // only necessary if configured as a 'Global Pipeline Library'. IMPORTANT: the _ is required after @Library. 
 banzai {
+    appName = 'config-reviewer-server'          // **required** currently used only by SAST for determining the namespace to publish to.
     throttle = 'my-project'                     // comma-delimited list of throttle categories to apply. (https://github.com/jenkinsci/throttle-concurrent-builds-plugin)
     sshCreds = ['cred1', 'cred2']                                    // a list of any ssh creds that may be needed in your pipeline
-    appName = 'config-reviewer-server'          // **required** currently used only by SAST for determining the namespace to publish to.
+    skipSCM = true                              // skip pulling down the branch that kicked off the build
     debug = false                               // provides additional debug messaging
     gitTokenId = 'sweeney-git-token'            // a Jenkins credential id which points to a github token (required by downstreamBuilds)
     httpsProxy = [
@@ -30,17 +31,18 @@ banzai {
       port: '80'
     ]
     preCleanWorkspace = true                           // wipe workspace before each build
-    postCleanWorkspace = true                          // wipe workspace after each build
-    flowdockBranches = /tag\-(.*)|develop/      // which branches should report notifications to Flowdock
-    skipSCM = true                              // skip pulling down the branch that kicked off the build
-    flowdock = true                             // 
-    flowdockCredId = 'flowdock-cred'
-    flowdockAuthor = [
-      name: 'Jenkins',
-      avatar: 'https://github.build.ge.com/avatars/u/23999?s=466',
-      email: 'Service.MyJenkins@ge.com'
+    postCleanWorkspace = true                          // wipe workspace after each build    
+    flowdock: [
+      /.*/: [                                   // which branches should report notifications to Flowdock
+        credId: 'flowdock-cred',
+        notifyPRs: false,                       // *default = false* whether or not to notify Flowdock with pr status changes
+        author: [
+          name: 'Jenkins',
+          avatarUrl: 'https://github.build.ge.com/avatars/u/23999?s=466'
+          email: 'Service.MyJenkins@ge.com'
+        ],
+      ]
     ]
-    flowdockNotifyPRs = false                   // *default = false* whether or not to notify Flowdock with pr status changes
     build = /.*/                                // regex to determine which branches to build. defaults to running build.sh
     build = [                                   // alternate build syntax
       /.*/ : [
