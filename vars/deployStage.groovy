@@ -23,7 +23,7 @@ def call(config) {
       notify(config, stageName, 'Pending', 'PENDING', true)
       // TODO: refactor deployArgs
       def script = stageConfig.script ?: "deploy.sh"
-      runScript(config, script, config.deployArgs)
+      runScript(config, script, config.internal.gitOps.DEPLOY_ARGS)
       notify(config, stageName, 'Successful', 'PENDING', true)
     } catch (err) {
       echo "Caught: ${err}"
