@@ -34,8 +34,8 @@ String[] getUserEmails(users) {
 def finalizeDeployment(config) {
   logger "Finalizing Deployment"
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
-  String ENV = config.gitOps.TARGET_ENV
-  String STACK = config.gitOps.TARGET_STACK
+  String ENV = config.internal.gitOps.TARGET_ENV
+  String STACK = config.internal.gitOps.TARGET_STACK
   // 1. update the stack yaml with the versions it should be set to
   String stackFileName = "${ENV_DIR_NAME}/${ENV}/${STACK}.yaml"
 	def stackYaml = [:]
@@ -70,8 +70,8 @@ def finalizeDeployment(config) {
 
 def buildProposedVersionsBody(config) {
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
-  String ENV = config.gitOps.TARGET_ENV
-  String STACK = config.gitOps.TARGET_STACK
+  String ENV = config.internal.gitOps.TARGET_ENV
+  String STACK = config.internal.gitOps.TARGET_STACK
   // include full proposed stack versions (not just services being updated)
   String stackFileName = "${ENV_DIR_NAME}/${ENV}/${STACK}.yaml"
   def stackYaml = [:]
