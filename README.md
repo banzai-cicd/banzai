@@ -17,7 +17,7 @@ banzai {
 
 full list of Jenkins options
 ```
-@Library('Banzai') _ // only necessary if configured as a 'Global Pipeline Library'. IMPORTANT: the _ is required after @Library. 
+@Library('Banzai@1.0.0') _ // only necessary if configured as a 'Global Pipeline Library'. IMPORTANT: the _ is required after @Library. 
 banzai {
     throttle = 'my-project'                     // comma-delimited list of throttle categories to apply. (https://github.com/jenkinsci/throttle-concurrent-builds-plugin)
     sshCreds = ['cred1', 'cred2']                                    // a list of any ssh creds that may be needed in your pipeline
