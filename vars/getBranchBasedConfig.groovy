@@ -4,9 +4,7 @@
  returns null OR an object representing the config for the stage.
 */
 def call(stageConfig) {
-    if (stageConfig instanceof String) {
-        return BRANCH_NAME ==~ stageConfig ? [:] : null
-    } else if (stageConfig instanceof Map) {
+    if (stageConfig instanceof Map) {
         def key = stageConfig.keySet().find { BRANCH_NAME ==~ it }
         return key ? stageConfig[key] : null
     } else {

@@ -91,9 +91,9 @@ def buildProposedVersionsBody(config) {
 
 def call(config) {
   /////
-  // This Stage will always run for a GitOps repo when config.deploy = true
+  // This Stage will always run for a GitOps repo when config.internal.gitOps.DEPLOY = true
   /////
-  if (!config.gitOps || !config.deploy) {
+  if (!config.gitOps || !config.internal.gitOps.DEPLOY) {
       logger "Does not qualify for 'GitOps: Deployment Approval Stage'"
       return
   }

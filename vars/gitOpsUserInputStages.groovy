@@ -211,6 +211,6 @@ def call(config) {
   logger "Versions Determined: ${versions}"
   config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE = versions
 
-  // IMPORTANT! we now are ready to set config.deploy = true because all deployment info has been satisfied
-  config.deploy = true
+  // IMPORTANT! we now are ready to set config.internal.gitOps.DEPLOY = true because all deployment info has been satisfied
+  config.internal.gitOps.DEPLOY = true
 }
