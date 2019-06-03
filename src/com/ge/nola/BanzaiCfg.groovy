@@ -8,6 +8,7 @@ class BanzaiCfg {
     Boolean debug
     String gitTokenId
     String noProxy
+    BanzaiProxyCfg httpProxy
     BanzaiProxyCfg httpsProxy
     Boolean preCleanWorkspace
     Boolean postCleanWorkspace
