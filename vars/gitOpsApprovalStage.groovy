@@ -97,8 +97,8 @@ def call(config) {
       logger "Does not qualify for 'GitOps: Deployment Approval Stage'"
       return
   }
-  String ENV = config.gitOps.TARGET_ENV
-  String STACK = config.gitOps.TARGET_STACK
+  String ENV = config.internal.gitOps.TARGET_ENV
+  String STACK = config.internal.gitOps.TARGET_STACK
 
   /////
   // if necessary, get approvals
