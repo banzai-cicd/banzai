@@ -147,7 +147,7 @@ def call(config) {
       }
 
       logger "Target Environment selected! ${targetEnvironment}"
-      config.gitOps.TARGET_ENV = targetEnvironment
+      config.internal.gitOps.TARGET_ENV = targetEnvironment
     }
   }
 
@@ -172,7 +172,7 @@ def call(config) {
       }
 
       logger "Target Stack selected! ${targetStack}"
-      config.gitOps.TARGET_STACK = targetStack
+      config.internal.gitOps.TARGET_STACK = targetStack
     }
   }
   // prompt the user to determine which style of deployment they would like to achieve.
@@ -209,7 +209,7 @@ def call(config) {
       break
   }
   logger "Versions Determined: ${versions}"
-  config.gitOps.SERVICE_VERSIONS_TO_UPDATE = versions
+  config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE = versions
 
   // IMPORTANT! we now are ready to set config.deploy = true because all deployment info has been satisfied
   config.deploy = true

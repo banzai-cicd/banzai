@@ -28,4 +28,6 @@ class BanzaiCfg {
     BanzaiDevOpsReportingCfg powerDevOpsReporting
     BanzaiGitOpsTriggerCfg gitOpsTrigger
     BanzaiGitOpsCfg gitOps
+    /* strictly for internal banzai usage */
+    BanzaiInternalCfg internal = new BanzaiInternalCfg()
 }

@@ -25,9 +25,9 @@ def call(config) {
 			autoDepoyEnv = config.gitOps.autoDeploy[key]
 			logger "gitOps.autoDeploy detected. Preparing config.gitOps properties"
 			config.deploy = true // <-- VERY IMPORTANT THAT THIS IS SET
-			config.gitOps.TARGET_ENV = autoDepoyEnv
-			config.gitOps.TARGET_STACK = params.gitOpsStackId
-			config.gitOps.SERVICE_VERSIONS_TO_UPDATE = [:]
+			config.internal.gitOps.TARGET_ENV = autoDepoyEnv
+			config.internal.gitOps.TARGET_STACK = params.gitOpsStackId
+			config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE = [:]
 		}
 	}
 
@@ -107,8 +107,8 @@ def call(config) {
 
 		// if this is an autoDeploy
 		// update the services versions that we will eventually update in the env/stack if approval passes
-		if (config.gitOps.SERVICE_VERSIONS_TO_UPDATE) {
-			config.gitOps.SERVICE_VERSIONS_TO_UPDATE[id] = data.version
+		if (config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE) {
+			config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE[id] = data.version
 		}
 	}
 
