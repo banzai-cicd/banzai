@@ -155,7 +155,23 @@ banzai([
             watchers: ['<jenkins-id>']   // watchers will be emailed when an enviroment is deployed
         ]
       ]
-    ]
+    ],
+    stages: [                             // override the the build-in Banzai Stage order and provide custom Stages
+      [ name: 'build' ],                  // call a built-in Banzai Stage using a reserved name 'build|deploy|publish|integrationTests|scans:vulnerability|scans:quality'
+      [
+        name: 'My Arbitrary Stage',       // provide a custom Banzai Stage name
+        steps: [
+          /.*/: [                         // steps for a custom stage can be configured per branch via regex
+            [
+              closure: { logger "YO I RAN A CLOSURE FROM A CUSTOM STAGE!" }  // example of running a groovy closure
+            ], 
+            [
+              script: 'customStageScript.sh'  // example running a shell script
+            ]
+          ]
+        ]
+      ]
+    ],
   ]
 ])
 ```
