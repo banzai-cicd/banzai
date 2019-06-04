@@ -23,7 +23,7 @@ Map findBuildCfg(id, List<BanzaiDownstreamBuildCfg>> downstreamBuildCfgs) {
 Map findAndValidateTargetBuild(id, List<BanzaiDownstreamBuildCfg>> downstreamBuildCfgs) {
     logger "Finding Build Cfg with id ${id}"
     BanzaiDownstreamBuildCfg result = findBuildCfg(id, downstreamBuildCfgs)
-    BanzaiDownstreamBuildCfg targetBuild = result.clone()
+    BanzaiDownstreamBuildCfg targetBuild = result.clone(new BanzaiDownstreamBuildCfg())
     validateBuildDef(targetBuild)
     removeCustomPropertiesFromBuildCfg(targetBuild)
 

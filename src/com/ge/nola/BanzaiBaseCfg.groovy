@@ -1,7 +1,10 @@
 package com.ge.nola;
 
-import groovy.transform.AutoClone
-
-@AutoClone
 class BanzaiBaseCfg {
+    def clone(target) {
+        def (sProps, tProps) = [this, target]*.properties*.keySet()
+        def commonProps = sProps.intersect(tProps) - ['class', 'metaClass']
+        commonProps.each { target[it] = this[it] }
+        return target
+    }
 }
