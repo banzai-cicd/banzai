@@ -1,8 +1,7 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
-import com.ge.nola.BanzaiVulnerabilityCfg
 
-def call(BanzaiCfg cfg, BanzaiVulnerabilityCfg vulnerabilityCfg) {
+def call(BanzaiCfg cfg, vulnerabilityCfg) {
     def streamName = vulnerabilityCfg.streamName ?: "${cfg.appName}_${env.BRANCH_NAME}"
     def buildCmd = env.BUILD_CMD ?: vulnerabilityCfg.buildCmd // accept build command if set in the environment from a previous step.
     def iDir = "${env.WORKSPACE}/idir"

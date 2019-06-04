@@ -2,7 +2,7 @@
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiVulnerabilityCfg
 
-def call(BanzaiCfg config, BanzaiVulnerabilityCfg vulnerabilityCfg) {
+def call(BanzaiCfg config, vulnerabilityCfg) {
     def PROJECT_NAME = "${config.appName}-${env.BRANCH_NAME}"
     def PRESET = vulnerabilityCfg.preset ?: '17'
       
