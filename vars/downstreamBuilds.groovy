@@ -127,6 +127,10 @@ def executeSerialBuild(List<String> buildIds, List<BanzaiDownstreamBuildCfg> dow
         buildIds.add("THE_END")
     }
     
+    if (!targetBuild.job.startsWith("/")) {
+        targetBuild.job = "/${targetBuild.job}"
+    }
+
     def buildDefaults = [
         propagate: false,
         wait: false
