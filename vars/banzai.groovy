@@ -1,5 +1,6 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiStageCfg
 
 def call(cfgMap) {
     // evaluate the body block, and collect configuration into the object
@@ -83,7 +84,7 @@ def runPipeline(BanzaiCfg cfg) {
                 // project-provided pipeline stages
                 if (cfg.stages) {
                     logger "Executing Custom Banzai Stages"
-                    cfg.stages.each { BanzaiUserProvidedStageCfg stage ->
+                    cfg.stages.each { BanzaiStageCfg stage ->
                         stage.execute(cfg)
                     }
                 } else {
