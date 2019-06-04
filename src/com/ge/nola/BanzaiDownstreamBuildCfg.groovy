@@ -3,7 +3,7 @@ package com.ge.nola;
 class BanzaiDownstreamBuildCfg extends BanzaiBaseCfg {
     String id
     String job
-    Boolean optional
-    Boolean parallel
-    Boolean propagate
+    Boolean optional = false
+    Boolean parallel = false
+    Boolean propagate = false
 }
