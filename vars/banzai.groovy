@@ -89,7 +89,6 @@ def runPipeline(BanzaiCfg cfg) {
                             List<String> parts = stage.name.tokenize(':')
                             String stageName = parts.removeAt(0)
                             def args = [cfg] + parts
-                            // execute stage
                             /*
                                 jenkins doesn't support the friggin spread operator so I can't do
                                 this."${stageName}Stage"(*args)
@@ -101,6 +100,8 @@ def runPipeline(BanzaiCfg cfg) {
                             } else {
                                 "${stageName}Stage"(args[0])
                             }
+                        } else {
+                            customBanzaiStage(cfg, stage)
                         }
                     }
                 } else {

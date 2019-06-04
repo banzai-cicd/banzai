@@ -1,6 +1,7 @@
 package com.ge.nola;
+import org.codehaus.groovy.runtime.MethodClosure;
 
 class BanzaiStepCfg {
     String script
-    String var
+    MethodClosure closure
 }
