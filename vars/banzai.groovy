@@ -30,7 +30,7 @@ def runPipeline(BanzaiCfg cfg) {
                 buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '10')),
                 parameters([
                     string(name: 'downstreamBuildIds', defaultValue: 'empty', description: 'list of buildIds to execute against'), 
-                    string(name: 'downstreamBuildDefinitions', defaultValue: 'empty', description: 'serialized downstreamBuildDefinitions collection automatically passed during a downstream build chain'),
+                    string(name: 'downstreamBuildCfgs', defaultValue: 'empty', description: 'serialized downstreamBuildCfgs collection automatically passed during a downstream build chain'),
                     string(name: 'gitOpsTriggeringBranch', defaultValue: 'empty', description: 'The BRANCH_NAME if the pipeline was triggered via the gitOpsTrigger in an upstream build'),
                     string(name: 'gitOpsVersions', defaultValue: 'empty', description: "An object of 'serviceId' and 'version' pairs that should be updated in the gitOps repo of a given project"),
                     string(name: 'gitOpsStackId', defaultValue: 'empty', description: 'The id of the stack which the triggering service belongs to.')
