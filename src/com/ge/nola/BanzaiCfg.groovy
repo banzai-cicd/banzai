@@ -33,7 +33,7 @@ class BanzaiCfg {
     BanzaiInternalCfg internal = new BanzaiInternalCfg()
     List<BanzaiStageCfg> stages
 
-    public BanzaiCfg() {
+    public BanzaiCfg(LinkedHashMap props) {
         /*
         whenever we have properties of type 'List' typed to an object we have to 
         manually populate them because Groovy's MapConstructor will
