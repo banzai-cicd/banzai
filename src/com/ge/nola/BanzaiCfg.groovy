@@ -17,9 +17,9 @@ class BanzaiCfg {
     String flowdockBranches
     String flowdockCredId
     Map<String, BanzaiFlowdockCfg> flowdock
-    Map<String, BanzaiUserStepCfg> build
-    Map<String, BanzaiUserStepCfg> publish
-    Map<String, BanzaiUserStepCfg> deploy
+    Map<String, BanzaiStepCfg> build
+    Map<String, BanzaiStepCfg> publish
+    Map<String, BanzaiStepCfg> deploy
     Map<String, BanzaiIntegrationTestsCfg> integrationTests
     Boolean vulnerabilityAbortOnError
     Map<String, List<BanzaiVulnerabilityCfg>> vulnerabilityScans
@@ -31,4 +31,18 @@ class BanzaiCfg {
     BanzaiGitOpsCfg gitOps
     /* strictly for internal banzai usage */
     BanzaiInternalCfg internal = new BanzaiInternalCfg()
+    List<BanzaiStageCfg> stages
+
+    public BanzaiCfg(LinkedHashMap props) {
+        /*
+        whenever we have properties of type 'List' typed to an object we have to 
+        manually populate them because Groovy's MapConstructor will
+        leave them as LinkedHashMaps. Jenkins doesn't support
+        @MapConstructor which would make this cleaner
+        */
+        props.keySet().each { this[it] = props[it] }
+        if (props.stages) {
+            this.stages = props.stages.collect { new BanzaiStageCfg(it) }
+        }
+    }
 }

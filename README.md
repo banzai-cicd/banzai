@@ -155,7 +155,23 @@ banzai([
             watchers: ['<jenkins-id>']   // watchers will be emailed when an enviroment is deployed
         ]
       ]
-    ]
+    ],
+    stages: [                             // override the the build-in Banzai Stage order and provide custom Stages
+      [ name: 'build' ],                  // call a built-in Banzai Stage using a reserved name 'build|deploy|publish|integrationTests|scans:vulnerability|scans:quality'
+      [
+        name: 'My Arbitrary Stage',       // provide a custom Banzai Stage name
+        steps: [
+          /.*/: [                         // steps for a custom stage can be configured per branch via regex
+            [
+              closure: { logger "YO I RAN A CLOSURE FROM A CUSTOM STAGE!" }  // example of running a groovy closure
+            ], 
+            [
+              script: 'customStageScript.sh'  // example running a shell script
+            ]
+          ]
+        ]
+      ]
+    ],
   ]
 ])
 ```
@@ -203,3 +219,6 @@ Next, create a GitOps repo. You can use the [GitOps-starter](https://github.buil
 
 ### Coverity
 Coverity functionality requires the Coverity ~2.0.0 Plugin to be installed on the host Jenkins https://synopsys.atlassian.net/wiki/spaces/INTDOCS/pages/623018/Synopsys+Coverity+for+Jenkins#SynopsysCoverityforJenkins-Version2.0.0
+
+### Custom Stages
+The `stages` property of the BanzaiCfg allows you to override the order of existing Banzai Stages as well as provide custom Stages of your own. Be aware, Stages and boilerplate that exist for supporting SCM, Power DevOps Reporting, Secrets Filtering, GitOps, proxy etc will still run. ie) when you leverage the `stages` property you will only be overriding the following Stages `vulnerabilityScans, qualityScans, build, publish, deploy, integrationTests`

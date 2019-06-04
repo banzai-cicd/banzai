@@ -1,5 +1,6 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiStageCfg
 
 def call(cfgMap) {
     // evaluate the body block, and collect configuration into the object
@@ -76,18 +77,45 @@ def runPipeline(BanzaiCfg cfg) {
                 scmStage(cfg)
                 powerDevOpsInitReportingSettings(cfg)
                 filterSecretsStage(cfg)
-                // gitOpsStages
+                // gitOps input stages
                 gitOpsUpdateServiceVersionsStage(cfg)
                 gitOpsUserInputStages(cfg)
                 gitOpsApprovalStage(cfg)
-                // /end gitOpsStages
-                scansStage(cfg, 'vulnerability')
-                scansStage(cfg, 'quality')
-                buildStage(cfg)
-                publishStage(cfg)
-                deployStage(cfg)
+                // project-provided pipeline stages
+                if (cfg.stages) {
+                    logger "Executing Custom Banzai Stages"
+                    cfg.stages.each { BanzaiStageCfg stage ->
+                        if (stage.isBanzaiStage()) {
+                            List<String> parts = stage.name.tokenize(':')
+                            String stageName = parts.removeAt(0)
+                            def args = [cfg] + parts
+                            /*
+                                jenkins doesn't support the friggin spread operator so I can't do
+                                this."${stageName}Stage"(*args)
+                                which would be a nice one-liner for supporting stages w/ variable args
+                                ugggghhhhhhhhhhh
+                            */
+                            if (stageName == 'scans') {
+                                "${stageName}Stage"(args[0], args[1])
+                            } else {
+                                "${stageName}Stage"(args[0])
+                            }
+                        } else {
+                            customBanzaiStage(cfg, stage)
+                        }
+                    }
+                } else {
+                    scansStage(cfg, 'vulnerability')
+                    scansStage(cfg, 'quality')
+                    buildStage(cfg)
+                    publishStage(cfg)
+                    deployStage(cfg)
+                    integrationTestsStage(cfg)
+                }
+                
+                // gitOps trigger stage
                 gitOpsTriggerStage(cfg)
-                integrationTestsStage(cfg)
+                // report results to power devOps
                 powerDevOpsReportingStage(cfg)
 
                 if (cfg.postCleanWorkspace) {

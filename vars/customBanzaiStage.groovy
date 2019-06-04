@@ -1,23 +1,27 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiStageCfg
 import com.ge.nola.BanzaiStepCfg
 
-def call(BanzaiCfg cfg) {
-  if (cfg.build == null) { return } 
+def call(BanzaiCfg cfg, BanzaiStageCfg stageCfg) {
+  String stageName = stageCfg.name
+  List<BanzaiStepCfg> stepCfgs = getBranchBasedConfig(stageCfg.steps)
 
-  String stageName = 'Build'
-  BanzaiStepCfg buildCfg = getBranchBasedConfig(cfg.build)
-
-  if (buildCfg == null) {
-    logger "${BRANCH_NAME} does not match a 'build' branch pattern. Skipping ${stageName}"
+  if (stepCfgs == null) {
+    logger "${BRANCH_NAME} does not match a branch pattern for the custom stage '${stageName}'. Skipping ${stageName}"
     return
   }
 
   stage (stageName) {
     try {
       notify(cfg, stageName, 'Pending', 'PENDING')
-      String script = buildCfg.script ?: "build.sh"
-      runScript(cfg, script)
+      stepCfgs.each {
+          if (it.script) {
+              runScript(cfg, it.script)
+          } else if (it.closure) {
+              it.closure.call(cfg)
+          }
+      }
       notify(cfg, stageName, 'Successful', 'PENDING')
     } catch (err) {
         echo "Caught: ${err}"
