@@ -1,7 +1,7 @@
 package com.ge.nola;
-import org.codehaus.groovy.runtime.MethodClosure;
+import org.jenkinsci.plugins.workflow.cps.CpsClosure2;
 
 class BanzaiStepCfg {
     String script
-    MethodClosure closure
+    CpsClosure2 closure
 }
