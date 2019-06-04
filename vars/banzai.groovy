@@ -76,18 +76,28 @@ def runPipeline(BanzaiCfg cfg) {
                 scmStage(cfg)
                 powerDevOpsInitReportingSettings(cfg)
                 filterSecretsStage(cfg)
-                // gitOpsStages
+                // gitOps input stages
                 gitOpsUpdateServiceVersionsStage(cfg)
                 gitOpsUserInputStages(cfg)
                 gitOpsApprovalStage(cfg)
-                // /end gitOpsStages
-                scansStage(cfg, 'vulnerability')
-                scansStage(cfg, 'quality')
-                buildStage(cfg)
-                publishStage(cfg)
-                deployStage(cfg)
+                // project-provided pipeline stages
+                if (cfg.stages) {
+                    logger "Executing Custom Banzai Stages"
+                    cfg.each { BanzaiUserProvidedStageCfg stage ->
+                        stage.execute(cfg)
+                    }
+                } else {
+                    scansStage(cfg, 'vulnerability')
+                    scansStage(cfg, 'quality')
+                    buildStage(cfg)
+                    publishStage(cfg)
+                    deployStage(cfg)
+                    integrationTestsStage(cfg)
+                }
+                
+                // gitOps trigger stage
                 gitOpsTriggerStage(cfg)
-                integrationTestsStage(cfg)
+                // report results to power devOps
                 powerDevOpsReportingStage(cfg)
 
                 if (cfg.postCleanWorkspace) {

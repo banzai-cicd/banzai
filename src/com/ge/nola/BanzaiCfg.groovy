@@ -31,4 +31,5 @@ class BanzaiCfg {
     BanzaiGitOpsCfg gitOps
     /* strictly for internal banzai usage */
     BanzaiInternalCfg internal = new BanzaiInternalCfg()
+    List<BanzaiUserProvidedStageCfg> stages
 }
