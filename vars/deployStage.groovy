@@ -1,10 +1,10 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
-import com.ge.nola.BanzaiUserCfg
+import com.ge.nola.BanzaiStepCfg
 
 def call(BanzaiCfg cfg) {
   String stageName = 'Deploy'
-  BanzaiUserCfg deployCfg
+  BanzaiStepCfg deployCfg
 
   if (cfg.gitOps) {
     if (!cfg.internal.gitOps.DEPLOY) {
@@ -13,7 +13,7 @@ def call(BanzaiCfg cfg) {
       return
     }
 
-    deployCfg = new BanzaiUserCfg()
+    deployCfg = new BanzaiStepCfg()
   } else {
     if (cfg.deploy == null) { return }
 

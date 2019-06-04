@@ -17,9 +17,9 @@ class BanzaiCfg {
     String flowdockBranches
     String flowdockCredId
     Map<String, BanzaiFlowdockCfg> flowdock
-    Map<String, BanzaiUserCfg> build
-    Map<String, BanzaiUserCfg> publish
-    Map<String, BanzaiUserCfg> deploy
+    Map<String, BanzaiStepCfg> build
+    Map<String, BanzaiStepCfg> publish
+    Map<String, BanzaiStepCfg> deploy
     Map<String, BanzaiIntegrationTestsCfg> integrationTests
     Boolean vulnerabilityAbortOnError
     Map<String, List<BanzaiVulnerabilityCfg>> vulnerabilityScans
