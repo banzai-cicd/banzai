@@ -1,44 +1,45 @@
 #!/usr/bin/env groovy
+import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiVulnerabilityCfg
+import com.ge.nola.BanzaiQualityCfg
 
 /**
  Stage that can be re-used for vulnerabilityScans and qualityScans
 */
-def call(config, type) {
+def call(BanzaiCfg cfg, String type) {
     def scanKey = "${type}Scans"
     def stageName = "${type.substring(0, 1).toUpperCase() + type.substring(1)} Scans"
     def abortKey = "${type}AbortOnError"
 
-    if (config[scanKey]) {
-        // check and see if the current branch matches the config
-        def configKey = config[scanKey].keySet().find { BRANCH_NAME ==~ it }
-        if (!configKey) {
-            logger "${scanKey} does not contain an entry that matches the branch: ${BRANCH_NAME}"
+    if (cfg[scanKey]) {
+        // check and see if the current branch matches the cfg
+        def scanCfgs = getBranchBasedConfig(cfg[scanKey])
+        if (scanCfgs == null) {
+            logger "${BRANCH_NAME} does match a '${scanKey}' branch pattern. Skipping ${stageName}"
             return
         }
 
         stage (stageName) {
-            def scansConfig = config[scanKey][configKey]
-
             try {
-                notify(config, stageName, 'Pending', 'PENDING')
+                notify(cfg, stageName, 'Pending', 'PENDING')
                 switch (type) {
                     case 'vulnerability':
-                        vulnerabilityScans(config, scansConfig)
+                        vulnerabilityScans(cfg, (List<BanzaiVulnerabilityCfg>) scanCfgs)
                         break
                     case 'quality':
-                        qualityScans(config, scansConfig)
+                        qualityScans(cfg, (List<BanzaiQualityCfg>) scanCfgs)
                         break
                     default:
                         throw new GroovyRuntimeException("scan with of type '${type}' not recognized")
                 }
-                notify(config, stageName, 'Successful', 'PENDING')
+                notify(cfg, stageName, 'Successful', 'PENDING')
             } catch (err) {
                 echo "Caught: ${err}"
-                notify(config, stageName, 'Failed', 'FAILURE')
+                notify(cfg, stageName, 'Failed', 'FAILURE')
 
                 // abort if all scans should result in abort OR
                 // if this specific scan is configured to abort
-                if (config[abortKey] || err.message == "true") {
+                if (cfg[abortKey] || err.message == "true") {
                     currentBuild.result = 'ABORTED'
                     error(err.message)
                 } else {

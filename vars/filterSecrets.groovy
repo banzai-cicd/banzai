@@ -1,23 +1,24 @@
 #!/usr/bin/env groovy
+import com.ge.nola.BanzaiFilterSecretsCfg
 
-def call(secretConfig) {
+def call(BanzaiFilterSecretsCfg secretsCfg) {
 
-    logger "Filtering Secret: ${secretConfig.secretId}"
-    logger secretConfig
+    logger "Filtering Secret: ${secretsCfg.secretId}"
+    logger secretsCfg
 
     // sanitize the filename
-    def file = secretConfig.file
+    String file = secretsCfg.file
     if (file.contains('..')) {
         error("Secret.file may not contain '..' and should be defined relative to the Jenkins Workspace")
         return
     }
 
     // copy target file to temp
-    def filePath = "${env.WORKSPACE}/${file}"
+    String filePath = "${env.WORKSPACE}/${file}"
     // filter and replace deleted original file
-    withCredentials([string(credentialsId: secretConfig.secretId, variable: 'SECRET')]) {
+    withCredentials([string(credentialsId: secretsCfg.secretId, variable: 'SECRET')]) {
         sh "touch ${filePath}"
-        def replace = /\[banzai:${secretConfig.label}\]/
+        String replace = /\[banzai:${secretsCfg.label}\]/
         sh "sed -i -e 's/${replace}/${SECRET}/g' ${filePath}"
     }
 

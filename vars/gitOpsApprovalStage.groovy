@@ -34,8 +34,8 @@ String[] getUserEmails(users) {
 def finalizeDeployment(config) {
   logger "Finalizing Deployment"
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
-  String ENV = config.gitOps.TARGET_ENV
-  String STACK = config.gitOps.TARGET_STACK
+  String ENV = config.internal.gitOps.TARGET_ENV
+  String STACK = config.internal.gitOps.TARGET_STACK
   // 1. update the stack yaml with the versions it should be set to
   String stackFileName = "${ENV_DIR_NAME}/${ENV}/${STACK}.yaml"
 	def stackYaml = [:]
@@ -45,7 +45,7 @@ def finalizeDeployment(config) {
     logger "Creating ${stackFileName} ..."
   }
   
-  config.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { id, version ->
+  config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { id, version ->
     logger "Updating Service '${id}' to '${version}' in Stack ${STACK}"
     stackYaml[id] = version
   }
@@ -65,13 +65,13 @@ def finalizeDeployment(config) {
 	}
 
   // 4. pass the deployArgs that will get picked up by the Deploy Stage
-  config.deployArgs = [config.gitOps.TARGET_ENV, config.gitOps.TARGET_STACK]
+  config.internal.gitOps.DEPLOY_ARGS = [config.internal.gitOps.TARGET_ENV, config.internal.gitOps.TARGET_STACK]
 }
 
 def buildProposedVersionsBody(config) {
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
-  String ENV = config.gitOps.TARGET_ENV
-  String STACK = config.gitOps.TARGET_STACK
+  String ENV = config.internal.gitOps.TARGET_ENV
+  String STACK = config.internal.gitOps.TARGET_STACK
   // include full proposed stack versions (not just services being updated)
   String stackFileName = "${ENV_DIR_NAME}/${ENV}/${STACK}.yaml"
   def stackYaml = [:]
@@ -81,7 +81,7 @@ def buildProposedVersionsBody(config) {
     // the stack yaml my not yet exist if this is part of an environment promotion
     logger "${stackFileName} does not yet exist. Will create if approved"
   }
-  config.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { serviceId, version ->
+  config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { serviceId, version ->
     stackYaml[serviceId] = version
   }
   def formatedStack = stackYaml.collect { "${it.key} : ${it.value}" }
@@ -91,14 +91,14 @@ def buildProposedVersionsBody(config) {
 
 def call(config) {
   /////
-  // This Stage will always run for a GitOps repo when config.deploy = true
+  // This Stage will always run for a GitOps repo when config.internal.gitOps.DEPLOY = true
   /////
-  if (!config.gitOps || !config.deploy) {
+  if (!config.gitOps || !config.internal.gitOps.DEPLOY) {
       logger "Does not qualify for 'GitOps: Deployment Approval Stage'"
       return
   }
-  String ENV = config.gitOps.TARGET_ENV
-  String STACK = config.gitOps.TARGET_STACK
+  String ENV = config.internal.gitOps.TARGET_ENV
+  String STACK = config.internal.gitOps.TARGET_STACK
 
   /////
   // if necessary, get approvals

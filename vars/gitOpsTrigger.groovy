@@ -1,10 +1,10 @@
 #!/usr/bin/env groovy
-
 import groovy.json.JsonOutput
 import net.sf.json.JSONObject
+import com.ge.nola.BanzaiGitOpsTriggerCfg
 
 // Determine if gitOps job should run.
-def call(config) {
+def call(BanzaiGitOpsTriggerCfg gitOpsCfg) {
 	def gitOpsVersionsFileName = "${WORKSPACE}/gitOpsVersions"
 	def gitOpsVersions
 	if (fileExists("${gitOpsVersionsFileName}.yaml")) {
@@ -20,11 +20,11 @@ def call(config) {
 	def buildDef = [
 		propagate: false,
 		wait: false,
-		job: config.gitOpsTrigger.jenkinsJob,
+		job: gitOpsCfg.jenkinsJob,
 		parameters: [
 			string(name: 'gitOpsVersions', value:  JsonOutput.toJson(gitOpsVersions)),
 			string(name: 'gitOpsTriggeringBranch', value: BRANCH_NAME),
-			string(name: 'gitOpsStackId', value: config.gitOpsTrigger.stackId)
+			string(name: 'gitOpsStackId', value: gitOpsCfg.stackId)
 		]
 	]
 

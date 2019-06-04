@@ -1,21 +1,20 @@
 #!/usr/bin/env groovy
+import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiFilterSecretsCfg
 
-def call(config) {
+def call(BanzaiCfg cfg) {
+  if (cfg.filterSecrets == null) { return }
+
   def stageName = 'Filter Secrets'
+  BanzaiFilterSecretsCfg filterSecretsCfg = getBranchBasedConfig(cfg.filterSecrets)
+  if (filterSecretsCfg == null) {
+    logger "${BRANCH_NAME} does not match a 'filterSecrets' branch pattern. Skipping ${stageName}"
+    return
+  }
 
-  if (config.filterSecrets) {
-    // determine if branch matches and filterSecrets branches
-    def secretConfigKey = config.filterSecrets.keySet().find { it ==~ BRANCH_NAME }
-    if (!secretConfigKey) {
-        logger "filterSecrets does not contain an entry that matches the branch: ${BRANCH_NAME}. Skipping ${stageName}"
-        return
-    }
-
-    stage (stageName) {
-      notify(config, stageName, 'Pending', 'PENDING')
-      def secretConfig = config.filterSecrets[secretConfigKey]
-      filterSecrets(secretConfig)
-      notify(config, stageName, 'Successful', 'PENDING')
-    }
+  stage (stageName) {
+    notify(cfg, stageName, 'Pending', 'PENDING')
+    filterSecrets(filterSecretsCfg)
+    notify(cfg, stageName, 'Successful', 'PENDING')
   }
 }

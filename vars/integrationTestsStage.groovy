@@ -1,35 +1,39 @@
 #!/usr/bin/env groovy
+import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiIntegrationTestsCfg
 
 // named banzaiBuild to avoid collision with existing 'build' jenkins pipeline plugin
-def call(config) {
+def call(BanzaiCfg cfg) {
+  if (cfg.integrationTests == null) { return }
+
   def stageName = 'IT'
-  def stageConfig = getBranchBasedStageConfig(config.integrationTests)
-  if (stageConfig == null) {
+  BanzaiIntegrationTestsCfg itCfg = getBranchBasedConfig(cfg.integrationTests)
+  if (itCfg == null) {
     logger "${BRANCH_NAME} does not match a 'integrationTests' branch pattern. Skipping ${stageName}"
     return
   }
 
   stage (stageName) {
     try {
-      notify(config, stageName, 'Pending', 'PENDING', true)
+      notify(cfg, stageName, 'Pending', 'PENDING', true)
 
-      if (config.xvfb) {
-          def screen = config.xvfbScreen ?: '1800x900x24'
+      if (cfg.xvfb) {
+          def screen = itCfg.xvfbScreen ?: '1800x900x24'
 
           wrap([$class: 'Xvfb', screen: screen]) {
-              def script = stageConfig.script ?: "integrationTests.sh"
-              runScript(config, script)
+              def script = itCfg.script ?: "integrationTests.sh"
+              runScript(cfg, script)
           }
       } else {
-          def script = stageConfig.script ?: "integrationTests.sh"
-          runScript(config, script)
+          def script = itCfg.script ?: "integrationTests.sh"
+          runScript(cfg, script)
       }
 
-      notify(config, stageName, 'Successful', 'PENDING', true)
+      notify(cfg, stageName, 'Successful', 'PENDING', true)
     } catch (err) {
       echo "Caught: ${err}"
       currentBuild.result = 'FAILURE'
-      notify(config, stageName, 'Failed', 'FAILURE', true)
+      notify(cfg, stageName, 'Failed', 'FAILURE', true)
       
       error(err.message)
     }

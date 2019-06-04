@@ -1,24 +1,32 @@
 #!/usr/bin/env groovy
 import groovy.json.JsonOutput
+import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiFlowdockCfg
 
-def call(config, stage, message, status) {
-    def targetBranches = config.flowdockBranches ?: config.mergeBranches
-    if (!targetBranches || !config.flowdockCredId || !config.flowdockAuthor) {
-      logger "'mergeBranches', 'flowdockFlowToken' and 'flowdockAuthor' are required in your Jenkinsfile when 'flowdock' = true"
+def call(BanzaiCfg config, String stage, String message, String status) {
+    BanzaiFlowdockCfg flockdockCfg = getBranchBasedConfig(config.flowdock)
+
+    if (flockdockCfg == null) {
+      logger "${BRANCH_NAME} does not match a 'flowdock' branch pattern. Skipping flowdock notification"
       return
     }
 
-    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: config.flowdockCredId,
+    if (!flockdockCfg.credId || !flockdockCfg.author) {
+      logger "'flowdock.credId' and 'flowdock.author' are required in your .banzai when 'flowdock' branches are defined"
+      return
+    }
+
+    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: flockdockCfg.credId,
                                usernameVariable: 'FLOWDOCK_USER', passwordVariable: 'FLOWDOCK_PASSWORD']]) {
        def flowdockURL = "https://api.flowdock.com/messages"
 
        // determine if this is a merge or pr (should use diff threads)
        def threadId = "${config.appName}+${env.JOB_BASE_NAME}"
        def title = "${config.appName} : ${env.JOB_BASE_NAME}"
-       if (BRANCH_NAME ==~ config.mergeBranches) {
+       if (!BRANCH_NAME.startsWith('PR-')) {
          title = "${title} : merge"
        } else {
-         if (!config.flowdockNotifyPRs && message != "githubdown" && stage != "IT") {
+         if (!flockdockCfg.notifyPRs && message != "githubdown" && stage != "IT") {
            // by default, we don't want to bug people in flowdock with PR's
            return
          }
@@ -42,7 +50,7 @@ def call(config, stage, message, status) {
        def payloadMap = [
          flow_token: FLOWDOCK_PASSWORD,
          event: "activity",
-         author: config.flowdockAuthor,
+         author: flockdockCfg.author,
          title: "${stage}",
          body: "<a href='${BUILD_URL}'><b>${currentBuild.displayName.replaceAll("#", "")}</b> - ${message}</a>",
          external_thread_id: threadId.bytes.encodeBase64().toString(),

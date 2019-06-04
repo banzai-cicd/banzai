@@ -4,6 +4,8 @@ import java.util.regex.Pattern
 import java.util.regex.Matcher
 import groovy.json.JsonOutput
 import net.sf.json.JSONObject
+import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiDownstreamBuildCfg
 
 String determineOrgName(url) {
     def finder = (url =~ /:([^:]*)\//)
@@ -14,47 +16,47 @@ String determineRepoName(url) {
     return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last().split("\\.")[0]
 }
 
-Map findBuildDef(id, buildDefinitions) {
-    return buildDefinitions.find { it.id == id }
+Map findBuildCfg(id, List<BanzaiDownstreamBuildCfg>> downstreamBuildCfgs) {
+    return downstreamBuildCfgs.find { it.id == id }
 }
 
-Map findAndValidateTargetBuild(id, buildDefinitions) {
-    logger "Finding Build Definition with id ${id}"
-    def result = findBuildDef(id, buildDefinitions)
-    def targetBuild = result.clone()
+Map findAndValidateTargetBuild(id, List<BanzaiDownstreamBuildCfg>> downstreamBuildCfgs) {
+    logger "Finding Build Cfg with id ${id}"
+    BanzaiDownstreamBuildCfg result = findBuildCfg(id, downstreamBuildCfgs)
+    BanzaiDownstreamBuildCfg targetBuild = result.clone(new BanzaiDownstreamBuildCfg())
     validateBuildDef(targetBuild)
-    removeCustomPropertiesFromBuildDef(targetBuild)
+    removeCustomPropertiesFromBuildCfg(targetBuild)
 
     return targetBuild
 }
 
 // get a list of all the buildIds after checking if optional builds are specified by github pr labels
-List<String> getBuildIdsWithOptional(config, downstreamBuildsDefinitions) {
+List<String> getBuildIdsWithOptional(BanzaiCfg cfg, List<BanzaiDownstreamBuildCfg>> downstreamBuildsDefinitions) {
     logger "Evaluating Github PR Labels..."
-    withCredentials([string(credentialsId: config.gitTokenId, variable: 'TOKEN')]) {
+    withCredentials([string(credentialsId: cfg.gitTokenId, variable: 'TOKEN')]) {
         // determine base repo/branch git url info
-        def url = scm.getUserRemoteConfigs()[0].getUrl()
-        def orgName = determineOrgName(url)
-        def repoName = determineRepoName(url)
+        String url = scm.getUserRemoteConfigs()[0].getUrl()
+        String orgName = determineOrgName(url)
+        String repoName = determineRepoName(url)
 
         // get latest commit hash from the current branch
-        def branchInfoUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/branches/${BRANCH_NAME}"
+        String branchInfoUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/branches/${BRANCH_NAME}"
         def branchInfoResponse = httpRequest(url: branchInfoUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
         def branchInfo = readJSON(text: branchInfoResponse.content)
-        def latestCommit = branchInfo.commit.sha
+        String latestCommit = branchInfo.commit.sha
         logger "Latest ${BRANCH_NAME} branch commit: ${latestCommit}"
 
         // find the pr with this merge_hash
-        def prListUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/pulls?state=closed"
+        String prListUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/pulls?state=closed"
         def prListResponse = httpRequest(url: prListUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
         def prList = readJSON(text: prListResponse.content)
-        def targetPr = prList.find { it.merge_commit_sha == latestCommit }
+        String targetPr = prList.find { it.merge_commit_sha == latestCommit }
         logger "PR found matching commit ${latestCommit} . PR:${targetPr.number}"
         
         // determine if the pr has any labels
-        def buildIds = []
+        List<String> buildIds = []
         if (targetPr.labels.size() > 0) {
-            def labelIds = targetPr.labels.collect {
+            List<String> labelIds = targetPr.labels.collect {
                 if (it.name.startsWith("build:")) {
                     return it.name.replace("build:", "")
                 }
@@ -82,49 +84,53 @@ List<String> getBuildIdsWithOptional(config, downstreamBuildsDefinitions) {
 
 // remove any custom properties that we support which we know
 // aren't properties of the 'jenkins pipeline build step' https://jenkins.io/doc/pipeline/steps/pipeline-build-step/
-def removeCustomPropertiesFromBuildDef(build) {
+def removeCustomPropertiesFromBuildCfg(build) {
     build.remove('id')
     build.remove('optional')
     build.remove('parallel')
 }
 
 def validateBuildDef(build) {
-    def missingProps = []
-    def requiredProps = ['job', 'id']
+    List<String> missingProps = []
+    List<String> requiredProps = ['job', 'id']
 
-    requiredProps.each { 
-        if (!build.containsKey(it)) { 
+    requiredProps.each {
+        if (build[it] == null) {
             missingProps.add(it) 
         }
     }
 
     if (missingProps.size() > 0) {
         currentBuild.result = 'ABORTED'
-        error("Downstream Build Definition is missing the required field(s): ${missingProps.join(',')}")
+        error("Downstream Build Cfg is missing the required field(s): ${missingProps.join(',')}")
     }
 }
 
-def executeBuilds(buildIds, downstreamBuildDefinitions) {
-    def nextBuild = findBuildDef(buildIds.get(0), downstreamBuildDefinitions)
+def executeBuilds(buildIds, List<BanzaiDownstreamBuildCfg> downstreamBuildCfgs) {
+    BanzaiDownstreamBuildCfg nextBuild = findBuildCfg(buildIds.get(0), downstreamBuildCfgs)
 
     if (buildIds.size() > 0 && nextBuild.parallel) {
         logger "Executing Downstream Builds in parallel"
-        executeParallelBuilds(buildIds, downstreamBuildDefinitions)
+        executeParallelBuilds(buildIds, downstreamBuildCfgs)
     } else {
         logger "Executing Downstream Builds in serial"
-        executeSerialBuild(buildIds, downstreamBuildDefinitions)
+        executeSerialBuild(buildIds, downstreamBuildCfgs)
     }
 }
 
-def executeSerialBuild(buildIds, downstreamBuildDefinitions) {
-    def targetBuildId = buildIds.removeAt(0)
-    def targetBuild = findAndValidateTargetBuild(targetBuildId, downstreamBuildDefinitions)
+def executeSerialBuild(List<String> buildIds, List<BanzaiDownstreamBuildCfg> downstreamBuildCfgs) {
+    String targetBuildId = buildIds.removeAt(0)
+    BanzaiDownstreamBuildCfg targetBuild = findAndValidateTargetBuild(targetBuildId, downstreamBuildCfgs)
 
     logger "Downstream Build Located: ${targetBuild.job}"
     if (buildIds.size() == 0) {
         buildIds.add("THE_END")
     }
     
+    if (!targetBuild.job.startsWith("/")) {
+        targetBuild.job = "/${targetBuild.job}"
+    }
+
     def buildDefaults = [
         propagate: false,
         wait: false
@@ -132,7 +138,7 @@ def executeSerialBuild(buildIds, downstreamBuildDefinitions) {
 
     def buildParams = [
         string(name: 'downstreamBuildIds', value: buildIds.join(',')),
-        string(name: 'downstreamBuildDefinitions', value: JsonOutput.toJson(downstreamBuildDefinitions))
+        string(name: 'downstreamBuildCfgs', value: JsonOutput.toJson(downstreamBuildCfgs))
     ]
 
     if (targetBuild.parameters) {
@@ -145,12 +151,12 @@ def executeSerialBuild(buildIds, downstreamBuildDefinitions) {
 }
 
 // have to write this abomination because we can't use takeWhile() on jenkins cause of CPS
-def getParallelBuildIds(buildIds, downstreamBuildDefinitions) {
+List<String> getParallelBuildIds(List<String> buildIds, List<BanzaiDownstreamBuildCfg> downstreamBuildCfgs) {
     // get all consecutive buildIds which map to definitions that have `parallel: true`=
-    def parallelBuildIds = []
+    List<String> parallelBuildIds = []
     def falseSeen = false
     buildIds.each {
-        def result = findBuildDef(it, downstreamBuildDefinitions).parallel
+        def result = findBuildCfg(it, downstreamBuildCfgs).parallel
         if (!result && !falseSeen) {
             falseSeen = true
         }
@@ -162,17 +168,17 @@ def getParallelBuildIds(buildIds, downstreamBuildDefinitions) {
     return parallelBuildIds
 }
 
-def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
-    def parallelBuildIds = getParallelBuildIds(buildIds, downstreamBuildDefinitions)
+def executeParallelBuilds(List<String> buildIds, List<BanzaiDownstreamBuildCfg> downstreamBuildCfgs) {
+    List<String> parallelBuildIds = getParallelBuildIds(buildIds, downstreamBuildCfgs)
     logger "Parallel Build IDs identified: ${parallelBuildIds.join(',')}"
 
     // calculate the remaining build ids after the parallel builds run
-    def remainingBuildIds = buildIds.drop(parallelBuildIds.size())
+    List<String> remainingBuildIds = buildIds.drop(parallelBuildIds.size())
 
     // assemble our parallel builds
     def parallelBuilds = [:]
     parallelBuildIds.each {
-        def targetBuild = findAndValidateTargetBuild(it, downstreamBuildDefinitions)
+        def targetBuild = findAndValidateTargetBuild(it, downstreamBuildCfgs)
 
         def buildDefaults = [
             propagate: false,
@@ -194,69 +200,57 @@ def executeParallelBuilds(buildIds, downstreamBuildDefinitions) {
         // execute our parallel builds
         logger "Will wait for parrallel builds to complete and continue with the remaining builds: ${remainingBuildIds}"
         parallel(parallelBuilds)
-        executeSerialBuild(remainingBuildIds, downstreamBuildDefinitions)
+        executeSerialBuild(remainingBuildIds, downstreamBuildCfgs)
     } else {
         logger "Executing parallel builds, will not wait for completion"
         parallel(parallelBuilds)
     }
 }
 
-def call(config) {
-    // check and see if the current branch matches the config
-    def configKey = config.downstreamBuilds.keySet().find { BRANCH_NAME ==~ it }
-    if (!configKey) {
-        logger "downstreamBuilds does not contain an entry that matches the branch: ${BRANCH_NAME}"
+def call(BanzaiCfg cfg) {
+    String stageName = 'Downstream Builds'
+    // check and see if the current branch matches the cfg
+    List<BanzaiDownstreamBuildCfg>> downstreamBuildCfgs = getBranchBasedConfig(cfg.downstreamBuilds)
+    if (!downstreamBuildCfgs) {
+        logger "${BRANCH_NAME} does not match a 'downstreamBuilds' branch pattern. Skipping ${stageName}"
         return
     }
-    if (!config.gitTokenId) {
-        logger "No config.gitTokenId. This is required by downstreamBuilds. Please configure"
+    if (!cfg.gitTokenId) {
+        logger "cfg.gitTokenId is required by downstreamBuilds. Please configure. Skipping ${stageName}"
         return
     }
 
-    def downstreamBuildsDefinitions = config.downstreamBuilds[configKey]
-
-    stage ('Downstream Builds') {
+    stage (stageName) {
         // check to see if this build is part of an ongoing downstream build chain
-        // params.downstreamBuildDefinitions is not the same as config.downstreamBuilds. The BRANCH_NAME has already been taken into account at this point
-        // and params.downstreamBuildDefinitions just represents the collection of downstreamBuild definitions
-        if (params.downstreamBuildDefinitions != 'empty' && params.downstreamBuildIds != 'empty') {
-            def buildIds = params.downstreamBuildIds.split(",").toList()
+        // params.downstreamBuildCfgs is not the same as cfg.downstreamBuilds. The BRANCH_NAME has already been taken into account at this point
+        // and params.downstreamBuildCfgs just represents the collection of downstreamBuild definitions
+        if (params.downstreamBuildCfgs != 'empty' && params.downstreamBuildIds != 'empty') {
+            List<String> buildIds = params.downstreamBuildIds.split(",").toList()
 
             if (buildIds.getAt(0) == "THE_END") {
                 logger "Downstream Build Chain complete"
             } else {
                 // we are currently executing a downstream build which needs to trigger additional downstream build(s)
                 logger "Downstream Build Chain detected. Continuing to execute ${params.downstreamBuildIds}"
-                def downstreamBuildsJSONArr = readJSON(text: params.downstreamBuildDefinitions)
-                // convert json objects to Maps so that .clone() can be called later
-                def downstreamBuildsArr = downstreamBuildsJSONArr.collect {
-                    def buildDef = [:]
-
-                    it.keySet().each { k -> 
-                        buildDef[k] = it[k] 
-                    }
-
-                    buildDef
-                }
-
-                executeBuilds(buildIds, downstreamBuildsArr)
+                List<BanzaiDownstreamBuildCfg> downstreamBuilds  = readJSON(text: params.downstreamBuildCfgs).collect { new BanzaiDownstreamBuildCfg(it) }
+                executeBuilds(buildIds, downstreamBuilds)
             }
 
             return
         }
 
-        // see if we have downstreamBuilds in the config
+        // see if we have downstreamBuilds in the cfg
         def buildIds = []
-        if (downstreamBuildsDefinitions.any { it.optional }) {
+        if (downstreamBuildCfgs.any { it.optional }) {
             logger "Optional Downstream Builds detected"
-            buildIds = getBuildIdsWithOptional(config, downstreamBuildsDefinitions)
+            buildIds = getBuildIdsWithOptional(cfg, downstreamBuildCfgs)
             if (buildIds.size() == 0) {
                 return
             }
         } else {
-            buildIds = downstreamBuildsDefinitions.collect { it.id }
+            buildIds = downstreamBuildCfgs.collect { it.id }
         }
 
-        executeBuilds(buildIds, downstreamBuildsDefinitions)
+        executeBuilds(buildIds, downstreamBuildCfgs)
     }
 }
