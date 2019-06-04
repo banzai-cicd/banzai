@@ -84,7 +84,9 @@ def runPipeline(BanzaiCfg cfg) {
                 // project-provided pipeline stages
                 if (cfg.stages) {
                     logger "Executing Custom Banzai Stages"
+                    logger "${cfg.stages.getClass()}"
                     cfg.stages.each { BanzaiStageCfg stage ->
+                        logger "${stage.getClass()}"
                         stage.execute(cfg)
                     }
                 } else {
