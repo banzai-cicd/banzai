@@ -3,10 +3,10 @@
  that is branch-based. determine if the stage should run.
  returns null OR an object representing the config for the stage.
 */
-def call(stageConfig) {
-    if (stageConfig instanceof Map) {
-        def key = stageConfig.keySet().find { BRANCH_NAME ==~ it }
-        return key ? stageConfig[key] : null
+def call(branchConfig, branchName = BRANCH_NAME) {
+    if (branchConfig instanceof Map) {
+        def key = branchConfig.keySet().find { branchName ==~ it }
+        return key ? branchConfig[key] : null
     } else {
         return null
     }

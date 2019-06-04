@@ -1,13 +1,15 @@
 #!/usr/bin/env groovy
+import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiVulnerabilityCfg
 
-def call(config, opts) {
-    def streamName = opts.streamName ?: "${config.appName}_${env.BRANCH_NAME}"
-    def buildCmd = env.BUILD_CMD ?: opts.buildCmd // accept build command if set in the environment from a previous step.
+def call(BanzaiCfg cfg, BanzaiVulnerabilityCfg vulnerabilityCfg) {
+    def streamName = vulnerabilityCfg.streamName ?: "${cfg.appName}_${env.BRANCH_NAME}"
+    def buildCmd = env.BUILD_CMD ?: vulnerabilityCfg.buildCmd // accept build command if set in the environment from a previous step.
     def iDir = "${env.WORKSPACE}/idir"
     
-    // check for all required opts
+    // check for all required vulnerabilityCfg
     def requiredOpts = ['serverHost', 'serverPort', 'toolId', 'credId', 'projectName']
-    def failedRequiredOpts = requiredOpts.findAll { !opts[it] }
+    def failedRequiredOpts = requiredOpts.findAll { !vulnerabilityCfg[it] }
     if (!buildCmd) {
         failedRequiredOpts.add('buildCmd or env.BUILD_CMD')
     }
@@ -21,10 +23,10 @@ def call(config, opts) {
     sh "if [ -e ${iDir} ]; then rm -rf ${iDir} ; fi"
 
     // wrap Coverity Env
-    withCoverityEnvironment(coverityInstanceUrl: "https://${opts.serverHost}:${opts.serverPort}", projectName: opts.projectName, streamName: streamName, viewName: '') {
-      withCredentials([file(credentialsId: opts.credId, variable: 'CRED_FILE')]) {
+    withCoverityEnvironment(coverityInstanceUrl: "https://${vulnerabilityCfg.serverHost}:${vulnerabilityCfg.serverPort}", projectName: vulnerabilityCfg.projectName, streamName: streamName, viewName: '') {
+      withCredentials([file(credentialsId: vulnerabilityCfg.credId, variable: 'CRED_FILE')]) {
         def credParams = "--on-new-cert trust --auth-key-file ${CRED_FILE}"
-        def hostAndPort = "--host ${opts.serverHost} --port ${opts.serverPort}"
+        def hostAndPort = "--host ${vulnerabilityCfg.serverHost} --port ${vulnerabilityCfg.serverPort}"
         // We have to first check and see if the stream exists since synopsys_coverity step doesn't allow us to react to cmd feedback.
         // 1. check for the existence of the stream 
         //def listStreamsCmd = "unset https_proxy && cov-manage-im --mode streams --show --name ${COV_STREAM} --url ${COV_URL} --ssl ${credParams} | grep ${COV_STREAM}"
@@ -69,14 +71,13 @@ def call(config, opts) {
     }
 
     // email the summary.txt if applicable
-    if (opts.resultEmails) {
-        opts.resultEmails.each {
+    if (vulnerabilityCfg.resultEmails) {
+        vulnerabilityCfg.resultEmails.each {
                 logger "Emailing Coverity Scan Results to ${it}"
                 emailext attachmentsPattern: "**/idir/output/summary.txt", body: "BUILD_URL: ${env.BUILD_URL}", 
                         subject: "Coverity Scan Summary: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}", 
                         to: it 
                 logger "Sent Coverity Scan Results..."
         }
-        
     }
 }

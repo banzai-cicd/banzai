@@ -1,26 +1,31 @@
 #!/usr/bin/env groovy
+import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiUserStepCfg
 
-def call(config) {
-  def stageName = 'Publish'
-  def stageConfig = getBranchBasedConfig(config.publish)
-  if (stageConfig == null) {
+def call(BanzaiCfg cfg) {
+  if (cfg.publish == null) { return }
+
+  String stageName = 'Publish'
+  BanzaiUserStepCfg publishCfg = getBranchBasedConfig(cfg.publish)
+  
+  if (publishCfg == null) {
     logger "${BRANCH_NAME} does not match a 'publish' branch pattern. Skipping ${stageName}"
     return
   }
 
   stage (stageName) {
     try {
-      notify(config, stageName, 'Pending', 'PENDING', true)
-      def script = stageConfig.publish ?: "publish.sh"
-      runScript(config, script)
-      notify(config, stageName, 'Successful', 'PENDING', true)
+      notify(cfg, stageName, 'Pending', 'PENDING', true)
+      String script = publishCfg.publish ?: "publish.sh"
+      runScript(cfg, script)
+      notify(cfg, stageName, 'Successful', 'PENDING', true)
     } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
         if (isGithubError(err)) {
-            notify(config, stageName, 'githubdown', 'FAILURE', true)
+            notify(cfg, stageName, 'githubdown', 'FAILURE', true)
         } else {
-            notify(config, stageName, 'Failed', 'FAILURE', true)
+            notify(cfg, stageName, 'Failed', 'FAILURE', true)
         }
         
         error(err.message)

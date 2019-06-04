@@ -13,7 +13,7 @@ class BanzaiCfg {
     BanzaiProxyCfg httpsProxy
     Boolean preCleanWorkspace
     Boolean postCleanWorkspace
-    Boolean skipSCM
+    Boolean skipSCM = false
     String flowdockBranches
     String flowdockCredId
     Map<String, BanzaiFlowdockCfg> flowdock
@@ -24,10 +24,10 @@ class BanzaiCfg {
     Boolean vulnerabilityAbortOnError
     Map<String, List<BanzaiVulnerabilityCfg>> vulnerabilityScans
     Map<String, List<BanzaiQualityCfg>> qualityScans
-    Map<String, List<BanazaiDownstreamBuildCfg>> downstreamBuilds
-    Map<String, BanazaiFilterSecretsCfg> filterSecrets
+    Map<String, List<BanzaiDownstreamBuildCfg>> downstreamBuilds
+    Map<String, BanzaiFilterSecretsCfg> filterSecrets
     BanzaiDevOpsReportingCfg powerDevOpsReporting
-    BanzaiGitOpsTriggerCfg gitOpsTrigger
+    Map<String, BanzaiGitOpsTriggerCfg> gitOpsTrigger
     BanzaiGitOpsCfg gitOps
     /* strictly for internal banzai usage */
     BanzaiInternalCfg internal = new BanzaiInternalCfg()

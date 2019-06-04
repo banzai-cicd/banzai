@@ -1,16 +1,16 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
 
-def call(cfg) {
+def call(cfgMap) {
     // evaluate the body block, and collect configuration into the object
-    def config = new BanzaiCfg(cfg)
+    def cfg = new BanzaiCfg(cfgMap)
 
-    if (config.throttle) {
-        throttle(config.throttle.tokenize(',')) {
-            runPipeline(config)
+    if (cfg.throttle) {
+        throttle(cfg.throttle.tokenize(',')) {
+            runPipeline(cfg)
         }
     } else {
-        runPipeline(config)
+        runPipeline(cfg)
     }
 }
 
@@ -22,7 +22,7 @@ def printEnv() {
     }
 }
 
-def runPipeline(config) {
+def runPipeline(BanzaiCfg cfg) {
     pipeline {
         // clean up old builds (experimental, not sure if this is actually working or not. time will tell)
         properties(
@@ -43,68 +43,65 @@ def runPipeline(config) {
             printEnv()
             
             // ensure proxy fields are properly set
-            setProxy(config)
+            setProxy(cfg)
 
             // support for jenkins 'tools'
-            if (config.jdk) {
-                jdk = tool name: config.jdk
+            if (cfg.jdk) {
+                jdk = tool name: cfg.jdk
                 env.JAVA_HOME = "${jdk}"
 
                 logger "JAVA_HOME: ${jdk}"
             }
 
-            if (config.nodejs) {
-                def nodeVersion = "node ${config.nodejs}"
+            if (cfg.nodejs) {
+                def nodeVersion = "node ${cfg.nodejs}"
                 env.NODEJS_HOME = "${tool nodeVersion}"
                 // on linux / mac
                 env.PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
             }
             
-            if (!config.sshCreds) {
-                config.sshCreds = []
+            if (!cfg.sshCreds) {
+                cfg.sshCreds = []
             }
-            sshagent(credentials: config.sshCreds) {
+            sshagent(credentials: cfg.sshCreds) {
                 // TODO notify Flowdock build starting
                 echo "My branch is: ${env.BRANCH_NAME}"
 
                 // checkout the branch that triggered the build if not explicitly skipped
-                if (config.preCleanWorkspace) {
+                if (cfg.preCleanWorkspace) {
                     logger "Cleaning Workspace"
                     step([$class: 'WsCleanup'])
                 }
                 
-                scmStage(config)
-                powerDevOpsInitReportingSettings(config)
-                filterSecretsStage(config)
+                scmStage(cfg)
+                powerDevOpsInitReportingSettings(cfg)
+                filterSecretsStage(cfg)
                 // gitOpsStages
-                gitOpsUpdateServiceVersionsStage(config)
-                gitOpsUserInputStages(config)
-                gitOpsApprovalStage(config)
+                gitOpsUpdateServiceVersionsStage(cfg)
+                gitOpsUserInputStages(cfg)
+                gitOpsApprovalStage(cfg)
                 // /end gitOpsStages
-                scansStage(config, 'vulnerability')
-                scansStage(config, 'quality')
-                buildStage(config)
-                publishStage(config)
-                deployStage(config)
-                gitOpsTriggerStage(config)
-                integrationTestsStage(config)
-                powerDevOpsReportingStage(config)
-                // markForPromotionStage(config)
+                scansStage(cfg, 'vulnerability')
+                scansStage(cfg, 'quality')
+                buildStage(cfg)
+                publishStage(cfg)
+                deployStage(cfg)
+                gitOpsTriggerStage(cfg)
+                integrationTestsStage(cfg)
+                powerDevOpsReportingStage(cfg)
 
-                if (config.postCleanWorkspace) {
+                if (cfg.postCleanWorkspace) {
                     logger "Cleaning Workspace"
                     step([$class: 'WsCleanup'])
                 }
 
-                if (config.downstreamBuilds || params.downstreamBuildIds != 'empty') {
-                    downstreamBuilds(config)
+                if (cfg.downstreamBuilds || params.downstreamBuildIds != 'empty') {
+                    downstreamBuilds(cfg)
                 }
 
                 currentBuild.result = 'SUCCESS'
-                notify(config, 'Pipeline', 'All Stages Complete', 'SUCCESS')
+                notify(cfg, 'Pipeline', 'All Stages Complete', 'SUCCESS')
             } // ssh-agent
         } // node
-
-        // promoteStage(config)
     }
 }

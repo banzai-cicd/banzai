@@ -1,11 +1,12 @@
 #!/usr/bin/env groovy
+import com.ge.nola.BanzaiCfg
 
-def call(config) {
+def call(BanzaiCfg cfg) {
   def stageName = 'Checkout'
 
-  if (!config.skipSCM) {
+  if (cfg.skipSCM == false) {
     try {
-        notify(config, stageName, 'Pending', 'PENDING')
+        notify(cfg, stageName, 'Pending', 'PENDING')
         checkout([
           $class: 'GitSCM',
           branches: scm.branches,
@@ -13,14 +14,14 @@ def call(config) {
           extensions: scm.extensions + [$class: 'LocalBranch', localBranch: "**"],
           userRemoteConfigs: scm.userRemoteConfigs
         ])
-        notify(config, stageName, 'Successful', 'PENDING')
+        notify(cfg, stageName, 'Successful', 'PENDING')
     } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'UNSTABLE'
         if (isGithubError(err)) {
-            notify(config, stageName, 'githubdown', 'FAILURE', true)
+            notify(cfg, stageName, 'githubdown', 'FAILURE', true)
         } else {
-            notify(config, stageName, 'Failed', 'FAILURE')
+            notify(cfg, stageName, 'Failed', 'FAILURE')
         }
         error(err.message)
     }

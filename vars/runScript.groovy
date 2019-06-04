@@ -1,11 +1,11 @@
 #!/usr/bin/env groovy
-
+import com.ge.nola.BanzaiCfg
 import org.codehaus.groovy.runtime.MethodClosure;
 
-def call(config, scriptPathOrClosure, args=null) {
+def call(BanzaiCfg cfg, scriptPathOrClosure, args=null) {
   if (scriptPathOrClosure instanceof MethodClosure) {
-    logger "Calling config MethodClosure"
-    scriptPathOrClosure.call(config)
+    logger "Calling cfg MethodClosure"
+    scriptPathOrClosure.call(cfg)
   } else if (scriptPathOrClosure.endsWith(".sh")) {
     if (scriptPathOrClosure.charAt(0) == "/"){
       scriptPathOrClosure = "." + scriptPathOrClosure

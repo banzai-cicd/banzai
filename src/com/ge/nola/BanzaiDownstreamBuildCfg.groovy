@@ -1,6 +1,6 @@
 package com.ge.nola;
 
-class BanazaiDownstreamBuildCfg {
+class BanzaiDownstreamBuildCfg extends BanzaiBaseCfg {
     String id
     String job
     Boolean optional

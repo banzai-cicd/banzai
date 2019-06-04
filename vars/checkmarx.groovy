@@ -1,18 +1,20 @@
 #!/usr/bin/env groovy
+import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiVulnerabilityCfg
 
-def call(config, opts) {
+def call(BanzaiCfg config, BanzaiVulnerabilityCfg vulnerabilityCfg) {
     def PROJECT_NAME = "${config.appName}-${env.BRANCH_NAME}"
-    def PRESET = opts.preset ?: '17'
+    def PRESET = vulnerabilityCfg.preset ?: '17'
       
-    if (!opts.credId) {
+    if (!vulnerabilityCfg.credId) {
       error("credId is required for Checkmarx")
       return
     }
-    if (!opts.teamUUID) {
+    if (!vulnerabilityCfg.teamUUID) {
       error("teamUUID is required for Checkmarx")
     }
 
-    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: opts.credId,
+    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: vulnerabilityCfg.credId,
                                 usernameVariable: 'CHECKMARX_USER', passwordVariable: 'CHECKMARX_PASSWORD']]) {
         step([$class: 'CxScanBuilder',
                 comment: '',
@@ -20,7 +22,7 @@ def call(config, opts) {
                 excludeOpenSourceFolders: '',
                 filterPattern: '',
                 fullScanCycle: 10,
-                groupId: "${opts.teamUUID}",
+                groupId: "${vulnerabilityCfg.teamUUID}",
                 includeOpenSourceFolders: '',
                 jobStatusOnError: 'UNSTABLE',
                 password: "${CHECKMARX_PASSWORD}",
@@ -39,8 +41,8 @@ def call(config, opts) {
         checkmarxSastResults()
     }
 
-    if (opts.resultEmails) {
-        opts.resultEmails.each {
+    if (vulnerabilityCfg.resultEmails) {
+        vulnerabilityCfg.resultEmails.each {
                 logger "Emailing Checkmarx Scan Results to ${it}"
                 emailext attachmentsPattern: '**/ScanReport.pdf', body: "BUILD_URL: ${BUILD_URL}", 
                         subject: "Checkmarx Scan Results: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}", 

@@ -1,6 +1,6 @@
 package com.ge.nola;
 
-class BanazaiFilterSecretsCfg {
+class BanzaiFilterSecretsCfg {
     String file
     String label
     String secretId

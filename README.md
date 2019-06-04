@@ -3,35 +3,35 @@
 Banzai
 ========
 
-example Jenkinsfile
+basic Jenkinsfile
 ```
-banzai {
-  appName = 'config-reviewer-server'
-  sshCreds = ['dev-ssh']  
-  build = /.*/
-  publish =  /tag\-(.*)|develop/
-  deploy = /tag\-(.*)|develop/
-}
+banzai([
+  appName: 'config-reviewer-server',
+  sshCreds: ['dev-ssh'],                                                 // add jenkins ssh cred with id 'dev-ssh' to the pipeline context
+  build: [ /.*/: [:] ],                                                  // build all branches (calls build.sh)
+  publish: [ /tag\-(.*)|develop/: [script : 'scripts/my-publish.sh'] ],  // publish tags and develop branch changes. Execute scripts/my-publish.sh instead of the default publish.sh
+  deploy: [ /tag\-(.*)|develop/: [:] ],                                  // deploy tags and develop branch changes (calls deploy.sh)
+])
 ```
 
 
-full list of Jenkins options
+full list of options
 ```
 @Library('Banzai@1.0.0') _ // only necessary if configured as a 'Global Pipeline Library'. IMPORTANT: the _ is required after @Library. 
-banzai {
-    appName = 'config-reviewer-server'          // **required** currently used only by SAST for determining the namespace to publish to.
-    throttle = 'my-project'                     // comma-delimited list of throttle categories to apply. (https://github.com/jenkinsci/throttle-concurrent-builds-plugin)
-    sshCreds = ['cred1', 'cred2']                                    // a list of any ssh creds that may be needed in your pipeline
-    skipSCM = true                              // skip pulling down the branch that kicked off the build
-    debug = false                               // provides additional debug messaging
-    gitTokenId = 'sweeney-git-token'            // a Jenkins credential id which points to a github token (required by downstreamBuilds)
-    httpsProxy = [
+banzai([
+    appName: 'config-reviewer-server',          // **required** currently used only by SAST for determining the namespace to publish to.
+    throttle: 'my-project',                     // comma-delimited list of throttle categories to apply. (https://github.com/jenkinsci/throttle-concurrent-builds-plugin)
+    sshCreds: ['cred1', 'cred2'],                                    // a list of any ssh creds that may be needed in your pipeline
+    skipSCM: true,                              // skip pulling down the branch that kicked off the build
+    debug: false,                               // provides additional debug messaging
+    gitTokenId: 'sweeney-git-token',            // a Jenkins credential id which points to a github token (required by downstreamBuilds)
+    httpsProxy: [
       envVar: 'https_proxy',                    // optionally use an env variable from the host to set the proxy info. should be in "{host}:{port}" format.
       host: 'proxyhost',
       port: '80'
-    ]
-    preCleanWorkspace = true                           // wipe workspace before each build
-    postCleanWorkspace = true                          // wipe workspace after each build    
+    ],
+    preCleanWorkspace: true,                           // wipe workspace before each build
+    postCleanWorkspace: true,                          // wipe workspace after each build    
     flowdock: [
       /.*/: [                                   // which branches should report notifications to Flowdock
         credId: 'flowdock-cred',
@@ -42,27 +42,22 @@ banzai {
           email: 'Service.MyJenkins@ge.com'
         ],
       ]
-    ]
-    build = /.*/                                // regex to determine which branches to build. defaults to running build.sh
-    build = [                                   // alternate build syntax
+    ],
+    build: [                                   // build configuration which matches all branches and calls the default build script. (build.sh)
+      /.*/ : [:]
+    ],
+    publish: [                                 // publish configuration which matches all branches and specifies a custom publish script location
       /.*/ : [
-        script: 'scripts/build.sh'
+        script: 'scripts/my-publish-script.sh'
       ]
-    ]
-    publish = /master/                          // regex to determine which branches to publish. defaults to running publish.sh
-    publish = [                                 // alternate publish syntax
+    ],
+    deploy: [                                 // deploy configuration which matches all branches and specifies a custom deploy script location
       /.*/ : [
-        script: 'scripts/build.sh'
+        script: 'scripts/my-deploy-script.sh'
       ]
-    ]
-    deploy = /tag\-(.*)|develop/               // regex to determine which branches to deploy. defaults to running deploy.sh.sh
-    deploy = [                                 // alternate deploy syntax
-      /.*/ : [
-        script: 'scripts/build.sh'
-      ]
-    ]
-    jdk = 'jdk 10.0.1'                         // value must be the name given to a configured JDK in the Global Tools sections of Jenkins
-    vulnerabilityAbortOnError                  // globally set that all vulnerability scans should abort the pipeline if there is an Error
+    ],
+    jdk = 'jdk 10.0.1',                         // value must be the name given to a configured JDK in the Global Tools sections of Jenkins
+    vulnerabilityAbortOnError,                  // globally set that all vulnerability scans should abort the pipeline if there is an Error
     vulnerabilityScans = [
       /develop|master/: [                      // run this collection of scans against develop
         [
@@ -85,8 +80,8 @@ banzai {
           abortOnError: true
         ]
       ]
-    ]
-    qualityScans = [
+    ],
+    qualityScans: [
       /develop|master/: [
         [
           type: 'sonar',
@@ -94,8 +89,8 @@ banzai {
           credId: 'sonar-auth-token-id'        // jenkins credential (of type secret) containing a sonar server auth token
         ]
       ]
-    ]
-    downstreamBuilds = [
+    ],
+    downstreamBuilds: [
       /develop/: [                             // 'develop' signifies that this collection of downstream build definition's will only run when the 'develop' branch is matched
         [
           id: 'my-job',
@@ -118,8 +113,8 @@ banzai {
           job: '/YOUR_PROJECT_FOLDER/Build/your-project/branch'
         ]
       ]
-    ]
-    filterSecrets = [
+    ],
+    filterSecrets: [
       /develop/: [
           file: 'settings.xml',                     // the filePath to filter relative to the jenkins WORKSPACE root
           label: 'myPass',                          // should appear in the file in the format ${banzai:myPass}
@@ -144,12 +139,12 @@ banzai {
         ]
       ]
     ],
-    gitOpsTrigger = [                      // should be present with-in a Service's .banzai when leveraging GitOps-style deployments
+    gitOpsTrigger: [                      // should be present with-in a Service's .banzai when leveraging GitOps-style deployments
       jenkinsJob: '/Banzai/GitOps/master', // the path to the GitOps master job in jenkins
       branches: /develop|tag-*/,           // branches that should trigger a GitOps build
       stackId: 'dib'                       // the GitOps 'stack' that this service is a member of
     ],
-    gitOps = [                             // should be present with-in a GitOps repo when leveraging GitOps-style deployments
+    gitOps: [                             // should be present with-in a GitOps repo when leveraging GitOps-style deployments
       autoDeploy: [
         /develop/ : 'dev'              // in this example. when a Service's 'develop' branch triggers the GitOps job. It will automatically spawn a deployment to the 'dev' environment 
       ],
@@ -162,7 +157,7 @@ banzai {
       ]
     ]
   ]
-}
+])
 ```
 
 ### downstreamBuilds
@@ -189,8 +184,9 @@ There are 2 methods of deployment via Banzai GitOps.
 First, update the .banzai file in the repository of each Service that you would like to trigger a GitOps job
 .banzai additions
 ```
-deploy = false                         # ensure that 'deploy' is removed or set to 'false'
-gitOpsTrigger = [
+# ensure that 'deploy' is removed then add:
+
+gitOpsTrigger: [
   jenkinsJob: '/Banzai/GitOps/master', # the path to the GitOps master job in jenkins
   branches: /develop|tag-*/,           # branches that should trigger a GitOps build
   stackId: 'dib'                       # the GitOps 'stack' that this service is a member of
