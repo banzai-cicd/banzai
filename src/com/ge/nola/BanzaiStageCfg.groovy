@@ -35,9 +35,9 @@ class BanzaiStageCfg {
                 ugggghhhhhhhhhhh
             */
             if (stageName == 'scans') {
-                this."${stageName}Stage"(args[0], args[1])
+                "${stageName}Stage"(args[0], args[1])
             } else {
-                this."${stageName}Stage"(args[0])
+                "${stageName}Stage"(args[0])
             }
         }
     }
