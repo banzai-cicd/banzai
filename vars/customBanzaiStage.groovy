@@ -6,7 +6,9 @@ import com.ge.nola.BanzaiStepCfg
 def call(BanzaiCfg cfg, BanzaiStageCfg stageCfg) {
   String stageName = stageCfg.name
   List<BanzaiStepCfg> stepsCfg = getBranchBasedConfig(stageCfg.steps)
-
+  logger stepsCfg.getClass()
+  logger stepsCfg.get(0).getClass()
+  
   if (stepsCfg == null) {
     logger "${BRANCH_NAME} does not match a branch pattern for the custom stage '${stageName}'. Skipping ${stageName}"
     return
