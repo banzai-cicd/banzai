@@ -11,8 +11,8 @@ def call(BanzaiCfg cfg, String type) {
 
     if (cfg[scanKey]) {
         // check and see if the current branch matches the cfg
-        def scansConfig = getBranchBasedConfig(cfg[scanKey])
-        if (scansConfig == null) {
+        def scanCfgs = getBranchBasedConfig(cfg[scanKey])
+        if (scanCfgs == null) {
             logger "${BRANCH_NAME} does match a '${scanKey}' branch pattern. Skipping ${stageName}"
             return
         }
@@ -22,10 +22,10 @@ def call(BanzaiCfg cfg, String type) {
                 notify(cfg, stageName, 'Pending', 'PENDING')
                 switch (type) {
                     case 'vulnerability':
-                        vulnerabilityScans(cfg, scansConfig)
+                        vulnerabilityScans(cfg, (List<BanzaiVulnerabilityCfg>) scanCfgs)
                         break
                     case 'quality':
-                        qualityScans(cfg, scansConfig)
+                        qualityScans(cfg, (List<BanzaiQualityCfg>) scanCfgs)
                         break
                     default:
                         throw new GroovyRuntimeException("scan with of type '${type}' not recognized")
