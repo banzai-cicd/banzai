@@ -8,7 +8,7 @@ def call(BanzaiCfg cfg) {
   String stageName = 'Build'
   BanzaiUserStepCfg buildCfg = getBranchBasedConfig(cfg.build)
 
-  if (stageConfig == null) {
+  if (buildCfg == null) {
     logger "${BRANCH_NAME} does not match a 'build' branch pattern. Skipping ${stageName}"
     return
   }
@@ -16,7 +16,7 @@ def call(BanzaiCfg cfg) {
   stage (stageName) {
     try {
       notify(cfg, stageName, 'Pending', 'PENDING')
-      String script = stageConfig.script ?: "build.sh"
+      String script = buildCfg.script ?: "build.sh"
       runScript(cfg, script)
       notify(cfg, stageName, 'Successful', 'PENDING')
     } catch (err) {
