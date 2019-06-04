@@ -84,12 +84,25 @@ def runPipeline(BanzaiCfg cfg) {
                 // project-provided pipeline stages
                 if (cfg.stages) {
                     logger "Executing Custom Banzai Stages"
-                    logger "${cfg.stages.getClass()}"
-                    "buildStage"(cfg)
-                    // cfg.stages.each { BanzaiStageCfg stage ->
-                    //     logger "${stage.getClass()}"
-                    //     stage.execute(cfg)
-                    // }
+                    cfg.stages.each { BanzaiStageCfg stage ->
+                        if (stage.isBanzaiStage()) {
+                            List<String> parts = stage.name.tokenize(':')
+                            String stageName = parts.removeAt(0)
+                            def args = [cfg] + parts
+                            // execute stage
+                            /*
+                                jenkins doesn't support the friggin spread operator so I can't do
+                                this."${stageName}Stage"(*args)
+                                which would be a nice one-liner for supporting stages w/ variable args
+                                ugggghhhhhhhhhhh
+                            */
+                            if (stageName == 'scans') {
+                                "${stageName}Stage"(args[0], args[1])
+                            } else {
+                                "${stageName}Stage"(args[0])
+                            }
+                        }
+                    }
                 } else {
                     scansStage(cfg, 'vulnerability')
                     scansStage(cfg, 'quality')
