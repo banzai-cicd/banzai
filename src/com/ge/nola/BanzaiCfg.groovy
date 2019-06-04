@@ -32,4 +32,17 @@ class BanzaiCfg {
     /* strictly for internal banzai usage */
     BanzaiInternalCfg internal = new BanzaiInternalCfg()
     List<BanzaiStageCfg> stages
+
+    public BanzaiCfg() {
+        /*
+        whenever we have properties of type 'List' typed to an object we have to 
+        manually populate them because Groovy's MapConstructor will
+        leave them as LinkedHashMaps. Jenkins doesn't support
+        @MapConstructor which would make this cleaner
+        */
+        props.keySet().each { this[it] = props[it] }
+        if (props.stages) {
+            this.stages = props.stages.collect { new BanzaiStageCfg(it) }
+        }
+    }
 }
