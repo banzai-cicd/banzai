@@ -7,7 +7,7 @@ def call(BanzaiCfg cfg, BanzaiStageCfg stageCfg) {
   String stageName = stageCfg.name
   List<BanzaiStepCfg> stepCfgs = getBranchBasedConfig(stageCfg.steps)
 
-  if (stepsCfg == null) {
+  if (stepCfgs == null) {
     logger "${BRANCH_NAME} does not match a branch pattern for the custom stage '${stageName}'. Skipping ${stageName}"
     return
   }
