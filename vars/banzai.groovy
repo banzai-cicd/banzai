@@ -85,10 +85,11 @@ def runPipeline(BanzaiCfg cfg) {
                 if (cfg.stages) {
                     logger "Executing Custom Banzai Stages"
                     logger "${cfg.stages.getClass()}"
-                    cfg.stages.each { BanzaiStageCfg stage ->
-                        logger "${stage.getClass()}"
-                        stage.execute(cfg)
-                    }
+                    "buildStage"(cfg)
+                    // cfg.stages.each { BanzaiStageCfg stage ->
+                    //     logger "${stage.getClass()}"
+                    //     stage.execute(cfg)
+                    // }
                 } else {
                     scansStage(cfg, 'vulnerability')
                     scansStage(cfg, 'quality')
