@@ -11,7 +11,7 @@ def call(BanzaiCfg cfg, String type) {
 
     if (cfg[scanKey]) {
         // check and see if the current branch matches the cfg
-        def scansConfig = getBranchBasedConfig(config[scanKey])
+        def scansConfig = getBranchBasedConfig(cfg[scanKey])
         if (scansConfig == null) {
             logger "${BRANCH_NAME} does match a '${scanKey}' branch pattern. Skipping ${stageName}"
             return
