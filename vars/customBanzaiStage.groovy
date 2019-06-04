@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiStageCfg
+import com.ge.nola.BanzaiStepCfg
 
 def call(BanzaiCfg cfg, BanzaiStageCfg stageCfg) {
   String stageName = stageCfg.name
