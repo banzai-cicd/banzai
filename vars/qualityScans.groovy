@@ -3,7 +3,7 @@ import main.groovy.cicd.pipeline.settings.PipelineSettings;
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiQualityCfg
 
-def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
+def call(BanzaiCfg cfg, scanConfigs) {
     def stages = [:]
     
     scanConfigs.each {

@@ -1,7 +1,5 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
-import com.ge.nola.BanzaiVulnerabilityCfg
-import com.ge.nola.BanzaiQualityCfg
 
 /**
  Stage that can be re-used for vulnerabilityScans and qualityScans
@@ -24,10 +22,10 @@ def call(BanzaiCfg cfg, String type) {
                 notify(cfg, stageName, 'Pending', 'PENDING')
                 switch (type) {
                     case 'vulnerability':
-                        vulnerabilityScans(cfg, (List<BanzaiVulnerabilityCfg>) scanCfgs)
+                        vulnerabilityScans(cfg, scanCfgs)
                         break
                     case 'quality':
-                        qualityScans(cfg, (List<BanzaiQualityCfg>) scanCfgs)
+                        qualityScans(cfg, scanCfgs)
                         break
                     default:
                         throw new GroovyRuntimeException("scan with of type '${type}' not recognized")
