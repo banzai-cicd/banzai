@@ -16,7 +16,7 @@ def call(BanzaiCfg cfg) {
   stage (stageName) {
     try {
       notify(cfg, stageName, 'Pending', 'PENDING', true)
-      String script = publishCfg.publish ?: "publish.sh"
+      String script = publishCfg.script ?: "publish.sh"
       runScript(cfg, script)
       notify(cfg, stageName, 'Successful', 'PENDING', true)
     } catch (err) {
