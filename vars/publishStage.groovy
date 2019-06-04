@@ -1,12 +1,12 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
-import com.ge.nola.BanzaiUserStepCfg
+import com.ge.nola.BanzaiUserCfg
 
 def call(BanzaiCfg cfg) {
   if (cfg.publish == null) { return }
 
   String stageName = 'Publish'
-  BanzaiUserStepCfg publishCfg = getBranchBasedConfig(cfg.publish)
+  BanzaiUserCfg publishCfg = getBranchBasedConfig(cfg.publish)
   
   if (publishCfg == null) {
     logger "${BRANCH_NAME} does not match a 'publish' branch pattern. Skipping ${stageName}"

@@ -1,12 +1,12 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
-import com.ge.nola.BanzaiUserStepCfg
+import com.ge.nola.BanzaiUserCfg
 
 def call(BanzaiCfg cfg) {
   if (cfg.build == null) { return } 
 
   String stageName = 'Build'
-  BanzaiUserStepCfg buildCfg = getBranchBasedConfig(cfg.build)
+  BanzaiUserCfg buildCfg = getBranchBasedConfig(cfg.build)
 
   if (buildCfg == null) {
     logger "${BRANCH_NAME} does not match a 'build' branch pattern. Skipping ${stageName}"
