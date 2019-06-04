@@ -7,7 +7,7 @@ def call(BanzaiCfg cfg) {
 
   def stageName = 'Filter Secrets'
   BanzaiFilterSecretsCfg filterSecretsCfg = getBranchBasedConfig(cfg.filterSecrets)
-  if (stageConfig == null) {
+  if (filterSecretsCfg == null) {
     logger "${BRANCH_NAME} does not match a 'filterSecrets' branch pattern. Skipping ${stageName}"
     return
   }
