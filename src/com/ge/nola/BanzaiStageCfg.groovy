@@ -4,7 +4,6 @@ package com.ge.nola;
 class BanzaiStageCfg {
     String name
     Map<String, List<BanzaiStepCfg>> steps
-    Boolean notifyGit = true
 
     private List<String> banzaiStageLabels = [
         'build',
@@ -24,7 +23,7 @@ class BanzaiStageCfg {
     }
 
     public BanzaiStageCfg(LinkedHashMap props) {
-        props.keySet().each { this[it] = props[it] }
+        this.name = props.name
         if (props.steps) {
             this.steps = [:]
             props.steps.keySet().each {
