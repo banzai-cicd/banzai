@@ -9,7 +9,7 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
         return
     }
     // determine if there is an email config for this branch
-    BanzaiNotificationsEmailCfg emailCfg = findValueInRegexObject(cfg.notifications.email)
+    BanzaiNotificationsEmailCfg emailCfg = findValueInRegexObject(cfg.notifications.email, BRANCH_NAME)
     String currentEvent = event.getEventLabel()
     List<String> addresses = []
     if (emailCfg.groups) {
