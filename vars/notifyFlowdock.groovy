@@ -12,7 +12,7 @@ def call(BanzaiCfg cfg, BanzaiEvent event) {
   
   // see if there is a notifications.flowdock configuration for the current branch
   Map<String, List<String>> flowdockNotificationsCfg = 
-    findValueInRegexObject(notifications.flowdock, BRANCH_NAME)
+    findValueInRegexObject(cfg.notifications.flowdock, BRANCH_NAME)
   if (flowdockNotificationsCfg == null) {
     logger "flowdockNotificationsCfg = null"
     return
