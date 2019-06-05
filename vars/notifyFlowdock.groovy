@@ -6,7 +6,7 @@ import com.ge.nola.BanzaiEvent
 
 //def call(BanzaiCfg config, String stage, String message, String status) {
 def call(BanzaiCfg cfg, BanzaiEvent event) {
-  if (!cfg.flowdock || !cfg.notifications || !cfg.notificatons.flowdock) {
+  if (!cfg.flowdock || !cfg.notifications || !cfg.notifications.flowdock) {
     return
   }
   
