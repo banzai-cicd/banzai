@@ -25,7 +25,7 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
         }
     }
     if (emailCfg.individuals) {
-        Set<String> emailIds = emailCfg.individuals.keyset().findAll { emailId ->
+        Set<String> emailIds = emailCfg.individuals.keySet().findAll { emailId ->
             emailCfg.individuals[emailId].find { regex -> currentEvent ==~ regex }
         }
 
