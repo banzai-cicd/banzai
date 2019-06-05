@@ -2,6 +2,7 @@
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiStageCfg
 import com.ge.nola.BanzaiStepCfg
+import com.ge.nola.BanzaiEvent
 
 def call(BanzaiCfg cfg, BanzaiStageCfg stageCfg) {
   String stageName = stageCfg.name
