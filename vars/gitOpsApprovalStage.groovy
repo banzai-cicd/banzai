@@ -143,7 +143,7 @@ def call(config) {
             def approvalSubject = "Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested"
             def approvalMsg = "${approvalSubject} with the following verisions:"
             def approvalBody = "${approvalMsg}\n${proposedServiceVersions}"
-            gitOpsSendEmail(approverEmails, null, approvalSubject, approvalBody)
+            sendEmail(approverEmails, null, approvalSubject, approvalBody)
 
             // present input steps
             def approverId = input message: msg,
@@ -156,7 +156,7 @@ def call(config) {
             String subject = "Deployment of the '${STACK}' Stack to the '${ENV}' Environment is approved"
             String approvedMsg = "${subject} by ${approverName} with the following versions:"
             String approvedBody = "${approvedMsg}\n${proposedServiceVersions}"
-            gitOpsSendEmail(approverEmails, watcherEmails, subject, approvedBody)
+            sendEmail(approverEmails, watcherEmails, subject, approvedBody)
             
             // Finalize!
             finalizeDeployment(config)
@@ -166,7 +166,7 @@ def call(config) {
             String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
             logger deniedMsg
             currentBuild.result = 'ABORTED'
-            gitOpsSendEmail(approverEmails, watcherEmails, deniedSubject, deniedMsg)
+            sendEmail(approverEmails, watcherEmails, deniedSubject, deniedMsg)
           }
         }
       }

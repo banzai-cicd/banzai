@@ -20,7 +20,7 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
   /*
   get a list of flowCfgId's that have a regex matching the current event
   */
-  String currentEvent = "${event.scope}:${event.status}"
+  String currentEvent = event.getEventLabel()
   Set<String> flowConfigIds = flowdockNotificationsCfg.keySet().findAll { flowCfgId ->
       flowdockNotificationsCfg[flowCfgId].find { regex -> currentEvent ==~ regex }
   }

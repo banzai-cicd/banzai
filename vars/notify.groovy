@@ -10,7 +10,7 @@ void call(BanzaiCfg cfg, Map eventOpts) {
       notifyGit(cfg, event)
     }
     notifyFlowdock(cfg, event)
-    // notifyEmail(cfg, event)    
+    notifyEmail(cfg, event)    
   } catch (Exception e) {
     logger "ERROR CAUGHT WHILE NOTIFYING"
     error(e.message)

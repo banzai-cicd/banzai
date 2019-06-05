@@ -22,4 +22,8 @@ class BanzaiEvent {
         this.stage = props.stage ?: 'Pipeline'
         this.message = props.message
     }
+
+    String getEventLabel() {
+        return "${this.scope}:${this.status}"
+    }
 }
