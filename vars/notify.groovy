@@ -10,7 +10,7 @@ void call(BanzaiCfg cfg, Map eventOpts) {
       notifyGit(cfg, event)
     }
     notifyFlowdock(cfg, event)
-    notifyEmail(cfg, event)    
+    notifyEmailBanzai(cfg, event)    
   } catch (Exception e) {
     error(e.message)
   }
