@@ -12,6 +12,7 @@ void call(BanzaiCfg cfg, Map eventOpts) {
     notifyFlowdock(cfg, event)
     // notifyEmail(cfg, event)    
   } catch (Exception e) {
+    logger "ERROR CAUGHT WHILE NOTIFYING"
     error(e.message)
   }
 }

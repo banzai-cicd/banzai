@@ -3,7 +3,7 @@
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiEvent
 
-def call(BanzaiCfg cfg, BanzaiEvent event) {
+void call(BanzaiCfg cfg, BanzaiEvent event) {
   /*
     By default, match PIPELINE:SUCCESS and all STAGE events except STAGE:SUCCESS
     (we don't want to mark the build as a success after each stage, only after PIPELINE)
