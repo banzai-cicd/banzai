@@ -18,7 +18,7 @@ class BanzaiEvent {
 
     public BanzaiEvent(Map props) {
         this.scope = props.scope
-        this.staetus = props.status
+        this.status = props.status
         this.stage = props.stage ?: 'Pipeline'
         this.message = props.message
     }
