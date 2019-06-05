@@ -1,10 +1,12 @@
 #!/usr/bin/env groovy
+import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiEvent
 
-def call(config) {
+def call(BanzaiCfg cfg) {
   def stageName = 'PowerDevOps Reporting'
 
-  if (config.powerDevOpsReporting) {    
-    if (config.powerDevOpsReporting.branches && !(BRANCH_NAME ==~ config.powerDevOpsReporting.branches)) {
+  if (cfg.powerDevOpsReporting) {    
+    if (cfg.powerDevOpsReporting.branches && !(BRANCH_NAME ==~ cfg.powerDevOpsReporting.branches)) {
       logger "${BRANCH_NAME} does not match the powerDevOpsReporting.branches pattern. Skipping ${stageName}"
       return 
     }
@@ -17,7 +19,7 @@ def call(config) {
             stage: stageName,
             message: 'Pending'
         ])
-        if (config.httpsProxy) {
+        if (cfg.httpsProxy) {
           authenticateService(true)
         }
         reportPipelineStatePublish();
