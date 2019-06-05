@@ -1,5 +1,6 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiEvent
 
 def call(BanzaiCfg cfg) {
   def stageName = 'Checkout'
