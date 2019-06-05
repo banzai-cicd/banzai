@@ -1,4 +1,4 @@
-package com.ge.nola;
+#!/usr/bin/env groovy
 
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiEvent
@@ -36,6 +36,6 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
         String details = "${env.JOB_NAME} ${event.scope} ${event.status}"
         String subject = "Banzai: ${details}"
         String body = "Message: ${event.message}"
-       sendEmail(addresses.join(','), null, subject, body)
+        sendEmail(addresses.join(','), null, subject, body)
     }
 }

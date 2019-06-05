@@ -10,23 +10,8 @@ void call(BanzaiCfg cfg, Map eventOpts) {
       notifyGit(cfg, event)
     }
     notifyFlowdock(cfg, event)
-    notifyEmailBanzai(cfg, event)    
+    notifyEmail(cfg, event)    
   } catch (Exception e) {
     error(e.message)
   }
 }
-
-
-// def call(config, stage, message, status, enableGit=true) {
-//   try {
-//     if (config.flowdock) {
-//       notifyFlowdock(config, stage, message, status)
-//     }
-
-//     if (enableGit) {
-//       notifyGit(config, stage, message, status)
-//     }
-//   } catch (Exception e) {
-//     error(e.message)
-//   }
-// }
