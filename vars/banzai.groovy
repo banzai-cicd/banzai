@@ -43,7 +43,7 @@ def runPipeline(BanzaiCfg cfg) {
 
         node() {
             printEnv()
-            
+
             // ensure proxy fields are properly set
             setProxy(cfg)
 
@@ -66,6 +66,11 @@ def runPipeline(BanzaiCfg cfg) {
                 cfg.sshCreds = []
             }
             sshagent(credentials: cfg.sshCreds) {
+                notify(cfg, [
+                    scope: BanzaiEvent.Scope.PIPELINE,
+                    status: BanzaiEvent.Status.PENDING,
+                    message: 'Pipeline pending...'
+                ])
                 // TODO notify Flowdock build starting
                 echo "My branch is: ${env.BRANCH_NAME}"
 
