@@ -129,7 +129,7 @@ def runPipeline(BanzaiCfg cfg) {
                 }
 
                 currentBuild.result = 'SUCCESS'
-                notify(cfg, [
+                def hmmm = notify(cfg, [
                     scope: BanzaiEvent.Scope.PIPELINE,
                     status: BanzaiEvent.Status.SUCCESS,
                     message: 'All Stages Complete'
