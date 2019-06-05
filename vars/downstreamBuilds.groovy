@@ -16,11 +16,11 @@ String determineRepoName(url) {
     return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last().split("\\.")[0]
 }
 
-Map findBuildCfg(id, List<BanzaiDownstreamBuildCfg>> downstreamBuildCfgs) {
+Map findBuildCfg(id, List<BanzaiDownstreamBuildCfg> downstreamBuildCfgs) {
     return downstreamBuildCfgs.find { it.id == id }
 }
 
-Map findAndValidateTargetBuild(id, List<BanzaiDownstreamBuildCfg>> downstreamBuildCfgs) {
+Map findAndValidateTargetBuild(id, List<BanzaiDownstreamBuildCfg> downstreamBuildCfgs) {
     logger "Finding Build Cfg with id ${id}"
     BanzaiDownstreamBuildCfg result = findBuildCfg(id, downstreamBuildCfgs)
     BanzaiDownstreamBuildCfg targetBuild = result.clone(new BanzaiDownstreamBuildCfg())
@@ -31,7 +31,7 @@ Map findAndValidateTargetBuild(id, List<BanzaiDownstreamBuildCfg>> downstreamBui
 }
 
 // get a list of all the buildIds after checking if optional builds are specified by github pr labels
-List<String> getBuildIdsWithOptional(BanzaiCfg cfg, List<BanzaiDownstreamBuildCfg>> downstreamBuildsDefinitions) {
+List<String> getBuildIdsWithOptional(BanzaiCfg cfg, List<BanzaiDownstreamBuildCfg> downstreamBuildsDefinitions) {
     logger "Evaluating Github PR Labels..."
     withCredentials([string(credentialsId: cfg.gitTokenId, variable: 'TOKEN')]) {
         // determine base repo/branch git url info
@@ -210,7 +210,7 @@ def executeParallelBuilds(List<String> buildIds, List<BanzaiDownstreamBuildCfg> 
 def call(BanzaiCfg cfg) {
     String stageName = 'Downstream Builds'
     // check and see if the current branch matches the cfg
-    List<BanzaiDownstreamBuildCfg>> downstreamBuildCfgs = findValueInRegexObject(cfg.downstreamBuilds, BRANCH_NAME)
+    List<BanzaiDownstreamBuildCfg> downstreamBuildCfgs = findValueInRegexObject(cfg.downstreamBuilds, BRANCH_NAME)
     if (!downstreamBuildCfgs) {
         logger "${BRANCH_NAME} does not match a 'downstreamBuilds' branch pattern. Skipping ${stageName}"
         return
