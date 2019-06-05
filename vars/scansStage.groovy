@@ -24,7 +24,7 @@ def call(BanzaiCfg cfg, String type) {
         try {
             notify(cfg, [
                 scope: BanzaiEvent.scope.STAGE,
-                status: BanzaiEvent.scope.PENDING,
+                status: BanzaiEvent.status.PENDING,
                 stage: this.stageName,
                 message: 'Pending'
             ])
