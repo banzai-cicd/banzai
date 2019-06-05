@@ -15,7 +15,7 @@ class BanzaiCfg {
     Boolean postCleanWorkspace
     Boolean skipSCM = false
     Map<String, BanzaiFlowdockCfg> flowdock
-    BanzaiEmailCfg email
+    Map<String, BanzaiEmailCfg> email
     BanzaiNotificationsCfg notifications
     Map<String, BanzaiStepCfg> build
     Map<String, BanzaiStepCfg> publish
