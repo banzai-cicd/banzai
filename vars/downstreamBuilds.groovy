@@ -147,7 +147,7 @@ def executeSerialBuild(List<String> buildIds, List<BanzaiDownstreamBuildCfg> dow
 
     // this syntax allows the 'jenkins pipeline build step' to add properties 
     // in the future and automatically be support with-out code change. (unless they use a prop name we're using, ie) 'id', 'optional'
-    build(buildDefaults << targetBuild << [parameters: buildParams])
+    build(buildDefaults << targetBuild.asMap() << [parameters: buildParams])
 }
 
 // have to write this abomination because we can't use takeWhile() on jenkins cause of CPS

@@ -1,6 +1,6 @@
 package com.ge.nola;
 
-class BanzaiDevOpsReportingCfg {
+class BanzaiDevOpsReportingCfg extends BanzaiBaseCfg {
     String branches
     String ci
     String uai
@@ -8,10 +8,4 @@ class BanzaiDevOpsReportingCfg {
     String uaaUrl
     String metricsUrl
     Map<String, BanzaiDevOpsReportingEnvCfg> environments
-
-    Map asMap() {
-        this.class.declaredFields.findAll { !it.synthetic }.collectEntries {
-            [ (it.name):this."$it.name" ]
-        }
-    }
 }

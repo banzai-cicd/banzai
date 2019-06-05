@@ -7,4 +7,10 @@ class BanzaiBaseCfg {
         commonProps.each { target[it] = this[it] }
         return target
     }
+
+     Map asMap() {
+        this.class.declaredFields.findAll { !it.synthetic }.collectEntries {
+            [ (it.name):this."$it.name" ]
+        }
+    }
 }
