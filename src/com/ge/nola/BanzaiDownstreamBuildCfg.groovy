@@ -6,4 +6,5 @@ class BanzaiDownstreamBuildCfg extends BanzaiBaseCfg {
     Boolean optional = false
     Boolean parallel = false
     Boolean propagate = false
+    List<Object> parameters
 }
