@@ -11,22 +11,17 @@ def call(BanzaiCfg cfg, BanzaiEvent event) {
   }
   
   // see if there is a notifications.flowdock configuration for the current branch
-  logger "looking for flowdockNotificationsCfg"
   Map<String, List<String>> flowdockNotificationsCfg = 
     findValueInRegexObject(cfg.notifications.flowdock, BRANCH_NAME)
   if (flowdockNotificationsCfg == null) {
     logger "flowdockNotificationsCfg = null"
     return
   }
-  logger "flowdockNotificationsCfg found ${flowdockNotificationsCfg}"
-
   /*
   get a list of flowCfgId's that have a regex matching the current event
   */
   String currentEvent = "${event.scope}:${event.status}"
-  List<String> possibleFlowIds = flowdockNotificationsCfg.keySet()
-  logger "possibleFlowIds ${possibleFlowIds}"
-  List<String> flowConfigIds = possibleFlowIds.findAll { flowCfgId ->
+  Set<String> flowConfigIds = flowdockNotificationsCfg.keySet().findAll { flowCfgId ->
       flowdockNotificationsCfg[flowCfgId].find { regex -> currentEvent ==~ regex }
   }
 
@@ -34,10 +29,6 @@ def call(BanzaiCfg cfg, BanzaiEvent event) {
     logger "flowConfigIds = null"
     return
   }
-
-  logger "flowConfigIds ${flowConfigIds}"
-  logger cfg.flowdock.getClass()
-  logger cfg.flowdock.banzaiFlow
 
   // now we know we'd like to send some notifications
   List<BanzaiFlowdockCfg> flowdockCfgs = flowConfigIds.collect { cfg.flowdock[it] }
