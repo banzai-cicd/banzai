@@ -31,6 +31,10 @@ def call(BanzaiCfg cfg, BanzaiEvent event) {
     return
   }
 
+  logger "flowConfigIds ${flowConfigIds}"
+  logger cfg.flowdock.getClass()
+  logger cfg.flowdock.banzaiFlow
+
   // now we know we'd like to send some notifications
   List<BanzaiFlowdockCfg> flowdockCfgs = flowConfigIds.collect { cfg.flowdock[it] }
   flowdockCfgs.each { BanzaiFlowdockCfg flowdockCfg ->
