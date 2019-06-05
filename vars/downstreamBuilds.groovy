@@ -85,9 +85,9 @@ List<String> getBuildIdsWithOptional(BanzaiCfg cfg, List<BanzaiDownstreamBuildCf
 // remove any custom properties that we support which we know
 // aren't properties of the 'jenkins pipeline build step' https://jenkins.io/doc/pipeline/steps/pipeline-build-step/
 def removeCustomPropertiesFromBuildCfg(build) {
-    build.remove('id')
-    build.remove('optional')
-    build.remove('parallel')
+    build.id = null
+    build.optional = null
+    build.parallel = null
 }
 
 def validateBuildDef(build) {
