@@ -11,20 +11,40 @@ def call(config) {
 
     stage (stageName) {
       try {
-        notify(config, stageName, 'Pending', 'PENDING')
+        notify(cfg, [
+            scope: BanzaiEvent.Scope.STAGE,
+            status: BanzaiEvent.Status.PENDING,
+            stage: stageName,
+            message: 'Pending'
+        ])
         if (config.httpsProxy) {
           authenticateService(true)
         }
         reportPipelineStatePublish();
         reportPipelineStateDeploy();
-        notify(config, stageName, 'Successful', 'PENDING')
+        notify(cfg, [
+            scope: BanzaiEvent.Scope.STAGE,
+            status: BanzaiEvent.Status.SUCCESS,
+            stage: stageName,
+            message: 'Success'
+        ])
       } catch (err) {
           echo "Caught: ${err}"
           currentBuild.result = 'FAILURE'
           if (isGithubError(err)) {
-              notify(config, stageName, 'githubdown', 'FAILURE', true)
+            notify(cfg, [
+              scope: BanzaiEvent.Scope.STAGE,
+              status: BanzaiEvent.Status.FAILURE,
+              stage: stageName,
+              message: 'githubdown'
+            ])
           } else {
-              notify(config, stageName, 'Failed', 'FAILURE')
+            notify(cfg, [
+              scope: BanzaiEvent.Scope.STAGE,
+              status: BanzaiEvent.Status.FAILURE,
+              stage: stageName,
+              message: 'Failed'
+            ])   
           }
           
           error(err.message)

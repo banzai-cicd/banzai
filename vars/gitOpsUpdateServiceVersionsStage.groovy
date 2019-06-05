@@ -13,13 +13,28 @@ def call(config) {
 
   stage (stageName) {
     try {
-      notify(config, stageName, 'Pending', 'PENDING', true)
+      notify(cfg, [
+          scope: BanzaiEvent.Scope.STAGE,
+          status: BanzaiEvent.Status.PENDING,
+          stage: stageName,
+          message: 'Pending'
+      ])
       gitOpsUpdateServiceVersions(config)
-      notify(config, stageName, 'Successful', 'PENDING', true)
+      notify(cfg, [
+          scope: BanzaiEvent.Scope.STAGE,
+          status: BanzaiEvent.Status.SUCCESS,
+          stage: stageName,
+          message: 'Success'
+      ])
     } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
-        notify(config, stageName, 'Failed', 'FAILURE', true)
+        notify(cfg, [
+            scope: BanzaiEvent.Scope.STAGE,
+            status: BanzaiEvent.Status.FAILURE,
+            stage: stageName,
+            message: 'Failed'
+        ])
         error(err.message)
     }
   }
