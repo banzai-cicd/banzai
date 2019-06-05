@@ -7,11 +7,13 @@ import com.ge.nola.BanzaiEvent
 def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
     def stages = [:]
     
+    String stageName
     scanConfigs.each {
         switch (it.type) {
             case "sonar": // requires https://github.build.ge.com/PowerDevOps/jenkins-master-shared-library
+                stageName = "Sonar"
                 stages[it.type] = {
-                    stage("Sonar") {
+                    stage(stageName) {
                         try {
                             notify(cfg, [
                                 scope: BanzaiEvent.Scope.STAGE,
