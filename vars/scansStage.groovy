@@ -25,7 +25,7 @@ def call(BanzaiCfg cfg, String type) {
             notify(cfg, [
                 scope: BanzaiEvent.Scope.STAGE,
                 status: BanzaiEvent.Status.PENDING,
-                stage: this.stageName,
+                stage: stageName,
                 message: 'Pending'
             ])
             switch (type) {
@@ -41,7 +41,7 @@ def call(BanzaiCfg cfg, String type) {
             notify(cfg, [
                 scope: BanzaiEvent.Scope.STAGE,
                 status: BanzaiEvent.Status.SUCCESS,
-                stage: this.stageName,
+                stage: stageName,
                 message: 'Success'
             ])
         } catch (err) {
@@ -49,7 +49,7 @@ def call(BanzaiCfg cfg, String type) {
             notify(cfg, [
                 scope: BanzaiEvent.Scope.STAGE,
                 status: BanzaiEvent.Status.FAILURE,
-                stage: this.stageName,
+                stage: stageName,
                 message: 'Failed'
             ]) 
 
