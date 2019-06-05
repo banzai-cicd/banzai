@@ -15,7 +15,7 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
     if (emailCfg.groups) {
         // find groupIds
         Set<String> groupIds = emailCfg.groups.keySet().findAll { groupId ->
-             emailCfg.groups[it].find { regex -> currentEvent ==~ regex }
+             emailCfg.groups[groupId].find { regex -> currentEvent ==~ regex }
         }
 
         // get email addresses of group(s)
