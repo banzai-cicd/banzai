@@ -14,15 +14,16 @@ class BanzaiCfg {
     Boolean preCleanWorkspace
     Boolean postCleanWorkspace
     Boolean skipSCM = false
-    String flowdockBranches
-    String flowdockCredId
     Map<String, BanzaiFlowdockCfg> flowdock
+    BanzaiEmailCfg email
+    BanzaiNotificationsCfg notifications
     Map<String, BanzaiStepCfg> build
     Map<String, BanzaiStepCfg> publish
     Map<String, BanzaiStepCfg> deploy
     Map<String, BanzaiIntegrationTestsCfg> integrationTests
     Boolean vulnerabilityAbortOnError
     Map<String, List<BanzaiVulnerabilityCfg>> vulnerabilityScans
+    Boolean qualityAbortOnError
     Map<String, List<BanzaiQualityCfg>> qualityScans
     Map<String, List<BanzaiDownstreamBuildCfg>> downstreamBuilds
     Map<String, BanzaiFilterSecretsCfg> filterSecrets

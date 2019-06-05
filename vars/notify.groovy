@@ -1,15 +1,31 @@
 #!/usr/bin/env groovy
 
-def call(config, stage, message, status, skipGit=false) {
-  try {
-    if (config.flowdock) {
-      notifyFlowdock(config, stage, message, status)
-    }
+import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiEvent
 
-    if (notifyGit != false && !skipGit) {
-      notifyGit(config, stage, "${message}", status)
+def call(BanzaiCfg cfg, BanzaiEvent event) {
+  try {
+    if (event.message != 'githubdown') {
+      notifyGit(config, stage, message, status)
     }
+    notifyFlowdock(cfg, event)
+    // notifyEmail(cfg, event)    
   } catch (Exception e) {
     error(e.message)
   }
 }
+
+
+// def call(config, stage, message, status, enableGit=true) {
+//   try {
+//     if (config.flowdock) {
+//       notifyFlowdock(config, stage, message, status)
+//     }
+
+//     if (enableGit) {
+//       notifyGit(config, stage, message, status)
+//     }
+//   } catch (Exception e) {
+//     error(e.message)
+//   }
+// }

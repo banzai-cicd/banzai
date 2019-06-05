@@ -210,7 +210,7 @@ def executeParallelBuilds(List<String> buildIds, List<BanzaiDownstreamBuildCfg> 
 def call(BanzaiCfg cfg) {
     String stageName = 'Downstream Builds'
     // check and see if the current branch matches the cfg
-    List<BanzaiDownstreamBuildCfg>> downstreamBuildCfgs = getBranchBasedConfig(cfg.downstreamBuilds)
+    List<BanzaiDownstreamBuildCfg>> downstreamBuildCfgs = findValueInRegexObject(cfg.downstreamBuilds, BRANCH_NAME)
     if (!downstreamBuildCfgs) {
         logger "${BRANCH_NAME} does not match a 'downstreamBuilds' branch pattern. Skipping ${stageName}"
         return

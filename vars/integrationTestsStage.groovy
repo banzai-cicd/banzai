@@ -1,13 +1,14 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiIntegrationTestsCfg
+import com.ge.nola.BanzaiEvent
 
 // named banzaiBuild to avoid collision with existing 'build' jenkins pipeline plugin
 def call(BanzaiCfg cfg) {
   if (cfg.integrationTests == null) { return }
 
   def stageName = 'IT'
-  BanzaiIntegrationTestsCfg itCfg = getBranchBasedConfig(cfg.integrationTests)
+  BanzaiIntegrationTestsCfg itCfg = findValueInRegexObject(cfg.integrationTests, BRANCH_NAME)
   if (itCfg == null) {
     logger "${BRANCH_NAME} does not match a 'integrationTests' branch pattern. Skipping ${stageName}"
     return
@@ -15,7 +16,12 @@ def call(BanzaiCfg cfg) {
 
   stage (stageName) {
     try {
-      notify(cfg, stageName, 'Pending', 'PENDING', true)
+      notify(cfg, [
+        scope: BanzaiEvent.scope.STAGE,
+        status: BanzaiEvent.status.PENDING,
+        stage: stageName,
+        message: 'Pending'
+      ])
 
       if (cfg.xvfb) {
           def screen = itCfg.xvfbScreen ?: '1800x900x24'
@@ -29,11 +35,21 @@ def call(BanzaiCfg cfg) {
           runScript(cfg, script)
       }
 
-      notify(cfg, stageName, 'Successful', 'PENDING', true)
+      notify(cfg, [
+        scope: BanzaiEvent.scope.STAGE,
+        status: BanzaiEvent.status.SUCCESS,
+        stage: stageName,
+        message: 'Success'
+      ])
     } catch (err) {
       echo "Caught: ${err}"
       currentBuild.result = 'FAILURE'
-      notify(cfg, stageName, 'Failed', 'FAILURE', true)
+      notify(cfg, [
+        scope: BanzaiEvent.scope.STAGE,
+        status: BanzaiEvent.status.FAILURE,
+        stage: stageName,
+        message: 'Failed'
+      ])
       
       error(err.message)
     }

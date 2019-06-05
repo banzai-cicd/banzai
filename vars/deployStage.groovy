@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiStepCfg
+import com.ge.nola.BanzaiEvent
 
 def call(BanzaiCfg cfg) {
   String stageName = 'Deploy'
@@ -18,7 +19,7 @@ def call(BanzaiCfg cfg) {
     if (cfg.deploy == null) { return }
 
     // see if this is a project repo with a deployment configuration
-    deployCfg = getBranchBasedConfig(cfg.deploy)
+    deployCfg = findValueInRegexObject(cfg.deploy, BRANCH_NAME)
     
     if (deployCfg == null) {
       logger "${BRANCH_NAME} does not match a 'deploy' branch pattern. Skipping ${stageName}"
@@ -28,15 +29,39 @@ def call(BanzaiCfg cfg) {
 
   stage (stageName) {
     try {
-      notify(cfg, stageName, 'Pending', 'PENDING', true)
+      notify(cfg, [
+        scope: BanzaiEvent.scope.STAGE,
+        status: BanzaiEvent.status.PENDING,
+        stage: stageName,
+        message: 'Pending'
+      ])
       // TODO: refactor deployArgs
       String script = deployCfg.script ?: "deploy.sh"
       runScript(cfg, script, cfg.internal.gitOps.DEPLOY_ARGS)
-      notify(cfg, stageName, 'Successful', 'PENDING', true)
+      notify(cfg, [
+        scope: BanzaiEvent.scope.STAGE,
+        status: BanzaiEvent.status.SUCCESS,
+        stage: stageName,
+        message: 'Success'
+      ])
     } catch (err) {
       echo "Caught: ${err}"
       currentBuild.result = 'FAILURE'
-      notify(cfg, stageName, 'Failed', 'FAILURE', true)
+      if (isGithubError(err)) {
+        notify(cfg, [
+          scope: BanzaiEvent.scope.STAGE,
+          status: BanzaiEvent.status.FAILURE,
+          stage: stageName,
+          message: 'githubdown'
+        ])
+      } else {
+        notify(cfg, [
+          scope: BanzaiEvent.scope.STAGE,
+          status: BanzaiEvent.status.FAILURE,
+          stage: stageName,
+          message: 'Failed'
+        ])   
+      }
       
       error(err.message)
     }

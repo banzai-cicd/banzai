@@ -6,7 +6,12 @@ def call(BanzaiCfg cfg) {
 
   if (cfg.skipSCM == false) {
     try {
-        notify(cfg, stageName, 'Pending', 'PENDING')
+        notify(cfg, [
+            scope: BanzaiEvent.scope.STAGE,
+            status: BanzaiEvent.status.PENDING,
+            stage: stageName,
+            message: 'Pending'
+        ])
         checkout([
           $class: 'GitSCM',
           branches: scm.branches,
@@ -14,17 +19,31 @@ def call(BanzaiCfg cfg) {
           extensions: scm.extensions + [$class: 'LocalBranch', localBranch: "**"],
           userRemoteConfigs: scm.userRemoteConfigs
         ])
-        notify(cfg, stageName, 'Successful', 'PENDING')
+        notify(cfg, [
+            scope: BanzaiEvent.scope.STAGE,
+            status: BanzaiEvent.status.SUCCESS,
+            stage: stageName,
+            message: 'Success'
+        ])
     } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'UNSTABLE'
         if (isGithubError(err)) {
-            notify(cfg, stageName, 'githubdown', 'FAILURE', true)
+            notify(cfg, [
+                scope: BanzaiEvent.scope.STAGE,
+                status: BanzaiEvent.status.FAILURE,
+                stage: stageName,
+                message: 'githubdown'
+            ])
         } else {
-            notify(cfg, stageName, 'Failed', 'FAILURE')
+            notify(cfg, [
+                scope: BanzaiEvent.scope.STAGE,
+                status: BanzaiEvent.status.FAILURE,
+                stage: stageName,
+                message: 'Failed'
+            ])   
         }
         error(err.message)
     }
   }
-
 }

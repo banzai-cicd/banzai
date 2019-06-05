@@ -58,6 +58,7 @@ banzai([
     ],
     jdk = 'jdk 10.0.1',                         // value must be the name given to a configured JDK in the Global Tools sections of Jenkins
     vulnerabilityAbortOnError,                  // globally set that all vulnerability scans should abort the pipeline if there is an Error
+    qualityAbortOnError,                        // globally set that all quality scans should abort the pipeline if there is an Error
     vulnerabilityScans = [
       /develop|master/: [                      // run this collection of scans against develop
         [

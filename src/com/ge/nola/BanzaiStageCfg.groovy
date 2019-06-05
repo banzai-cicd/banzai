@@ -4,10 +4,11 @@ package com.ge.nola;
 class BanzaiStageCfg {
     String name
     Map<String, List<BanzaiStepCfg>> steps
+    Boolean notifyGit = true
 
     private List<String> banzaiStageLabels = [
-        'build', 
-        'deploy', 
+        'build',
+        'deploy',
         'publish',
         'integrationTests', 
         'scans:vulnerability',
