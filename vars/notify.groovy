@@ -7,7 +7,7 @@ def call(BanzaiCfg cfg, Map eventOpts) {
   BanzaiEvent event = new BanzaiEvent(eventOpts)
   try {
     if (event.message != 'githubdown') {
-      notifyGit(cfg, stage, message, status)
+      notifyGit(cfg, event)
     }
     notifyFlowdock(cfg, event)
     // notifyEmail(cfg, event)    
