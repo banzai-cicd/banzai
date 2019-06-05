@@ -19,7 +19,7 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
 
     String currentEvent = event.getEventLabel()
     logger "currentEvent: ${currentEvent}"
-    List<String> addresses = []
+    Set<String> addresses = []
     if (emailCfg.groups) {
         // find groupIds
         Set<String> groupIds = emailCfg.groups.keySet().findAll { groupId ->
@@ -28,11 +28,10 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
         if (groupIds.size() == 0) { return }
 
         logger "groupIds: ${groupIds}"
-        // get email addresses of group(s)
-        addresses + groupIds.inject([]) { acc, groupId ->
+        
+        groupIds.each { groupId ->
             List<String> emailIds = cfg.email.groups[groupId]
-            logger("groupds:emailIds ${emailIds}")
-            acc + emailIds.collect { emailId -> cfg.email.addresses[emailId] }
+            emailIds.each { addresses.add(cfg.email.addresses[it]) }
         }
     }
     logger "addresses1: ${addresses}"
@@ -43,7 +42,7 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
         if (emailIds.size() == 0) { return }
 
         logger "emailIds: ${emailIds}"
-        addresses + emailIds.collect { cfg.email.addresses[it] }
+        emailIds.each { addresses.add(cfg.email.addresses[it]) }
     }
     logger "addresses2: ${addresses}"
     if (addresses.size() > 0) {
