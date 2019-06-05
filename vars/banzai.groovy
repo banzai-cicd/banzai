@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiStageCfg
+import com.ge.nola.BanzaiEvent
 
 def call(cfgMap) {
     // evaluate the body block, and collect configuration into the object
@@ -128,7 +129,11 @@ def runPipeline(BanzaiCfg cfg) {
                 }
 
                 currentBuild.result = 'SUCCESS'
-                notify(cfg, 'Pipeline', 'All Stages Complete', 'SUCCESS')
+                notify(cfg, [
+                    scope: BanzaiEvent.Scope.PIPELINE,
+                    status: BanzaiEvent.Status.SUCCESS,
+                    message: 'All Stages Complete'
+                ])
             } // ssh-agent
         } // node
     }

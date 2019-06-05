@@ -3,7 +3,8 @@
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiEvent
 
-def call(BanzaiCfg cfg, BanzaiEvent event) {
+def call(BanzaiCfg cfg, Map eventOpts) {
+  BanzaiEvent event = new BanzaiEvent(eventOpts)
   try {
     if (event.message != 'githubdown') {
       notifyGit(config, stage, message, status)
