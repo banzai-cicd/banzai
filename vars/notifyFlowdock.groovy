@@ -2,6 +2,7 @@
 import groovy.json.JsonOutput
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiFlowdockCfg
+import com.ge.nola.BanzaiEvent
 
 //def call(BanzaiCfg config, String stage, String message, String status) {
 def call(BanzaiCfg cfg, BanzaiEvent event) {
