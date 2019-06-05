@@ -16,16 +16,16 @@ def call(BanzaiCfg cfg) {
   stage (stageName) {
     try {
       notify(cfg, [
-        scope: BanzaiEvent.scope.STAGE,
-        status: BanzaiEvent.status.PENDING,
+        scope: BanzaiEvent.Scope.STAGE,
+        status: BanzaiEvent.Status.PENDING,
         stage: stageName,
         message: 'Pending'
       ])
       String script = publishCfg.script ?: "publish.sh"
       runScript(cfg, script)
       notify(cfg, [
-        scope: BanzaiEvent.scope.STAGE,
-        status: BanzaiEvent.status.SUCCESS,
+        scope: BanzaiEvent.Scope.STAGE,
+        status: BanzaiEvent.Status.SUCCESS,
         stage: stageName,
         message: 'Success'
       ])
@@ -34,15 +34,15 @@ def call(BanzaiCfg cfg) {
         currentBuild.result = 'FAILURE'
         if (isGithubError(err)) {
           notify(cfg, [
-            scope: BanzaiEvent.scope.STAGE,
-            status: BanzaiEvent.status.FAILURE,
+            scope: BanzaiEvent.Scope.STAGE,
+            status: BanzaiEvent.Status.FAILURE,
             stage: stageName,
             message: 'githubdown'
           ])
         } else {
           notify(cfg, [
-            scope: BanzaiEvent.scope.STAGE,
-            status: BanzaiEvent.status.FAILURE,
+            scope: BanzaiEvent.Scope.STAGE,
+            status: BanzaiEvent.Status.FAILURE,
             stage: stageName,
             message: 'Failed'
           ])   

@@ -1,11 +1,11 @@
 package com.ge.nola
 
 class BanzaiEvent {
-    static final enum scope = {
+    static final enum Scope {
         PIPELINE,
         STAGE
     }
-    static final enum status = {
+    static final enum Status {
         PENDING,
         SUCCESS,
         FAILURE

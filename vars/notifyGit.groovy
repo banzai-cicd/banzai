@@ -8,8 +8,8 @@ import com.ge.nola.BanzaiEvent
   (we don't want to mark the build as a success after each stage, only after PIPELINE)
 */
 final Map DEFAULT_EVENT_MAP = [
-  /${BanzaiEvent.scope.PIPELINE}:${BanzaiEvent.status.SUCCESS}/ : true,
-  /^${BanzaiEvent.scope.STAGE}:(?!(${BanzaiEvent.status.SUCCESS})$).*$/ : true
+  /${BanzaiEvent.Scope.PIPELINE}:${BanzaiEvent.Status.SUCCESS}/ : true,
+  /^${BanzaiEvent.Scope.STAGE}:(?!(${BanzaiEvent.Status.SUCCESS})$).*$/ : true
 ]
 
 def call (BanzaiCfg cfg, BanzaiEvent event) {

@@ -15,8 +15,8 @@ def call(BanzaiCfg cfg, BanzaiStageCfg stageCfg) {
   stage (stageName) {
     try {
       notify(cfg, [
-        scope: BanzaiEvent.scope.STAGE,
-        status: BanzaiEvent.status.PENDING,
+        scope: BanzaiEvent.Scope.STAGE,
+        status: BanzaiEvent.Status.PENDING,
         stage: stageName,
         message: 'Pending'
       ])
@@ -29,8 +29,8 @@ def call(BanzaiCfg cfg, BanzaiStageCfg stageCfg) {
           }
       }
       notify(cfg, [
-        scope: BanzaiEvent.scope.STAGE,
-        status: BanzaiEvent.status.SUCCESS,
+        scope: BanzaiEvent.Scope.STAGE,
+        status: BanzaiEvent.Status.SUCCESS,
         stage: stageName,
         message: 'Success'
       ])
@@ -39,15 +39,15 @@ def call(BanzaiCfg cfg, BanzaiStageCfg stageCfg) {
         currentBuild.result = 'FAILURE'
         if (isGithubError(err)) {
           notify(cfg, [
-            scope: BanzaiEvent.scope.STAGE,
-            status: BanzaiEvent.status.FAILURE,
+            scope: BanzaiEvent.Scope.STAGE,
+            status: BanzaiEvent.Status.FAILURE,
             stage: stageName,
             message: 'githubdown'
           ])
         } else {
           notify(cfg, [
-            scope: BanzaiEvent.scope.STAGE,
-            status: BanzaiEvent.status.FAILURE,
+            scope: BanzaiEvent.Scope.STAGE,
+            status: BanzaiEvent.Status.FAILURE,
             stage: stageName,
             message: 'Failed'
           ])   

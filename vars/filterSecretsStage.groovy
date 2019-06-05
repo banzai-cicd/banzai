@@ -15,15 +15,15 @@ def call(BanzaiCfg cfg) {
 
   stage (stageName) {
     notify(cfg, [
-        scope: BanzaiEvent.scope.STAGE,
-        status: BanzaiEvent.status.PENDING,
+        scope: BanzaiEvent.Scope.STAGE,
+        status: BanzaiEvent.Status.PENDING,
         stage: this.stageName,
         message: 'Pending'
     ])
     filterSecrets(filterSecretsCfg)
     notify(cfg, [
-        scope: BanzaiEvent.scope.STAGE,
-        status: BanzaiEvent.status.SUCCESS,
+        scope: BanzaiEvent.Scope.STAGE,
+        status: BanzaiEvent.Status.SUCCESS,
         stage: this.stageName,
         message: 'Success'
     ])

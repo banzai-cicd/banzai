@@ -30,8 +30,8 @@ def call(BanzaiCfg cfg) {
   stage (stageName) {
     try {
       notify(cfg, [
-        scope: BanzaiEvent.scope.STAGE,
-        status: BanzaiEvent.status.PENDING,
+        scope: BanzaiEvent.Scope.STAGE,
+        status: BanzaiEvent.Status.PENDING,
         stage: stageName,
         message: 'Pending'
       ])
@@ -39,8 +39,8 @@ def call(BanzaiCfg cfg) {
       String script = deployCfg.script ?: "deploy.sh"
       runScript(cfg, script, cfg.internal.gitOps.DEPLOY_ARGS)
       notify(cfg, [
-        scope: BanzaiEvent.scope.STAGE,
-        status: BanzaiEvent.status.SUCCESS,
+        scope: BanzaiEvent.Scope.STAGE,
+        status: BanzaiEvent.Status.SUCCESS,
         stage: stageName,
         message: 'Success'
       ])
@@ -49,15 +49,15 @@ def call(BanzaiCfg cfg) {
       currentBuild.result = 'FAILURE'
       if (isGithubError(err)) {
         notify(cfg, [
-          scope: BanzaiEvent.scope.STAGE,
-          status: BanzaiEvent.status.FAILURE,
+          scope: BanzaiEvent.Scope.STAGE,
+          status: BanzaiEvent.Status.FAILURE,
           stage: stageName,
           message: 'githubdown'
         ])
       } else {
         notify(cfg, [
-          scope: BanzaiEvent.scope.STAGE,
-          status: BanzaiEvent.status.FAILURE,
+          scope: BanzaiEvent.Scope.STAGE,
+          status: BanzaiEvent.Status.FAILURE,
           stage: stageName,
           message: 'Failed'
         ])   

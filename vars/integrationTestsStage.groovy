@@ -17,8 +17,8 @@ def call(BanzaiCfg cfg) {
   stage (stageName) {
     try {
       notify(cfg, [
-        scope: BanzaiEvent.scope.STAGE,
-        status: BanzaiEvent.status.PENDING,
+        scope: BanzaiEvent.Scope.STAGE,
+        status: BanzaiEvent.Status.PENDING,
         stage: stageName,
         message: 'Pending'
       ])
@@ -36,8 +36,8 @@ def call(BanzaiCfg cfg) {
       }
 
       notify(cfg, [
-        scope: BanzaiEvent.scope.STAGE,
-        status: BanzaiEvent.status.SUCCESS,
+        scope: BanzaiEvent.Scope.STAGE,
+        status: BanzaiEvent.Status.SUCCESS,
         stage: stageName,
         message: 'Success'
       ])
@@ -45,8 +45,8 @@ def call(BanzaiCfg cfg) {
       echo "Caught: ${err}"
       currentBuild.result = 'FAILURE'
       notify(cfg, [
-        scope: BanzaiEvent.scope.STAGE,
-        status: BanzaiEvent.status.FAILURE,
+        scope: BanzaiEvent.Scope.STAGE,
+        status: BanzaiEvent.Status.FAILURE,
         stage: stageName,
         message: 'Failed'
       ])

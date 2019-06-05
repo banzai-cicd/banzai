@@ -23,8 +23,8 @@ def call(BanzaiCfg cfg, String type) {
     stage (stageName) {
         try {
             notify(cfg, [
-                scope: BanzaiEvent.scope.STAGE,
-                status: BanzaiEvent.status.PENDING,
+                scope: BanzaiEvent.Scope.STAGE,
+                status: BanzaiEvent.Status.PENDING,
                 stage: this.stageName,
                 message: 'Pending'
             ])
@@ -39,16 +39,16 @@ def call(BanzaiCfg cfg, String type) {
                     throw new GroovyRuntimeException("scan with of type '${type}' not recognized")
             }
             notify(cfg, [
-                scope: BanzaiEvent.scope.STAGE,
-                status: BanzaiEvent.status.SUCCESS,
+                scope: BanzaiEvent.Scope.STAGE,
+                status: BanzaiEvent.Status.SUCCESS,
                 stage: this.stageName,
                 message: 'Success'
             ])
         } catch (err) {
             echo "Caught: ${err}"
             notify(cfg, [
-                scope: BanzaiEvent.scope.STAGE,
-                status: BanzaiEvent.status.FAILURE,
+                scope: BanzaiEvent.Scope.STAGE,
+                status: BanzaiEvent.Status.FAILURE,
                 stage: this.stageName,
                 message: 'Failed'
             ]) 
