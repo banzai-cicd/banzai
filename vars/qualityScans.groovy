@@ -2,6 +2,7 @@
 import main.groovy.cicd.pipeline.settings.PipelineSettings;
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiQualityCfg
+import com.ge.nola.BanzaiEvent
 
 def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
     def stages = [:]
