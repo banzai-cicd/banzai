@@ -20,8 +20,14 @@ def call(BanzaiCfg cfg, scriptPathOrClosure, args=null) {
       logger "'${scriptPathOrClosure}' does not exist in the workspace!"
       return
     }
-
-    sh "${fullPath} ${args ? args.join(' '): ''}"
+    String returnData = sh(returnStdout: true, script: "${fullPath} ${args ? args.join(' '): ''}")
+    if (returnData.length() > 1) {
+      try {
+          cfg.userData << readJSON text: returnData.trim()
+      } catch (Exception e) {
+        logger "Unable to parse returned userData from ${scriptPathOrClosure}. Please ensure you're returning valid json"
+      }
+    }
   } else {
     error("User-provided scripts must be .sh scripts or Groovy method closures")
   }

@@ -3,7 +3,12 @@ import com.ge.nola.BanzaiCfg
 
 def call(BanzaiCfg cfg, vulnerabilityCfg) {
     def streamName = vulnerabilityCfg.streamName ?: "${cfg.appName}_${env.BRANCH_NAME}"
-    def buildCmd = env.BUILD_CMD ?: vulnerabilityCfg.buildCmd // accept build command if set in the environment from a previous step.
+    def buildCmd
+    if (cfg.userData.coverity && cfg.userData.coverity.buildCmd) {
+      buildCmd = cfg.userData.coverity.buildCmd
+    } else {
+      buildCmd = vulnerabilityCfg.buildCmd
+    }
     def iDir = "${env.WORKSPACE}/idir"
     
     // check for all required vulnerabilityCfg

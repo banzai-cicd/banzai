@@ -33,6 +33,7 @@ class BanzaiCfg {
     /* strictly for internal banzai usage */
     BanzaiInternalCfg internal = new BanzaiInternalCfg()
     List<BanzaiStageCfg> stages
+    Map<String, String> userData = [:] // a map of variables returned by bash scripts
 
     public BanzaiCfg(LinkedHashMap props) {
         /*
