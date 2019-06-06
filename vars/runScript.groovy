@@ -1,11 +1,18 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
-import org.codehaus.groovy.runtime.MethodClosure;
+import org.jenkinsci.plugins.workflow.cps.CpsClosure2
 
-def call(BanzaiCfg cfg, scriptPathOrClosure, args=null) {
-  if (scriptPathOrClosure instanceof MethodClosure) {
-    logger "Calling cfg MethodClosure"
-    scriptPathOrClosure.call(cfg)
+def call(BanzaiCfg cfg, scriptPathOrClosure, List args=null) {
+  // if we have userData
+  if (!cfg.userData.isEmpty()){
+    if (args == null) { args = [] }
+    // in the event that there is userData, it should always be passed as the 1st arg
+    // so that users can be 
+    args.add(0, cfg.userData)
+  }
+
+  if (scriptPathOrClosure instanceof org.jenkinsci.plugins.workflow.cps.CpsClosure2) {
+    scriptPathOrClosure.call(args)
   } else if (scriptPathOrClosure.endsWith(".sh")) {
     if (scriptPathOrClosure.charAt(0) == "/"){
       scriptPathOrClosure = "." + scriptPathOrClosure
@@ -20,10 +27,17 @@ def call(BanzaiCfg cfg, scriptPathOrClosure, args=null) {
       logger "'${scriptPathOrClosure}' does not exist in the workspace!"
       return
     }
-    String returnData = sh(returnStdout: true, script: "${fullPath} ${args ? args.join(' '): ''}")
-    if (returnData.length() > 1) {
+
+    // run the bashScript
+    String returnData = sh(
+      label: scriptPathOrClosure,
+      returnStdout: true, 
+      script: "${fullPath} ${args ? args.join(' '): ''}"
+    )
+
+    if (returnData.length() > 1 && returnData.contains('USER_DATA=')) {
       try {
-          cfg.userData << readJSON text: returnData.trim()
+          cfg.userData << readJSON text: returnData.tokenize('USER_DATA=')[1].trim()
       } catch (Exception e) {
         logger "Unable to parse returned userData from ${scriptPathOrClosure}. Please ensure you're returning valid json"
       }
