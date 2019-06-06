@@ -29,19 +29,25 @@ def call(BanzaiCfg cfg, scriptPathOrClosure, List args=null) {
     }
 
     // run the bashScript
-    String returnData = sh(
+    sh(
       label: scriptPathOrClosure,
-      returnStdout: true, 
       script: "${fullPath} ${args ? args.join(' '): ''}"
     )
 
-    if (returnData.length() > 1 && returnData.contains('BanzaiUserData=')) {
-      try {
-          def userData = readJSON(text: returnData.tokenize('BanzaiUserData=')[1].trim())
-          cfg.userData << userData
-      } catch (Exception e) {
-        logger "Unable to parse returned userData from ${scriptPathOrClosure}. Please ensure you're returning valid json"
+    def userData
+    def userDataFileName = "${WORKSPACE}/BanzaiUserData"
+    try {
+      if (fileExists("${userDataFileName}.yaml")) {
+        userData = readYaml file: "${userDataFileName}.yaml"
+        new File("${userDataFileName}.yaml").remove()
+      } else if (fileExists("${userDataFileName}.json")) {
+        userData = readJSON file: "${userDataFileName}.json"
+        new File("${userDataFileName}.json").remove()
       }
+      cfg.userData << userData
+    } catch (Exception e) {
+      logger "Unable to parse BanzaiUserData. Please ensure you're writing valid json or yaml"
+      logger e.message
     }
   } else {
     error("User-provided scripts must be .sh scripts or Groovy method closures")

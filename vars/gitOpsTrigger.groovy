@@ -7,14 +7,21 @@ import com.ge.nola.BanzaiGitOpsTriggerCfg
 def call(BanzaiGitOpsTriggerCfg gitOpsCfg) {
 	def gitOpsVersionsFileName = "${WORKSPACE}/gitOpsVersions"
 	def gitOpsVersions
-	if (fileExists("${gitOpsVersionsFileName}.yaml")) {
-		gitOpsVersions = readYaml file: "${gitOpsVersionsFileName}.yaml"
-	} else if (fileExists("${gitOpsVersionsFileName}.json")) {
-		gitOpsVersions = readJSON file: "${gitOpsVersionsFileName}.json"
-	} else {
-		error("No gitOpsVersions.{yaml/json} exists!")
+	try {
+		if (fileExists("${gitOpsVersionsFileName}.yaml")) {
+			gitOpsVersions = readYaml file: "${gitOpsVersionsFileName}.yaml"
+		} else if (fileExists("${gitOpsVersionsFileName}.json")) {
+			gitOpsVersions = readJSON file: "${gitOpsVersionsFileName}.json"
+		} else {
+			error("No gitOpsVersions.{yaml/json} exists!")
+			return
+		}
+	} catch (Exception e) {
+		logger "Unable to parse gitOpsVersions. Please ensure you're writing valid json or yaml"
+		logger e.message
 		return
 	}
+	
 
 	// kick off gitops job and pass params
 	def buildDef = [
