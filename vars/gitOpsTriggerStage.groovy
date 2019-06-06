@@ -21,7 +21,7 @@ def call(BanzaiCfg cfg) {
         stage: stageName,
         message: 'Pending'
       ])
-      gitOpsTrigger(gitOpsCfg)
+      gitOpsTrigger(cfg.userData, gitOpsCfg)
       notify(cfg, [
         scope: BanzaiEvent.Scope.STAGE,
         status: BanzaiEvent.Status.SUCCESS,
