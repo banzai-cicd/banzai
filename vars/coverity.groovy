@@ -5,6 +5,7 @@ def call(BanzaiCfg cfg, vulnerabilityCfg) {
     def streamName = vulnerabilityCfg.streamName ?: "${cfg.appName}_${env.BRANCH_NAME}"
     def buildCmd
     if (cfg.userData.coverity && cfg.userData.coverity.buildCmd) {
+      logger "Coverity buildCmd detected in UserData"
       buildCmd = cfg.userData.coverity.buildCmd
     } else {
       buildCmd = vulnerabilityCfg.buildCmd
