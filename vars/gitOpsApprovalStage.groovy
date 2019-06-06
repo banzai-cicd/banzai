@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 
 import hudson.model.User
+import com.ge.nola.BanzaiCfg
 
 @NonCPS
 def getRoleBasedUsersList(role) {
@@ -31,11 +32,11 @@ String[] getUserEmails(users) {
   }
 }
 
-def finalizeDeployment(config) {
+def finalizeDeployment(BanzaiCfg cfg) {
   logger "Finalizing Deployment"
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
-  String ENV = config.internal.gitOps.TARGET_ENV
-  String STACK = config.internal.gitOps.TARGET_STACK
+  String ENV = cfg.internal.gitOps.TARGET_ENV
+  String STACK = cfg.internal.gitOps.TARGET_STACK
   // 1. update the stack yaml with the versions it should be set to
   String stackFileName = "${ENV_DIR_NAME}/${ENV}/${STACK}.yaml"
 	def stackYaml = [:]
@@ -45,7 +46,7 @@ def finalizeDeployment(config) {
     logger "Creating ${stackFileName} ..."
   }
   
-  config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { id, version ->
+  cfg.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { id, version ->
     logger "Updating Service '${id}' to '${version}' in Stack ${STACK}"
     stackYaml[id] = version
   }
@@ -65,13 +66,13 @@ def finalizeDeployment(config) {
 	}
 
   // 4. pass the deployArgs that will get picked up by the Deploy Stage
-  config.internal.gitOps.DEPLOY_ARGS = [config.internal.gitOps.TARGET_ENV, config.internal.gitOps.TARGET_STACK]
+  cfg.internal.gitOps.DEPLOY_ARGS = [cfg.internal.gitOps.TARGET_ENV, cfg.internal.gitOps.TARGET_STACK]
 }
 
-def buildProposedVersionsBody(config) {
+def buildProposedVersionsBody(BanzaiCfg cfg) {
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
-  String ENV = config.internal.gitOps.TARGET_ENV
-  String STACK = config.internal.gitOps.TARGET_STACK
+  String ENV = cfg.internal.gitOps.TARGET_ENV
+  String STACK = cfg.internal.gitOps.TARGET_STACK
   // include full proposed stack versions (not just services being updated)
   String stackFileName = "${ENV_DIR_NAME}/${ENV}/${STACK}.yaml"
   def stackYaml = [:]
@@ -81,7 +82,7 @@ def buildProposedVersionsBody(config) {
     // the stack yaml my not yet exist if this is part of an environment promotion
     logger "${stackFileName} does not yet exist. Will create if approved"
   }
-  config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { serviceId, version ->
+  cfg.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { serviceId, version ->
     stackYaml[serviceId] = version
   }
   def formatedStack = stackYaml.collect { "${it.key} : ${it.value}" }
@@ -89,21 +90,21 @@ def buildProposedVersionsBody(config) {
   return formatedStack.join('\n')
 }
 
-def call(config) {
+def call(BanzaiCfg cfg) {
   /////
-  // This Stage will always run for a GitOps repo when config.internal.gitOps.DEPLOY = true
+  // This Stage will always run for a GitOps repo when cfg.internal.gitOps.DEPLOY = true
   /////
-  if (!config.gitOps || !config.internal.gitOps.DEPLOY) {
+  if (!cfg.gitOps || !cfg.internal.gitOps.DEPLOY) {
       logger "Does not qualify for 'GitOps: Deployment Approval Stage'"
       return
   }
-  String ENV = config.internal.gitOps.TARGET_ENV
-  String STACK = config.internal.gitOps.TARGET_STACK
+  String ENV = cfg.internal.gitOps.TARGET_ENV
+  String STACK = cfg.internal.gitOps.TARGET_STACK
 
   /////
   // if necessary, get approvals
   /////
-  def envConfig = config.gitOps.envs[ENV]
+  def envConfig = cfg.gitOps.envs[ENV]
   String approverEmails
   String approverSSOs
   String watcherEmails
@@ -139,7 +140,7 @@ def call(config) {
         script {
           try {
             // build approval email
-            def proposedServiceVersions = buildProposedVersionsBody(config)
+            def proposedServiceVersions = buildProposedVersionsBody(cfg)
             def approvalSubject = "Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested"
             def approvalMsg = "${approvalSubject} with the following verisions:"
             def approvalBody = "${approvalMsg}\n${proposedServiceVersions}"
@@ -159,7 +160,7 @@ def call(config) {
             sendEmail(approverEmails, watcherEmails, subject, approvedBody)
             
             // Finalize!
-            finalizeDeployment(config)
+            finalizeDeployment(cfg)
           } catch (err) {
             logger err.message
             String deniedSubject = "Deployment of '${STACK}' to '${ENV}' denied"
@@ -173,6 +174,6 @@ def call(config) {
     } 
   } else {
       logger "No approvals required for deployment"
-      finalizeDeployment(config)
+      finalizeDeployment(cfg)
   }
 }
