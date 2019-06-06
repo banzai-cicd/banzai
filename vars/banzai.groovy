@@ -111,9 +111,9 @@ def runPipeline(BanzaiCfg cfg) {
                         }
                     }
                 } else {
+                    buildStage(cfg)
                     scansStage(cfg, 'vulnerability')
                     scansStage(cfg, 'quality')
-                    buildStage(cfg)
                     publishStage(cfg)
                     deployStage(cfg)
                     integrationTestsStage(cfg)
