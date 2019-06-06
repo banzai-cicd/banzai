@@ -1,5 +1,6 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiEvent
 
 /**
   Detects if this pipeline was triggered by an upstream job's 'gitOpsTriggerStage' and updates service versions
