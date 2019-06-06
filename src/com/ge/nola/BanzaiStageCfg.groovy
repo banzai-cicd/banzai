@@ -6,8 +6,8 @@ class BanzaiStageCfg {
     Map<String, List<BanzaiStepCfg>> steps
 
     private List<String> banzaiStageLabels = [
-        'build', 
-        'deploy', 
+        'build',
+        'deploy',
         'publish',
         'integrationTests', 
         'scans:vulnerability',
@@ -23,7 +23,7 @@ class BanzaiStageCfg {
     }
 
     public BanzaiStageCfg(LinkedHashMap props) {
-        props.keySet().each { this[it] = props[it] }
+        this.name = props.name
         if (props.steps) {
             this.steps = [:]
             props.steps.keySet().each {

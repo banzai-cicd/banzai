@@ -2,10 +2,11 @@
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiStageCfg
 import com.ge.nola.BanzaiStepCfg
+import com.ge.nola.BanzaiEvent
 
 def call(BanzaiCfg cfg, BanzaiStageCfg stageCfg) {
   String stageName = stageCfg.name
-  List<BanzaiStepCfg> stepCfgs = getBranchBasedConfig(stageCfg.steps)
+  List<BanzaiStepCfg> stepCfgs = findValueInRegexObject(stageCfg.steps, BRANCH_NAME)
 
   if (stepCfgs == null) {
     logger "${BRANCH_NAME} does not match a branch pattern for the custom stage '${stageName}'. Skipping ${stageName}"
@@ -14,7 +15,13 @@ def call(BanzaiCfg cfg, BanzaiStageCfg stageCfg) {
 
   stage (stageName) {
     try {
-      notify(cfg, stageName, 'Pending', 'PENDING')
+      notify(cfg, [
+        scope: BanzaiEvent.Scope.STAGE,
+        status: BanzaiEvent.Status.PENDING,
+        stage: stageName,
+        message: 'Pending'
+      ])
+
       stepCfgs.each {
           if (it.script) {
               runScript(cfg, it.script)
@@ -22,14 +29,29 @@ def call(BanzaiCfg cfg, BanzaiStageCfg stageCfg) {
               it.closure.call(cfg)
           }
       }
-      notify(cfg, stageName, 'Successful', 'PENDING')
+      notify(cfg, [
+        scope: BanzaiEvent.Scope.STAGE,
+        status: BanzaiEvent.Status.SUCCESS,
+        stage: stageName,
+        message: 'Success'
+      ])
     } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
         if (isGithubError(err)) {
-            notify(cfg, stageName, 'githubdown', 'FAILURE', true)
+          notify(cfg, [
+            scope: BanzaiEvent.Scope.STAGE,
+            status: BanzaiEvent.Status.FAILURE,
+            stage: stageName,
+            message: 'githubdown'
+          ])
         } else {
-            notify(cfg, stageName, 'Failed', 'FAILURE')
+          notify(cfg, [
+            scope: BanzaiEvent.Scope.STAGE,
+            status: BanzaiEvent.Status.FAILURE,
+            stage: stageName,
+            message: 'Failed'
+          ])   
         }
         
         error(err.message)

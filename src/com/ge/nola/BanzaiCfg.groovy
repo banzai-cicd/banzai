@@ -14,15 +14,16 @@ class BanzaiCfg {
     Boolean preCleanWorkspace
     Boolean postCleanWorkspace
     Boolean skipSCM = false
-    String flowdockBranches
-    String flowdockCredId
     Map<String, BanzaiFlowdockCfg> flowdock
+    Map<String, BanzaiEmailCfg> email
+    BanzaiNotificationsCfg notifications
     Map<String, BanzaiStepCfg> build
     Map<String, BanzaiStepCfg> publish
     Map<String, BanzaiStepCfg> deploy
     Map<String, BanzaiIntegrationTestsCfg> integrationTests
     Boolean vulnerabilityAbortOnError
     Map<String, List<BanzaiVulnerabilityCfg>> vulnerabilityScans
+    Boolean qualityAbortOnError
     Map<String, List<BanzaiQualityCfg>> qualityScans
     Map<String, List<BanzaiDownstreamBuildCfg>> downstreamBuilds
     Map<String, BanzaiFilterSecretsCfg> filterSecrets
@@ -32,6 +33,7 @@ class BanzaiCfg {
     /* strictly for internal banzai usage */
     BanzaiInternalCfg internal = new BanzaiInternalCfg()
     List<BanzaiStageCfg> stages
+    Map<String, String> userData = [:] // a map of variables returned by bash scripts
 
     public BanzaiCfg(LinkedHashMap props) {
         /*

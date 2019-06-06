@@ -16,11 +16,11 @@ String determineRepoName(url) {
     return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last().split("\\.")[0]
 }
 
-Map findBuildCfg(id, List<BanzaiDownstreamBuildCfg>> downstreamBuildCfgs) {
+Map findBuildCfg(id, List<BanzaiDownstreamBuildCfg> downstreamBuildCfgs) {
     return downstreamBuildCfgs.find { it.id == id }
 }
 
-Map findAndValidateTargetBuild(id, List<BanzaiDownstreamBuildCfg>> downstreamBuildCfgs) {
+Map findAndValidateTargetBuild(id, List<BanzaiDownstreamBuildCfg> downstreamBuildCfgs) {
     logger "Finding Build Cfg with id ${id}"
     BanzaiDownstreamBuildCfg result = findBuildCfg(id, downstreamBuildCfgs)
     BanzaiDownstreamBuildCfg targetBuild = result.clone(new BanzaiDownstreamBuildCfg())
@@ -31,7 +31,7 @@ Map findAndValidateTargetBuild(id, List<BanzaiDownstreamBuildCfg>> downstreamBui
 }
 
 // get a list of all the buildIds after checking if optional builds are specified by github pr labels
-List<String> getBuildIdsWithOptional(BanzaiCfg cfg, List<BanzaiDownstreamBuildCfg>> downstreamBuildsDefinitions) {
+List<String> getBuildIdsWithOptional(BanzaiCfg cfg, List<BanzaiDownstreamBuildCfg> downstreamBuildsDefinitions) {
     logger "Evaluating Github PR Labels..."
     withCredentials([string(credentialsId: cfg.gitTokenId, variable: 'TOKEN')]) {
         // determine base repo/branch git url info
@@ -85,9 +85,9 @@ List<String> getBuildIdsWithOptional(BanzaiCfg cfg, List<BanzaiDownstreamBuildCf
 // remove any custom properties that we support which we know
 // aren't properties of the 'jenkins pipeline build step' https://jenkins.io/doc/pipeline/steps/pipeline-build-step/
 def removeCustomPropertiesFromBuildCfg(build) {
-    build.remove('id')
-    build.remove('optional')
-    build.remove('parallel')
+    build.id = null
+    build.optional = null
+    build.parallel = null
 }
 
 def validateBuildDef(build) {
@@ -147,7 +147,7 @@ def executeSerialBuild(List<String> buildIds, List<BanzaiDownstreamBuildCfg> dow
 
     // this syntax allows the 'jenkins pipeline build step' to add properties 
     // in the future and automatically be support with-out code change. (unless they use a prop name we're using, ie) 'id', 'optional'
-    build(buildDefaults << targetBuild << [parameters: buildParams])
+    build(buildDefaults << targetBuild.asMap() << [parameters: buildParams])
 }
 
 // have to write this abomination because we can't use takeWhile() on jenkins cause of CPS
@@ -210,7 +210,7 @@ def executeParallelBuilds(List<String> buildIds, List<BanzaiDownstreamBuildCfg> 
 def call(BanzaiCfg cfg) {
     String stageName = 'Downstream Builds'
     // check and see if the current branch matches the cfg
-    List<BanzaiDownstreamBuildCfg>> downstreamBuildCfgs = getBranchBasedConfig(cfg.downstreamBuilds)
+    List<BanzaiDownstreamBuildCfg> downstreamBuildCfgs = findValueInRegexObject(cfg.downstreamBuilds, BRANCH_NAME)
     if (!downstreamBuildCfgs) {
         logger "${BRANCH_NAME} does not match a 'downstreamBuilds' branch pattern. Skipping ${stageName}"
         return

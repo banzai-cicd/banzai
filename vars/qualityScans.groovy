@@ -2,17 +2,25 @@
 import main.groovy.cicd.pipeline.settings.PipelineSettings;
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiQualityCfg
+import com.ge.nola.BanzaiEvent
 
 def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
     def stages = [:]
     
+    String stageName
     scanConfigs.each {
         switch (it.type) {
             case "sonar": // requires https://github.build.ge.com/PowerDevOps/jenkins-master-shared-library
+                stageName = "Sonar"
                 stages[it.type] = {
-                    stage("Sonar") {
+                    stage(stageName) {
                         try {
-                            notify(cfg, 'Sonar', 'Pending', 'PENDING')
+                            notify(cfg, [
+                                scope: BanzaiEvent.Scope.STAGE,
+                                status: BanzaiEvent.Status.PENDING,
+                                stage: stageName,
+                                message: 'Pending'
+                            ])
                             sonarqubeQualityCheck();
 
                             def proxyOn = false
@@ -24,11 +32,21 @@ def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
                             
                             sonarqubeQualityResults(proxyOn);
 
-                            notify(cfg, 'Sonar', 'Successful', 'PENDING')
+                            notify(cfg, [
+                                scope: BanzaiEvent.Scope.STAGE,
+                                status: BanzaiEvent.Status.SUCCESS,
+                                stage: stageName,
+                                message: 'Success'
+                            ])
                         } catch (err) {
                             echo "Caught: ${err}"
                             currentBuild.result = 'UNSTABLE'
-                            notify(cfg, 'Sonar', 'Failed', 'FAILURE')
+                            notify(cfg, [
+                                scope: BanzaiEvent.Scope.STAGE,
+                                status: BanzaiEvent.Status.FAILURE,
+                                stage: stageName,
+                                message: 'Failed'
+                            ])
                             def abort = it.abortOnError ? "true" : "false"
                             error(abort) // let the scansStage know if it should abort
                         }

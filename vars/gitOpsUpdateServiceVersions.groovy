@@ -1,8 +1,9 @@
 #!/usr/bin/env groovy
 import net.sf.json.JSONObject
+import com.ge.nola.BanzaiCfg
 
-def call(config) {
-	if (!config.gitOps) {
+def call(BanzaiCfg cfg) {
+	if (!cfg.gitOps) {
 		logger "Current build is not a GitOps repo. Skipping gitOpsUpdateServiceVersions"
 		return
 	}
@@ -10,7 +11,7 @@ def call(config) {
 		logger "No params.gitOpsTriggeringBranch found. Will not attempt to update service versions."
 		return
 	}
-	if (config.gitOps.skipVersionUpdating && BRANCH_NAME ==~ config.gitOps.skipVersionUpdating) {
+	if (cfg.gitOps.skipVersionUpdating && BRANCH_NAME ==~ cfg.gitOps.skipVersionUpdating) {
 		logger "skipVersionUpdating detected for branch '${params.gitOpsTriggeringBranch}'. Will not update versions"
 		return
 	}
@@ -19,15 +20,15 @@ def call(config) {
 
 	// determine if this build qualifies for an autoDeploy
 	// if so, prepare the necessary gitOps vars and mark deploy = true
-	if (config.gitOps.autoDeploy) {
-		def key = config.gitOps.autoDeploy.keySet().find { params.gitOpsTriggeringBranch ==~ it }
+	if (cfg.gitOps.autoDeploy) {
+		def key = cfg.gitOps.autoDeploy.keySet().find { params.gitOpsTriggeringBranch ==~ it }
 		if (key) {
-			autoDepoyEnv = config.gitOps.autoDeploy[key]
-			logger "gitOps.autoDeploy detected. Preparing config.gitOps properties"
-			config.internal.gitOps.DEPLOY = true
-			config.internal.gitOps.TARGET_ENV = autoDepoyEnv
-			config.internal.gitOps.TARGET_STACK = params.gitOpsStackId
-			config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE = [:]
+			autoDepoyEnv = cfg.gitOps.autoDeploy[key]
+			logger "gitOps.autoDeploy detected. Preparing cfg.gitOps properties"
+			cfg.internal.gitOps.DEPLOY = true
+			cfg.internal.gitOps.TARGET_ENV = autoDepoyEnv
+			cfg.internal.gitOps.TARGET_STACK = params.gitOpsStackId
+			cfg.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE = [:]
 		}
 	}
 
@@ -107,8 +108,8 @@ def call(config) {
 
 		// if this is an autoDeploy
 		// update the services versions that we will eventually update in the env/stack if approval passes
-		if (config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE) {
-			config.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE[id] = data.version
+		if (cfg.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE) {
+			cfg.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE[id] = data.version
 		}
 	}
 

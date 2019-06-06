@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiStageCfg
+import com.ge.nola.BanzaiEvent
 
 def call(cfgMap) {
     // evaluate the body block, and collect configuration into the object
@@ -42,7 +43,7 @@ def runPipeline(BanzaiCfg cfg) {
 
         node() {
             printEnv()
-            
+
             // ensure proxy fields are properly set
             setProxy(cfg)
 
@@ -65,6 +66,11 @@ def runPipeline(BanzaiCfg cfg) {
                 cfg.sshCreds = []
             }
             sshagent(credentials: cfg.sshCreds) {
+                notify(cfg, [
+                    scope: BanzaiEvent.Scope.PIPELINE,
+                    status: BanzaiEvent.Status.PENDING,
+                    message: 'Pipeline pending...'
+                ])
                 // TODO notify Flowdock build starting
                 echo "My branch is: ${env.BRANCH_NAME}"
 
@@ -105,9 +111,9 @@ def runPipeline(BanzaiCfg cfg) {
                         }
                     }
                 } else {
+                    buildStage(cfg)
                     scansStage(cfg, 'vulnerability')
                     scansStage(cfg, 'quality')
-                    buildStage(cfg)
                     publishStage(cfg)
                     deployStage(cfg)
                     integrationTestsStage(cfg)
@@ -128,7 +134,12 @@ def runPipeline(BanzaiCfg cfg) {
                 }
 
                 currentBuild.result = 'SUCCESS'
-                notify(cfg, 'Pipeline', 'All Stages Complete', 'SUCCESS')
+                notify(cfg, [
+                    scope: BanzaiEvent.Scope.PIPELINE,
+                    status: BanzaiEvent.Status.SUCCESS,
+                    message: 'All Stages Complete'
+                ])
+                return
             } // ssh-agent
         } // node
     }

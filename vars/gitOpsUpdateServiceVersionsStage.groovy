@@ -1,9 +1,11 @@
 #!/usr/bin/env groovy
+import com.ge.nola.BanzaiCfg
+import com.ge.nola.BanzaiEvent
 
 /**
   Detects if this pipeline was triggered by an upstream job's 'gitOpsTriggerStage' and updates service versions
 */
-def call(config) {
+def call(BanzaiCfg cfg) {
   def stageName = 'GitOps: Update Service Versions'
 
   if (params.gitOpsTriggeringBranch == 'empty' || params.gitOpsVersions == 'empty') {
@@ -13,13 +15,28 @@ def call(config) {
 
   stage (stageName) {
     try {
-      notify(config, stageName, 'Pending', 'PENDING', true)
-      gitOpsUpdateServiceVersions(config)
-      notify(config, stageName, 'Successful', 'PENDING', true)
+      notify(cfg, [
+          scope: BanzaiEvent.Scope.STAGE,
+          status: BanzaiEvent.Status.PENDING,
+          stage: stageName,
+          message: 'Pending'
+      ])
+      gitOpsUpdateServiceVersions(cfg)
+      notify(cfg, [
+          scope: BanzaiEvent.Scope.STAGE,
+          status: BanzaiEvent.Status.SUCCESS,
+          stage: stageName,
+          message: 'Success'
+      ])
     } catch (err) {
         echo "Caught: ${err}"
         currentBuild.result = 'FAILURE'
-        notify(config, stageName, 'Failed', 'FAILURE', true)
+        notify(cfg, [
+            scope: BanzaiEvent.Scope.STAGE,
+            status: BanzaiEvent.Status.FAILURE,
+            stage: stageName,
+            message: 'Failed'
+        ])
         error(err.message)
     }
   }
