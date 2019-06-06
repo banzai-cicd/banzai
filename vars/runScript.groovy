@@ -39,10 +39,10 @@ def call(BanzaiCfg cfg, scriptPathOrClosure, List args=null) {
     try {
       if (fileExists("${userDataFileName}.yaml")) {
         userData = readYaml file: "${userDataFileName}.yaml"
-        new File("${userDataFileName}.yaml").remove()
+        sh "rm -rf ${userDataFileName}.yaml"
       } else if (fileExists("${userDataFileName}.json")) {
         userData = readJSON file: "${userDataFileName}.json"
-        new File("${userDataFileName}.json").remove()
+        sh "rm -rf ${userDataFileName}.json"
       }
       cfg.userData << userData
     } catch (Exception e) {
