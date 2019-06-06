@@ -23,7 +23,7 @@ def call(BanzaiCfg cfg) {
         message: 'Pending'
       ])
 
-      if (cfg.xvfb) {
+      if (itCfg.xvfb) {
           def screen = itCfg.xvfbScreen ?: '1800x900x24'
 
           wrap([$class: 'Xvfb', screen: screen]) {
