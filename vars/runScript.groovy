@@ -37,7 +37,8 @@ def call(BanzaiCfg cfg, scriptPathOrClosure, List args=null) {
 
     if (returnData.length() > 1 && returnData.contains('BanzaiUserData=')) {
       try {
-          cfg.userData << readJSON text: returnData.tokenize('BanzaiUserData=')[1].trim()
+          def userData = readJSON(text: returnData.tokenize('BanzaiUserData=')[1].trim())
+          cfg.userData << userData
       } catch (Exception e) {
         logger "Unable to parse returned userData from ${scriptPathOrClosure}. Please ensure you're returning valid json"
       }
