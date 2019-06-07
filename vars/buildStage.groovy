@@ -6,10 +6,11 @@ import com.ge.nola.BanzaiBaseStage
 def call(BanzaiCfg cfg) {
   if (cfg.build == null) { return }
 
-  BanzaiBaseStage stage = new BanzaiBaseStage([
+  BanzaiBaseStage stage = new BanzaiBaseStage(
+    pipeline: this,
     cfg: cfg,
     stageName: 'Build'
-  ])
+  )
 
   BanzaiStepCfg buildCfg = findValueInRegexObject(cfg.build, BRANCH_NAME)
   stage.validate {
