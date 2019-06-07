@@ -8,16 +8,11 @@ class BanzaiBaseStage {
     def pipeline
     String stageName
     BanzaiCfg cfg
-    String validationMessage
+    GStringImpl validationMessage
 
     def validate(CpsClosure2 c) {
         def ret = c.call()
-        pipeline.logger "ret"
-        pipeline.logger ret
-        if (ret) {
-            pipeline.logger ret.getClass()
-        }
-        if (ret instanceof String) { // to avoid accidental implcit returns
+        if (ret instanceof GStringImpl) { // to avoid accidental implcit returns
             validationMessage = ret
         }
     }
