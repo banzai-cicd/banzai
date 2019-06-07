@@ -26,6 +26,9 @@ def call(BanzaiCfg cfg) {
       // see if this is a project repo with a deployment configuration
       deployCfg = findValueInRegexObject(cfg.deploy, BRANCH_NAME)
       
+      logger "deployCfg"
+      logger deployCfg
+      
       if (deployCfg == null) {
         return "${BRANCH_NAME} does not match a 'deploy' branch pattern. Skipping ${stageName}"
       }
