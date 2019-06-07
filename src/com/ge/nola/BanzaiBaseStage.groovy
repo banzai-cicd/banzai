@@ -14,6 +14,9 @@ class BanzaiBaseStage {
         def ret = c.call()
         pipeline.logger "ret"
         pipeline.logger ret
+        if (ret) {
+            pipeline.logger ret.getClass()
+        }
         if (ret instanceof String) { // to avoid accidental implcit returns
             validationMessage = ret
         }
