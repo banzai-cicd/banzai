@@ -1,11 +1,11 @@
 package com.ge.nola;
+
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiEvent
 import org.jenkinsci.plugins.workflow.cps.CpsClosure2
-import org.jenkinsci.plugins.workflow.cps.WorkflowScript
 
 class BanzaiBaseStage {
-    WorkflowScript pipeline
+    def pipeline
     String stageName
     BanzaiCfg cfg
     String validationMessage
