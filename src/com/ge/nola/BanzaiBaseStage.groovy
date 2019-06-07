@@ -3,6 +3,7 @@ package com.ge.nola;
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiEvent
 import org.jenkinsci.plugins.workflow.cps.CpsClosure2
+import org.codehaus.groovy.runtime.GStringImpl
 
 class BanzaiBaseStage {
     def pipeline
