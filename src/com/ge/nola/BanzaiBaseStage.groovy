@@ -20,7 +20,7 @@ class BanzaiBaseStage {
 
     def execute(CpsClosure2 c) {
         if (validationMessage) {
-            logger validationMessage
+            pipeline.logger validationMessage
             return
         }
 
