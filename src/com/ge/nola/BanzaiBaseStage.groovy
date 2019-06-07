@@ -40,8 +40,8 @@ class BanzaiBaseStage {
                 ])
             } catch (err) {
                 pipeline.logger "Caught: ${err}"
-                currentBuild.result = 'FAILURE'
-                if (isGithubError(err)) {
+                pipeline.currentBuild.result = 'FAILURE'
+                if (pipeline.isGithubError(err)) {
                     pipeline.notify(cfg, [
                         scope: BanzaiEvent.Scope.STAGE,
                         status: BanzaiEvent.Status.FAILURE,
