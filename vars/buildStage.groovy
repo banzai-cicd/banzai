@@ -14,6 +14,7 @@ def call(BanzaiCfg cfg) {
 
   BanzaiStepCfg buildCfg = findValueInRegexObject(cfg.build, BRANCH_NAME)
   stage.validate {
+    logger "Running var from inside closure!"
     if (buildCfg == null) {
       return "${BRANCH_NAME} does not match a 'build' branch pattern. Skipping ${stageName}"
     }
