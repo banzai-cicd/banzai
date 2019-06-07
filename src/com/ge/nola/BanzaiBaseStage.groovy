@@ -1,17 +1,18 @@
 package com.ge.nola;
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiEvent
+import org.jenkinsci.plugins.workflow.cps.CpsClosure2
 
-class BaseBanzaiStage {
+class BanzaiBaseStage {
     String stageName
     BanzaiCfg cfg
     String validationMessage
 
-    def validate(Closure c) {
+    def validate(CpsClosure2 c) {
         this.validationMessage = c.call()
     }
 
-    def execute(Closure c) {
+    def execute(CpsClosure2 c) {
         if (this.validationMessage) {
             logger this.validationMessage
             return

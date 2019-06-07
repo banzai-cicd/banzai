@@ -1,12 +1,12 @@
 #!/usr/bin/env groovy
 import com.ge.nola.BanzaiCfg
 import com.ge.nola.BanzaiStepCfg
-import com.ge.nola.BaseBanzaiStage
+import com.ge.nola.BanzaiBaseStage
 
 def call(BanzaiCfg cfg) {
   if (cfg.build == null) { return }
 
-  BaseBanzaiStage stage = new BaseBanzaiStage([
+  BanzaiBaseStage stage = new BanzaiBaseStage([
     cfg: cfg,
     stageName: 'Build'
   ])
