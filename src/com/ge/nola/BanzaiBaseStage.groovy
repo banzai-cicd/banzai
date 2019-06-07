@@ -11,7 +11,10 @@ class BanzaiBaseStage {
     String validationMessage
 
     def validate(CpsClosure2 c) {
-        validationMessage = c.call()
+        def ret = c.call()
+        if (ret instanceof String) { // to avoid accidental implcit returns
+            validationMessage = ret
+        }
     }
 
     def execute(CpsClosure2 c) {
