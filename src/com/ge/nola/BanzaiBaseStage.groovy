@@ -12,8 +12,8 @@ class BanzaiBaseStage {
 
     def validate(CpsClosure2 c) {
         def ret = c.call()
-        logger "ret"
-        logger ret
+        pipeline.logger "ret"
+        pipeline.logger ret
         if (ret instanceof String) { // to avoid accidental implcit returns
             validationMessage = ret
         }
