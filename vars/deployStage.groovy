@@ -6,10 +6,11 @@ import com.ge.nola.BanzaiBaseStage
 def call(BanzaiCfg cfg) {
   if (cfg.gitOps == null && cfg.deploy == null) { return }
 
+  String stageName = 'Deploy'
   BanzaiBaseStage stage = new BanzaiBaseStage(
     pipeline: this,
     cfg: cfg,
-    stageName: 'Deploy'
+    stageName: stageName
   )
 
   BanzaiStepCfg deployCfg
