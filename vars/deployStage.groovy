@@ -28,8 +28,9 @@ def call(BanzaiCfg cfg) {
       
       logger "deployCfg"
       logger deployCfg
-      
+
       if (deployCfg == null) {
+        logger "returning deploy validation error"
         return "${BRANCH_NAME} does not match a 'deploy' branch pattern. Skipping ${stageName}"
       }
     }
