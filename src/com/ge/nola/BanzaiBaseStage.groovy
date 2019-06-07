@@ -39,7 +39,7 @@ class BanzaiBaseStage {
                     message: 'Success'
                 ])
             } catch (err) {
-                echo "Caught: ${err}"
+                pipeline.logger "Caught: ${err}"
                 currentBuild.result = 'FAILURE'
                 if (isGithubError(err)) {
                     pipeline.notify(cfg, [
