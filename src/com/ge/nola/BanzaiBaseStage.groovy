@@ -22,14 +22,14 @@ class BanzaiBaseStage {
 
         pipeline.stage (stageName) {
             try {
-                notify(cfg, [
+                pipeline.notify(cfg, [
                     scope: BanzaiEvent.Scope.STAGE,
                     status: BanzaiEvent.Status.PENDING,
                     stage: stageName,
                     message: 'Pending'
                 ])
                 c.call()
-                notify(cfg, [
+                pipeline.notify(cfg, [
                     scope: BanzaiEvent.Scope.STAGE,
                     status: BanzaiEvent.Status.SUCCESS,
                     stage: stageName,
@@ -39,14 +39,14 @@ class BanzaiBaseStage {
                 echo "Caught: ${err}"
                 currentBuild.result = 'FAILURE'
                 if (isGithubError(err)) {
-                    notify(cfg, [
+                    pipeline.notify(cfg, [
                         scope: BanzaiEvent.Scope.STAGE,
                         status: BanzaiEvent.Status.FAILURE,
                         stage: stageName,
                         message: 'githubdown'
                     ])
                 } else {
-                    notify(cfg, [
+                    pipeline.notify(cfg, [
                         scope: BanzaiEvent.Scope.STAGE,
                         status: BanzaiEvent.Status.FAILURE,
                         stage: stageName,
