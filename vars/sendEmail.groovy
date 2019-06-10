@@ -8,5 +8,5 @@ def call(to, subject, body, attachmentsPattern) {
     to: to,
     subject:"Banzai: ${subject}",
     body: "${jobInfo}${body}",
-    attachmentsPattern: attachmentPattern
+    attachmentsPattern: attachmentsPattern
 }

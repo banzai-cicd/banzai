@@ -2,7 +2,6 @@
 import main.groovy.cicd.pipeline.settings.PipelineSettings;
 import com.ge.nola.cfg.BanzaiCfg
 import com.ge.nola.BanzaiQualityCfg
-import com.ge.nola.BanzaiEvent
 import com.ge.nola.BanzaiStage
 
 def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
@@ -11,13 +10,13 @@ def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
     scanConfigs.each {
         switch (it.type) {
             case "sonar": // requires https://github.build.ge.com/PowerDevOps/jenkins-master-shared-library
+                String stageName = "Sonar"
+                BanzaiStage banzaiStage = new BanzaiStage(
+                    pipeline: pipeline,
+                    cfg: cfg,
+                    stageName: stageName
+                )
                 stages[it.type] = {
-                    String stageName = "Sonar"
-                    BanzaiStage banzaiStage = new BanzaiStage(
-                        pipeline: pipeline,
-                        cfg: cfg,
-                        stageName: stageName
-                    )
                     banzaiStage.execute {
                         try {
                             sonarqubeQualityCheck();
