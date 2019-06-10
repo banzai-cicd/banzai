@@ -10,10 +10,9 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
     By default, match PIPELINE:SUCCESS and all STAGE events except STAGE:SUCCESS
     (we don't want to mark the build as a success after each stage, only after PIPELINE)
   */
-  Map DEFAULT_EVENT_MAP = [
-    /${BanzaiEvent.Scope.PIPELINE}:${BanzaiEvent.Status.SUCCESS}/ : true,
-    /^${BanzaiEvent.Scope.STAGE}:(?!(${BanzaiEvent.Status.SUCCESS})$).*$/ : true
-  ]
+  Map DEFAULT_EVENT_MAP = [:]
+  DEFAULT_EVENT_MAP[/${BanzaiEvent.Scope.PIPELINE}:${BanzaiEvent.Status.SUCCESS}/] = true
+  DEFAULT_EVENT_MAP[/^${BanzaiEvent.Scope.STAGE}:(?!(${BanzaiEvent.Status.SUCCESS})$).*$/] = true
 
   logger "${event.scope}:${event.status}"
   if (findValueInRegexObject(DEFAULT_EVENT_MAP, "${event.scope}:${event.status}")) {
