@@ -6,7 +6,7 @@ def call(BanzaiCfg cfg) {
   if (cfg.powerDevOpsReporting == null) { return }
 
   def stageName = 'PowerDevOps Reporting'
-  BanzaiBaseStage banzaiStage = new BanzaiBaseStage(
+  BanzaiStage banzaiStage = new BanzaiStage(
     pipeline: this,
     cfg: cfg,
     stageName: stageName

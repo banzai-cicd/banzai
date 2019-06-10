@@ -7,7 +7,7 @@ def call(BanzaiCfg cfg) {
   if (cfg.gitOps == null && cfg.deploy == null) { return }
 
   String stageName = 'Deploy'
-  BanzaiBaseStage banzaiStage = new BanzaiBaseStage(
+  BanzaiStage banzaiStage = new BanzaiStage(
     pipeline: this,
     cfg: cfg,
     stageName: stageName

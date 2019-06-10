@@ -12,7 +12,7 @@ def call(BanzaiCfg cfg, String type) {
   if (!cfg[scanKey]) { return }
 
   String stageName = "${type.substring(0, 1).toUpperCase() + type.substring(1)} Scans"
-  BanzaiBaseStage banzaiStage = new BanzaiBaseStage(
+  BanzaiStage banzaiStage = new BanzaiStage(
     pipeline: this,
     cfg: cfg,
     stageName: stageName

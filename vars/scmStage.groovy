@@ -6,7 +6,7 @@ def call(BanzaiCfg cfg) {
   if (cfg.skipSCM == true) { return }
 
   String stageName = 'Checkout'
-  BanzaiBaseStage banzaiStage = new BanzaiBaseStage(
+  BanzaiStage banzaiStage = new BanzaiStage(
     pipeline: this,
     cfg: cfg,
     stageName: stageName

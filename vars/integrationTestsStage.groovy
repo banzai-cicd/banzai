@@ -7,7 +7,7 @@ def call(BanzaiCfg cfg) {
   if (cfg.integrationTests == null) { return }
 
   def stageName = 'IT'
-  BanzaiBaseStage banzaiStage = new BanzaiBaseStage(
+  BanzaiStage banzaiStage = new BanzaiStage(
     pipeline: this,
     cfg: cfg,
     stageName: stageName

@@ -7,7 +7,7 @@ def call(BanzaiCfg cfg) {
   if (cfg.publish == null) { return }
 
   String stageName = 'Publish'
-  BanzaiBaseStage banzaiStage = new BanzaiBaseStage(
+  BanzaiStage banzaiStage = new BanzaiStage(
     pipeline: this,
     cfg: cfg,
     stageName: stageName
