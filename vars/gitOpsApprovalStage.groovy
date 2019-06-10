@@ -144,7 +144,7 @@ def call(BanzaiCfg cfg) {
             def approvalSubject = "Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested"
             def approvalMsg = "${approvalSubject} with the following verisions:"
             def approvalBody = "${approvalMsg}\n${proposedServiceVersions}"
-            sendEmail(approverEmails, null, approvalSubject, approvalBody)
+            sendEmail to:approverEmails. subject: approvalSubject, body: approvalBody
 
             // present input steps
             def approverId = input message: msg,
@@ -157,7 +157,8 @@ def call(BanzaiCfg cfg) {
             String subject = "Deployment of the '${STACK}' Stack to the '${ENV}' Environment is approved"
             String approvedMsg = "${subject} by ${approverName} with the following versions:"
             String approvedBody = "${approvedMsg}\n${proposedServiceVersions}"
-            sendEmail(approverEmails, watcherEmails, subject, approvedBody)
+            sendEmail to: [approverEmails, watcherEmails].join(','), subject: subject,
+              body: body
             
             // Finalize!
             finalizeDeployment(cfg)
@@ -167,7 +168,8 @@ def call(BanzaiCfg cfg) {
             String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
             logger deniedMsg
             currentBuild.result = 'ABORTED'
-            sendEmail(approverEmails, watcherEmails, deniedSubject, deniedMsg)
+            sendEmail to: [approverEmails, watcherEmails].join(','), subject: deniedSubject,
+              body: deniedMsg
           }
         }
       }

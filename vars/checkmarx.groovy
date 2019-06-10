@@ -43,11 +43,10 @@ def call(BanzaiCfg config, vulnerabilityCfg) {
 
     if (vulnerabilityCfg.resultEmails) {
         vulnerabilityCfg.resultEmails.each {
-                logger "Emailing Checkmarx Scan Results to ${it}"
-                emailext attachmentsPattern: '**/ScanReport.pdf', body: "BUILD_URL: ${BUILD_URL}", 
-                        subject: "Checkmarx Scan Results: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}", 
-                        to: it 
-                logger "Sent Checkmarx Scan Results..."
+          logger "Emailing Checkmarx Scan Results to ${it}"
+          sendEmail to: it, subject: "Checkmarx Scan Results: ${env.JOB_NAME}",
+            body: "BUILD_URL: ${BUILD_URL}", attachmentsPattern: '**/ScanReport.pdf'
+          logger "Sent Checkmarx Scan Results..."
         }
         
     }
