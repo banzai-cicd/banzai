@@ -1,0 +1,37 @@
+@Library('Banzai@develop') _
+banzai([
+  appName: 'banzai',
+  preCleanWorkspace: true,
+  gitTokenId: 'sweeney-git-token',
+  flowdock: [
+    banzaiFlow: [
+      credId: 'banzai-flowtoken',
+      author: [
+        name: 'Banzai',
+        avatarUrl: 'https://github.build.ge.com/avatars/u/55576?s=400&u=700c7e70356d1f5a679908c1d7c7e5bf8e2beab6',
+        email: 'banzai@ge.com'
+      ]
+    ] 
+  ]
+  notifications: [
+    flowdock: [
+      /.*/: [
+        'banzaiFlow': ['.*']
+      ]
+    ]
+  ],
+  downstreamBuilds: [
+    /develop/: [
+      [
+        id: 'test-maven-build-develop',
+        job: '/Banzai/TestMavenBuild/develop'
+      ]
+    ],
+    /master/: [
+      [
+        id: 'test-maven-build-master',
+        job: '/Banzai/TestMavenBuild/master'
+      ]
+    ]
+  ]
+])

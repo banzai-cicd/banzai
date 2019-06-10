@@ -21,7 +21,7 @@ def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
                         try {
                             sonarqubeQualityCheck();
 
-                            def proxyOn = false
+                            Boolean proxyOn = false
                             def sonarHost = PipelineSettings.SonarQubeSettings.sonarHostUrl.replaceFirst(/(http|https):\/\//, "")
                             if ((!cfg.noProxy || !cfg.noProxy.contains(sonarHost)) && cfg.httpsProxy) {
                                 logger "setting sonar proxy ${cfg.httpsProxy.host}:${cfg.httpsProxy.port}"
