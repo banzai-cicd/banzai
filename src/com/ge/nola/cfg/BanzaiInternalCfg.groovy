@@ -1,4 +1,4 @@
-package com.ge.nola;
+package com.ge.nola.cfg;
 
 class BanzaiInternalGitOpsCfg {
     String TARGET_ENV

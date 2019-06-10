@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 import net.sf.json.JSONObject
-import com.ge.nola.BanzaiCfg
+import com.ge.nola.cfg.BanzaiCfg
 
 def call(BanzaiCfg cfg) {
 	if (!cfg.gitOps) {

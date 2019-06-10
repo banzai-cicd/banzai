@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-import com.ge.nola.BanzaiCfg
-import com.ge.nola.BanzaiVulnerabilityCfg
+import com.ge.nola.cfg.BanzaiCfg
+import com.ge.nola.cfg.BanzaiVulnerabilityCfg
 
 def call(BanzaiCfg config, vulnerabilityCfg) {
     def PROJECT_NAME = "${config.appName}-${env.BRANCH_NAME}"

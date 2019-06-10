@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-import com.ge.nola.BanzaiCfg
+import com.ge.nola.cfg.BanzaiCfg
 
 def call(BanzaiCfg cfg, vulnerabilityCfg) {
     def streamName = vulnerabilityCfg.streamName ?: "${cfg.appName}_${env.BRANCH_NAME}"

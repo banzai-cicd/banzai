@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
-import com.ge.nola.BanzaiCfg
-import com.ge.nola.BanzaiStageCfg
-import com.ge.nola.BanzaiStepCfg
+import com.ge.nola.cfg.BanzaiCfg
+import com.ge.nola.cfg.BanzaiStageCfg
+import com.ge.nola.cfg.BanzaiStepCfg
 import com.ge.nola.BanzaiEvent
 
 def call(BanzaiCfg cfg, BanzaiStageCfg stageCfg) {

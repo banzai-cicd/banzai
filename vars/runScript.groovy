@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-import com.ge.nola.BanzaiCfg
+import com.ge.nola.cfg.BanzaiCfg
 import org.jenkinsci.plugins.workflow.cps.CpsClosure2
 
 def call(BanzaiCfg cfg, scriptPathOrClosure, List args=null) {
@@ -44,7 +44,9 @@ def call(BanzaiCfg cfg, scriptPathOrClosure, List args=null) {
         userData = readJSON file: "${userDataFileName}.json"
         sh "rm -rf ${userDataFileName}.json"
       }
-      cfg.userData << userData
+      if (userData) {
+        cfg.userData << userData
+      }
     } catch (Exception e) {
       logger "Unable to parse BanzaiUserData. Please ensure you're writing valid json or yaml"
       logger e.message

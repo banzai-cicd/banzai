@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-import com.ge.nola.BanzaiCfg
-import com.ge.nola.BanzaiStageCfg
+import com.ge.nola.cfg.BanzaiCfg
+import com.ge.nola.cfg.BanzaiStageCfg
 import com.ge.nola.BanzaiEvent
 
 def call(cfgMap) {
@@ -39,7 +39,6 @@ def runPipeline(BanzaiCfg cfg) {
                 ])
             ]
         )
-        env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
         node() {
             printEnv()

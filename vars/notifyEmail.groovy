@@ -1,8 +1,8 @@
 #!/usr/bin/env groovy
 
-import com.ge.nola.BanzaiCfg
+import com.ge.nola.cfg.BanzaiCfg
 import com.ge.nola.BanzaiEvent
-import com.ge.nola.BanzaiNotificationsEmailCfg
+import com.ge.nola.cfg.BanzaiNotificationsEmailCfg
 
 void call(BanzaiCfg cfg, BanzaiEvent event) {
     if (!cfg.email 

@@ -1,4 +1,4 @@
-package com.ge.nola;
+package com.ge.nola.cfg;
 
 class BanzaiNotificationsEmailCfg {
     Map<String, Map<String, List<String>>> groups

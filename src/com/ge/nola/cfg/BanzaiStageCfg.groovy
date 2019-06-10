@@ -1,4 +1,4 @@
-package com.ge.nola;
+package com.ge.nola.cfg;
 
 // allows users to define their own stage
 class BanzaiStageCfg {

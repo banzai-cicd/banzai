@@ -1,66 +1,54 @@
 #!/usr/bin/env groovy
-import com.ge.nola.BanzaiCfg
-import com.ge.nola.BanzaiVulnerabilityCfg
-import com.ge.nola.BanzaiQualityCfg
-import com.ge.nola.BanzaiEvent
+import com.ge.nola.cfg.BanzaiCfg
+import com.ge.nola.cfg.BanzaiVulnerabilityCfg
+import com.ge.nola.cfg.BanzaiQualityCfg
+import com.ge.nola.BanzaiStage
 
-/**
+/*
  Stage that can be re-used for vulnerabilityScans and qualityScans
 */
 def call(BanzaiCfg cfg, String type) {
-    def scanKey = "${type}Scans"
-    if (!cfg[scanKey]) { return }
+  String scanKey = "${type}Scans"
+  if (!cfg[scanKey]) { return }
 
-    def stageName = "${type.substring(0, 1).toUpperCase() + type.substring(1)} Scans"
-    def abortKey = "${type}AbortOnError"
-    // check and see if the current branch matches the cfg
-    def scanCfgs = findValueInRegexObject(cfg[scanKey], BRANCH_NAME)
+  String stageName = "${type.substring(0, 1).toUpperCase() + type.substring(1)} Scans"
+  BanzaiStage banzaiStage = new BanzaiStage(
+    pipeline: this,
+    cfg: cfg,
+    stageName: stageName
+  )
+  String abortKey = "${type}AbortOnError"
+  // check and see if the current branch matches the cfg
+  def scanCfgs = findValueInRegexObject(cfg[scanKey], BRANCH_NAME)
+
+  banzaiStage.validate {
     if (scanCfgs == null) {
-        logger "${BRANCH_NAME} does match a '${scanKey}' branch pattern. Skipping ${stageName}"
-        return
+      return "${BRANCH_NAME} does match a '${scanKey}' branch pattern. Skipping ${stageName}"
     }
+  }
 
-    stage (stageName) {
-        try {
-            notify(cfg, [
-                scope: BanzaiEvent.Scope.STAGE,
-                status: BanzaiEvent.Status.PENDING,
-                stage: stageName,
-                message: 'Pending'
-            ])
-            switch (type) {
-                case 'vulnerability':
-                    vulnerabilityScans(cfg, (List<BanzaiVulnerabilityCfg>) scanCfgs)
-                    break
-                case 'quality':
-                    qualityScans(cfg, (List<BanzaiQualityCfg>) scanCfgs)
-                    break
-                default:
-                    throw new GroovyRuntimeException("scan with of type '${type}' not recognized")
-            }
-            notify(cfg, [
-                scope: BanzaiEvent.Scope.STAGE,
-                status: BanzaiEvent.Status.SUCCESS,
-                stage: stageName,
-                message: 'Success'
-            ])
-        } catch (err) {
-            echo "Caught: ${err}"
-            notify(cfg, [
-                scope: BanzaiEvent.Scope.STAGE,
-                status: BanzaiEvent.Status.FAILURE,
-                stage: stageName,
-                message: 'Failed'
-            ]) 
-
-            // abort if all scans should result in abort OR
-            // if this specific scan is configured to abort
-            if (cfg[abortKey] || err.message == "true") {
-                currentBuild.result = 'ABORTED'
-                error(err.message)
-            } else {
-                currentBuild.result = 'UNSTABLE'
-            }
-        }
+  banzaiStage.execute {
+    try {
+      switch (type) {
+        case 'vulnerability':
+          vulnerabilityScans(cfg, (List<BanzaiVulnerabilityCfg>) scanCfgs)
+          break
+        case 'quality':
+          qualityScans(cfg, (List<BanzaiQualityCfg>) scanCfgs)
+          break
+        default:
+          throw new GroovyRuntimeException("scan with of type '${type}' not recognized")
+      }
+    } catch (Exception e) {
+      // abort if all scans should result in abort OR
+      // if this specific scan is configured to abort
+      if (cfg[abortKey] || err.message == 'true') {
+        currentBuild.result = 'ABORTED'
+        throw new Exception(err.message)
+        error(err.message)
+      } else {
+        currentBuild.result = 'UNSTABLE'
+      }
     }
+  }
 }

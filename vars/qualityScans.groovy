@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 import main.groovy.cicd.pipeline.settings.PipelineSettings;
-import com.ge.nola.BanzaiCfg
+import com.ge.nola.cfg.BanzaiCfg
 import com.ge.nola.BanzaiQualityCfg
 import com.ge.nola.BanzaiEvent
 

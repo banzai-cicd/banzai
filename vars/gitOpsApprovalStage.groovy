@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 import hudson.model.User
-import com.ge.nola.BanzaiCfg
+import com.ge.nola.cfg.BanzaiCfg
 
 @NonCPS
 def getRoleBasedUsersList(role) {
