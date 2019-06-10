@@ -14,7 +14,6 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
   DEFAULT_EVENT_MAP[/${BanzaiEvent.Scope.PIPELINE}:${BanzaiEvent.Status.SUCCESS}/] = true
   DEFAULT_EVENT_MAP[/^${BanzaiEvent.Scope.STAGE}:(?!(${BanzaiEvent.Status.SUCCESS})$).*$/] = true
 
-  logger "${event.scope}:${event.status}"
   if (findValueInRegexObject(DEFAULT_EVENT_MAP, "${event.scope}:${event.status}")) {
     logger "githubNotify ${event.stage} : ${event.message} : ${event.stage} "
     githubNotify description: "${event.stage}: ${event.message}", context: "Banzai", status: "${event.status}", gitApiUrl: GITHUB_API_URL
