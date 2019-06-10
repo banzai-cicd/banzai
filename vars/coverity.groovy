@@ -78,11 +78,7 @@ def call(BanzaiCfg cfg, vulnerabilityCfg) {
     // email the summary.txt if applicable
     if (vulnerabilityCfg.resultEmails) {
         vulnerabilityCfg.resultEmails.each {
-                logger "Emailing Coverity Scan Results to ${it}"
-                emailext attachmentsPattern: "**/idir/output/summary.txt", body: "BUILD_URL: ${env.BUILD_URL}", 
-                        subject: "Coverity Scan Summary: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}", 
-                        to: it 
-                logger "Sent Coverity Scan Results..."
+          sendEmail(it, "Coverity Scan Summary: ${env.JOB_NAME}", "BUILD_URL: ${env.BUILD_URL}", "**/idir/output/summary.txt")
         }
     }
 }
