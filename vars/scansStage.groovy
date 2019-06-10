@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 import com.ge.nola.cfg.BanzaiCfg
-import com.ge.nola.BanzaiVulnerabilityCfg
-import com.ge.nola.BanzaiQualityCfg
+import com.ge.nola.cfg.BanzaiVulnerabilityCfg
+import com.ge.nola.cfg.BanzaiQualityCfg
 import com.ge.nola.BanzaiStage
 
 /*

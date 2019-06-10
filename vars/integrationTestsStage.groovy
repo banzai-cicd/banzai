@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 import com.ge.nola.cfg.BanzaiCfg
-import com.ge.nola.BanzaiIntegrationTestsCfg
+import com.ge.nola.cfg.BanzaiIntegrationTestsCfg
 import com.ge.nola.BanzaiStage
 
 def call(BanzaiCfg cfg) {

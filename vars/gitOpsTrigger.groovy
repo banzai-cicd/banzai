@@ -2,7 +2,7 @@
 import groovy.json.JsonOutput
 import net.sf.json.JSONObject
 import com.ge.nola.cfg.BanzaiCfg
-import com.ge.nola.BanzaiGitOpsTriggerCfg
+import com.ge.nola.cfg.BanzaiGitOpsTriggerCfg
 
 // Determine if gitOps job should run.
 def call(Map userData, BanzaiGitOpsTriggerCfg gitOpsCfg) {

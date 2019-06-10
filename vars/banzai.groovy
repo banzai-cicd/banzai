@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 import com.ge.nola.cfg.BanzaiCfg
-import com.ge.nola.BanzaiStageCfg
+import com.ge.nola.cfg.BanzaiStageCfg
 import com.ge.nola.BanzaiEvent
 
 def call(cfgMap) {

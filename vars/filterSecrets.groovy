@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-import com.ge.nola.BanzaiFilterSecretsCfg
+import com.ge.nola.cfg.BanzaiFilterSecretsCfg
 
 def call(BanzaiFilterSecretsCfg secretsCfg) {
 
