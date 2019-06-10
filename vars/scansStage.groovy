@@ -40,12 +40,12 @@ def call(BanzaiCfg cfg, String type) {
           throw new GroovyRuntimeException("scan with of type '${type}' not recognized")
       }
     } catch (Exception e) {
+      logger "${e.message}"
       // abort if all scans should result in abort OR
       // if this specific scan is configured to abort
       if (cfg[abortKey] || e.message == 'true') {
         currentBuild.result = 'ABORTED'
         throw new Exception(e.message)
-        error(e.message)
       } else {
         currentBuild.result = 'UNSTABLE'
       }

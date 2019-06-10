@@ -30,7 +30,7 @@ def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
                             
                             sonarqubeQualityResults(proxyOn);
                         } catch (Exception e) {
-                            echo "Caught: ${e}"
+                            logger "${e.message}"
                             currentBuild.result = 'UNSTABLE'
                             String abort = it.abortOnError ? "true" : "false"
                             throw new Exception(abort) // let the scansStage know if it should abort
