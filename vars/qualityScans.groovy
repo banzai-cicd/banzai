@@ -3,24 +3,23 @@ import main.groovy.cicd.pipeline.settings.PipelineSettings;
 import com.ge.nola.cfg.BanzaiCfg
 import com.ge.nola.BanzaiQualityCfg
 import com.ge.nola.BanzaiEvent
+import com.ge.nola.BanzaiStage
 
 def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
     def stages = [:]
-    
-    String stageName
+    def pipeline = this
     scanConfigs.each {
         switch (it.type) {
             case "sonar": // requires https://github.build.ge.com/PowerDevOps/jenkins-master-shared-library
-                stageName = "Sonar"
                 stages[it.type] = {
-                    stage(stageName) {
+                    String stageName = "Sonar"
+                    BanzaiStage banzaiStage = new BanzaiStage(
+                        pipeline: pipeline,
+                        cfg: cfg,
+                        stageName: stageName
+                    )
+                    banzaiStage.execute {
                         try {
-                            notify(cfg, [
-                                scope: BanzaiEvent.Scope.STAGE,
-                                status: BanzaiEvent.Status.PENDING,
-                                stage: stageName,
-                                message: 'Pending'
-                            ])
                             sonarqubeQualityCheck();
 
                             def proxyOn = false
@@ -31,24 +30,11 @@ def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
                             }
                             
                             sonarqubeQualityResults(proxyOn);
-
-                            notify(cfg, [
-                                scope: BanzaiEvent.Scope.STAGE,
-                                status: BanzaiEvent.Status.SUCCESS,
-                                stage: stageName,
-                                message: 'Success'
-                            ])
-                        } catch (err) {
-                            echo "Caught: ${err}"
+                        } catch (Exception e) {
+                            echo "Caught: ${e}"
                             currentBuild.result = 'UNSTABLE'
-                            notify(cfg, [
-                                scope: BanzaiEvent.Scope.STAGE,
-                                status: BanzaiEvent.Status.FAILURE,
-                                stage: stageName,
-                                message: 'Failed'
-                            ])
-                            def abort = it.abortOnError ? "true" : "false"
-                            error(abort) // let the scansStage know if it should abort
+                            String abort = it.abortOnError ? "true" : "false"
+                            throw new Exception(abort) // let the scansStage know if it should abort
                         }
                     }
                 }
