@@ -42,10 +42,10 @@ def call(BanzaiCfg cfg, String type) {
     } catch (Exception e) {
       // abort if all scans should result in abort OR
       // if this specific scan is configured to abort
-      if (cfg[abortKey] || err.message == 'true') {
+      if (cfg[abortKey] || e.message == 'true') {
         currentBuild.result = 'ABORTED'
-        throw new Exception(err.message)
-        error(err.message)
+        throw new Exception(e.message)
+        error(e.message)
       } else {
         currentBuild.result = 'UNSTABLE'
       }
