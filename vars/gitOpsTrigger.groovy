@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 import groovy.json.JsonOutput
 import net.sf.json.JSONObject
-import com.ge.nola.BanzaiCfg
+import com.ge.nola.cfg.BanzaiCfg
 import com.ge.nola.BanzaiGitOpsTriggerCfg
 
 // Determine if gitOps job should run.

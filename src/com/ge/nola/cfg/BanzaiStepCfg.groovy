@@ -1,4 +1,4 @@
-package com.ge.nola;
+package com.ge.nola.cfg;
 
 import org.jenkinsci.plugins.workflow.cps.CpsClosure2
 

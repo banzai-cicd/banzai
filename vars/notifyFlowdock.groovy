@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 import groovy.json.JsonOutput
-import com.ge.nola.BanzaiCfg
+import com.ge.nola.cfg.BanzaiCfg
 import com.ge.nola.BanzaiFlowdockCfg
 import com.ge.nola.BanzaiEvent
 

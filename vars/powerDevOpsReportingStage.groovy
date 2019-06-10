@@ -1,56 +1,28 @@
 #!/usr/bin/env groovy
-import com.ge.nola.BanzaiCfg
-import com.ge.nola.BanzaiEvent
+import com.ge.nola.cfg.BanzaiCfg
+import com.ge.nola.BanzaiStage
 
 def call(BanzaiCfg cfg) {
+  if (cfg.powerDevOpsReporting == null) { return }
+
   def stageName = 'PowerDevOps Reporting'
+  BanzaiBaseStage banzaiStage = new BanzaiBaseStage(
+    pipeline: this,
+    cfg: cfg,
+    stageName: stageName
+  )
 
-  if (cfg.powerDevOpsReporting) {    
+  banzaiStage.validate {
     if (cfg.powerDevOpsReporting.branches && !(BRANCH_NAME ==~ cfg.powerDevOpsReporting.branches)) {
-      logger "${BRANCH_NAME} does not match the powerDevOpsReporting.branches pattern. Skipping ${stageName}"
-      return 
+      return "${BRANCH_NAME} does not match the powerDevOpsReporting.branches pattern. Skipping ${stageName}"
     }
+  }
 
-    stage (stageName) {
-      try {
-        notify(cfg, [
-            scope: BanzaiEvent.Scope.STAGE,
-            status: BanzaiEvent.Status.PENDING,
-            stage: stageName,
-            message: 'Pending'
-        ])
-        if (cfg.httpsProxy) {
-          authenticateService(true)
-        }
-        reportPipelineStatePublish();
-        reportPipelineStateDeploy();
-        notify(cfg, [
-            scope: BanzaiEvent.Scope.STAGE,
-            status: BanzaiEvent.Status.SUCCESS,
-            stage: stageName,
-            message: 'Success'
-        ])
-      } catch (err) {
-          echo "Caught: ${err}"
-          currentBuild.result = 'FAILURE'
-          if (isGithubError(err)) {
-            notify(cfg, [
-              scope: BanzaiEvent.Scope.STAGE,
-              status: BanzaiEvent.Status.FAILURE,
-              stage: stageName,
-              message: 'githubdown'
-            ])
-          } else {
-            notify(cfg, [
-              scope: BanzaiEvent.Scope.STAGE,
-              status: BanzaiEvent.Status.FAILURE,
-              stage: stageName,
-              message: 'Failed'
-            ])   
-          }
-          
-          error(err.message)
-      }
+  banzaiStage.execute {
+    if (cfg.httpsProxy) {
+      authenticateService(true)
     }
+    reportPipelineStatePublish();
+    reportPipelineStateDeploy();
   }
 }

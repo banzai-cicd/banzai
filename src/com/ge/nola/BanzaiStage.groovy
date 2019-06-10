@@ -1,11 +1,11 @@
 package com.ge.nola;
 
-import com.ge.nola.BanzaiCfg
+import com.ge.nola.cfg.BanzaiCfg
 import com.ge.nola.BanzaiEvent
 import org.jenkinsci.plugins.workflow.cps.CpsClosure2
 import org.codehaus.groovy.runtime.GStringImpl
 
-class BanzaiBaseStage {
+class BanzaiStage {
     def pipeline
     String stageName
     BanzaiCfg cfg
@@ -41,7 +41,15 @@ class BanzaiBaseStage {
                 ])
             } catch (err) {
                 pipeline.logger "Caught: ${err}"
-                pipeline.currentBuild.result = 'FAILURE'
+                /*
+                    sometimes the originator of the error will
+                    set the currentBuild.result to something other than
+                    SUCCESS and we shouldn't overwrite that.
+                */
+                if (pipeline.currentBuild.result == 'SUCCESS') { 
+                    pipeline.currentBuild.result = 'FAILURE'
+                }
+
                 if (pipeline.isGithubError(err)) {
                     pipeline.notify(cfg, [
                         scope: BanzaiEvent.Scope.STAGE,
@@ -55,7 +63,7 @@ class BanzaiBaseStage {
                         status: BanzaiEvent.Status.FAILURE,
                         stage: stageName,
                         message: 'Failed'
-                    ])   
+                    ])
                 }
                 
                 pipeline.error(err.message)
