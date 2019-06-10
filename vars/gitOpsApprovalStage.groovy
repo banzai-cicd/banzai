@@ -144,7 +144,7 @@ def call(BanzaiCfg cfg) {
             def approvalSubject = "Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested"
             def approvalMsg = "${approvalSubject} with the following verisions:"
             def approvalBody = "${approvalMsg}\n${proposedServiceVersions}"
-            sendEmail to:approverEmails. subject: approvalSubject, body: approvalBody
+            sendEmail to:approverEmails, subject: approvalSubject, body: approvalBody
 
             // present input steps
             def approverId = input message: msg,
