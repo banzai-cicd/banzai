@@ -39,7 +39,6 @@ def runPipeline(BanzaiCfg cfg) {
                 ])
             ]
         )
-        env.GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
 
         node() {
             printEnv()
