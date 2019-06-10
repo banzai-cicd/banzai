@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 import main.groovy.cicd.pipeline.settings.PipelineSettings;
 import com.ge.nola.cfg.BanzaiCfg
-import com.ge.nola.BanzaiQualityCfg
+import com.ge.nola.cfg.BanzaiQualityCfg
 import com.ge.nola.BanzaiStage
 
 def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
