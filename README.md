@@ -106,7 +106,8 @@ banzai([
         [
           id: 'my-job',
           job: '/YOUR_PROJECT_FOLDER/Build/your-project/branch',
-          optional: true                       // when true, the downstream build will only run if the Pull Request contains a label in the format 'build:<job-id>', ie) 'build:my-job'
+          optional: true,                       // when true, the downstream build will only run if the Pull Request contains a label in the format 'build:<job-id>', ie) 'build:my-job',
+          wait: true                            // defaults to false. when true this build will block the pipeline until it completes
         ],
         [
           id: 'my-parallel-job',
@@ -117,7 +118,7 @@ banzai([
           id: 'my-parallel-job-2',
           job: '/YOUR_PROJECT_FOLDER/Build/your-project/branch',
           parallel: true,
-          propagate: true                     // this would mark 'my-job' as failed if 'my-parallel-job-2' fails
+          propagate: true                     // defaults to false. this would mark 'my-job' as failed if 'my-parallel-job-2' fails
         ],
         [
           id: 'my-serial-job',                // this build would run in serial AFTER the 2 parallel builds complete

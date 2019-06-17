@@ -145,6 +145,11 @@ def executeSerialBuild(List<String> buildIds, List<BanzaiDownstreamBuildCfg> dow
         buildParams = (targetBuild.parameters + buildParams)
     }
 
+    // if the user set propogate to true then ensure that wait is also true
+    if (buildParams.propagate == true) {
+        buildParams.wait = true
+    }
+
     // this syntax allows the 'jenkins pipeline build step' to add properties 
     // in the future and automatically be support with-out code change. (unless they use a prop name we're using, ie) 'id', 'optional'
     build(buildDefaults << targetBuild.asMap() << [parameters: buildParams])
