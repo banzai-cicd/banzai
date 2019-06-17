@@ -86,14 +86,14 @@ Map<String, String> rollbackStackStage(config, targetEnvironment, targetStack) {
   String deploymentChoices
   dir (HIST_DIR_NAME) {
     deploymentChoices = sh(
-        script: "ls -f . | sed 's/\\///g' | sed 's/.yaml//g'",
+        script: "find . -name '*.yaml' -type f -execdir basename '{}' ';'",
         returnStdout: true
     ).trim()
     logger "deploymentChoices"
     logger deploymentChoices
   }
 
-  if (!deploymentChoices || deploymentChoices.length == 0) {
+  if (!deploymentChoices || deploymentChoices.length() == 0) {
     logger "No previous deployments found!"
     return
   }
