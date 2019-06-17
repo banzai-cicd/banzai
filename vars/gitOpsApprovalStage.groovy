@@ -57,12 +57,7 @@ def finalizeDeployment(BanzaiCfg cfg) {
 
   // 3. save the deployment info in the deployment-history
   String deployHistDir = "${WORKSPACE}/deployment-history/${ENV}/${STACK}"
-  dir(deployHistDir) {
-		if (!fileExists("/")) {
-			logger "No ${deployHistDir} dir exists. Creating..."
-			sh "mkdir -p ${deployHistDir}"
-		}
-	}
+  sh "mkdir -p ${deployHistDir}" // ensure the dir exists
   sh "${deployHistDir}/${DEPLOYMENT_ID}.yaml" // just incase they give a dup ID...let them
   writeYaml file: "${deployHistDir}/${DEPLOYMENT_ID}.yaml", data: stackYaml
 
