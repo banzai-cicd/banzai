@@ -1,4 +1,4 @@
-@Library('Banzai@develop') _
+@Library("Banzai@${BRANCH_NAME}") _
 banzai([
   appName: 'banzai',
   preCleanWorkspace: true,
