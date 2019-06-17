@@ -21,16 +21,11 @@ banzai([
     ]
   ],
   downstreamBuilds: [
-    /develop/: [
+    /PR-.*/: [
       [
         id: 'test-maven-build-develop',
-        job: '/Banzai/TestMavenBuild/develop'
-      ]
-    ],
-    /master/: [
-      [
-        id: 'test-maven-build-master',
-        job: '/Banzai/TestMavenBuild/master'
+        job: '/Banzai/TestMavenBuild/develop',
+        wait: true
       ]
     ]
   ]
