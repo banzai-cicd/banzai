@@ -143,8 +143,8 @@ def executeSerialBuild(List<String> buildIds, List<BanzaiDownstreamBuildCfg> dow
     }
 
     // if the user set propogate to true then ensure that wait is also true
-    if (buildParams.propagate == true) {
-        buildParams.wait = true
+    if (targetBuild.propagate == true) {
+        targetBuild.wait = true
     }
 
     // this syntax allows the 'jenkins pipeline build step' to add properties 
