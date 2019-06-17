@@ -1,6 +1,5 @@
-final String banzaiVersion = "Banzai@${env.BRANCH_NAME}"
+library "Banzai@${BRANCH_NAME}"
 
-@Library(banzaiVersion) _
 banzai([
   appName: 'banzai',
   preCleanWorkspace: true,
