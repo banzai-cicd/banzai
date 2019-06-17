@@ -21,7 +21,7 @@ def call(BanzaiCfg cfg) {
   }
 
   banzaiStage.execute {
-    String script = buildCfg.script ?: "build.sh"
+    String script = buildCfg.shell ?: "build.sh"
     runScript(cfg, script)
   }
 }

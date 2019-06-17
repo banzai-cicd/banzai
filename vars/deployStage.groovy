@@ -34,7 +34,7 @@ def call(BanzaiCfg cfg) {
   }
 
   banzaiStage.execute {
-    String script = deployCfg.script ?: "deploy.sh"
+    String script = deployCfg.shell ?: "deploy.sh"
     runScript(cfg, script, cfg.internal.gitOps.DEPLOY_ARGS)
   }
 }
