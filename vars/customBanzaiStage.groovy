@@ -23,10 +23,10 @@ def call(BanzaiCfg cfg, BanzaiStageCfg stageCfg) {
       ])
 
       stepCfgs.each {
-          if (it.script) {
-              runScript(cfg, it.script)
-          } else if (it.closure) {
-              it.closure.call(cfg)
+          if (it.shell) {
+              runScript(cfg, it.shell)
+          } else if (it.groovy) {
+              it.groovy.call(cfg)
           }
       }
       notify(cfg, [

@@ -175,10 +175,10 @@ banzai([
         steps: [
           /.*/: [                         // steps for a custom stage can be configured per branch via regex
             [
-              closure: { logger "YO I RAN A CLOSURE FROM A CUSTOM STAGE!" }  // example of running a groovy closure
+              groovy: { logger "YO I RAN A CLOSURE FROM A CUSTOM STAGE!" }  // example of running a groovy closure
             ], 
             [
-              script: 'customStageScript.sh'  // example running a shell script
+              shell: 'customStageScript.sh'  // example running a shell script
             ]
           ]
         ]
