@@ -86,7 +86,7 @@ Map<String, String> rollbackStackStage(config, targetEnvironment, targetStack) {
   String deploymentChoices
   dir (HIST_DIR_NAME) {
     deploymentChoices = sh(
-        script: "find . -name '*.yaml' -type f -execdir basename '{}' ';'",
+        script: "find . -name '*.yaml' -type f -execdir basename '{}' ';' | sed 's/.yaml//g'",
         returnStdout: true
     ).trim()
     logger "deploymentChoices"
