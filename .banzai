@@ -12,7 +12,7 @@ banzai([
         email: 'banzai@ge.com'
       ]
     ] 
-  ]
+  ],
   notifications: [
     flowdock: [
       /.*/: [
