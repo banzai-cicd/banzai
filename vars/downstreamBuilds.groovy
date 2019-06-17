@@ -131,7 +131,7 @@ def executeSerialBuild(List<String> buildIds, List<BanzaiDownstreamBuildCfg> dow
         targetBuild.job = "/${targetBuild.job}"
     }
 
-    BanzaiDownstreamBuildCfg buildDefaults = = new BanzaiDownstreamBuildCfg()
+    BanzaiDownstreamBuildCfg buildDefaults = new BanzaiDownstreamBuildCfg()
 
     def buildParams = [
         string(name: 'downstreamBuildIds', value: buildIds.join(',')),
