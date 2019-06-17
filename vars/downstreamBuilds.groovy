@@ -131,10 +131,7 @@ def executeSerialBuild(List<String> buildIds, List<BanzaiDownstreamBuildCfg> dow
         targetBuild.job = "/${targetBuild.job}"
     }
 
-    def buildDefaults = [
-        propagate: false,
-        wait: false
-    ]
+    BanzaiDownstreamBuildCfg buildDefaults = new BanzaiDownstreamBuildCfg()
 
     def buildParams = [
         string(name: 'downstreamBuildIds', value: buildIds.join(',')),
@@ -145,9 +142,14 @@ def executeSerialBuild(List<String> buildIds, List<BanzaiDownstreamBuildCfg> dow
         buildParams = (targetBuild.parameters + buildParams)
     }
 
+    // if the user set propogate to true then ensure that wait is also true
+    if (targetBuild.propagate == true) {
+        targetBuild.wait = true
+    }
+
     // this syntax allows the 'jenkins pipeline build step' to add properties 
     // in the future and automatically be support with-out code change. (unless they use a prop name we're using, ie) 'id', 'optional'
-    build(buildDefaults << targetBuild.asMap() << [parameters: buildParams])
+    build(buildDefaults.asMap() << targetBuild.asMap() << [parameters: buildParams])
 }
 
 // have to write this abomination because we can't use takeWhile() on jenkins cause of CPS
@@ -178,14 +180,10 @@ def executeParallelBuilds(List<String> buildIds, List<BanzaiDownstreamBuildCfg> 
     // assemble our parallel builds
     def parallelBuilds = [:]
     parallelBuildIds.each {
-        def targetBuild = findAndValidateTargetBuild(it, downstreamBuildCfgs)
+        BanzaiDownstreamBuildCfg targetBuild = findAndValidateTargetBuild(it, downstreamBuildCfgs)
+        BanzaiDownstreamBuildCfg buildDefaults = new BanzaiDownstreamBuildCfg()
 
-        def buildDefaults = [
-            propagate: false,
-            wait: false
-        ]
-
-        def buildParams = (buildDefaults << targetBuild)
+        def buildParams = (buildDefaults.asMap() << targetBuild.asMap())
         // if there will be builds remaining after the parallel builds complete OR
         // buildParams has propagate set to true we ensure `wait = true`
         buildParams.wait = (remainingBuildIds.size() > 0 || buildParams.propogate) ? true : false

@@ -1,4 +1,5 @@
-@Library('Banzai@develop') _
+library "Banzai@${BRANCH_NAME}"
+
 banzai([
   appName: 'banzai',
   preCleanWorkspace: true,
@@ -12,7 +13,7 @@ banzai([
         email: 'banzai@ge.com'
       ]
     ] 
-  ]
+  ],
   notifications: [
     flowdock: [
       /.*/: [
@@ -21,16 +22,11 @@ banzai([
     ]
   ],
   downstreamBuilds: [
-    /develop/: [
+    /PR-.*/: [
       [
         id: 'test-maven-build-develop',
-        job: '/Banzai/TestMavenBuild/develop'
-      ]
-    ],
-    /master/: [
-      [
-        id: 'test-maven-build-master',
-        job: '/Banzai/TestMavenBuild/master'
+        job: '/Banzai/TestMavenBuild/develop',
+        wait: true
       ]
     ]
   ]

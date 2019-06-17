@@ -3,7 +3,18 @@
 Banzai
 ========
 
-basic Jenkinsfile
+* [Configuration](#configuration)
+* [Features](#features)
+  * [Downstream Builds](#downstream-builds)
+  * [GitOps](#gitops)
+    * [GitOps Configuration](#gitops-configuration)
+    * [What it isn't](#what-it-isnt)
+  * [Coverity](#coverity)
+  * [Custom Stages](#custom-stages)
+  * [BanzaiUserData](#banzaiuserdata)
+
+## Configuration
+Basic Jenkinsfile
 ```
 banzai([
   appName: 'config-reviewer-server',
@@ -14,8 +25,7 @@ banzai([
 ])
 ```
 
-
-full list of options
+Exhaustive List of Options
 ```
 @Library('Banzai@1.0.0') _ // only necessary if configured as a 'Global Pipeline Library'. IMPORTANT: the _ is required after @Library. 
 banzai([
@@ -76,7 +86,7 @@ banzai([
           serverHost: 'coverity.power.ge.com',
           serverPort: '443',
           resultEmails: ['simon.townsend1@ge.com'],
-          buildCmd: 'mvn -s ./settings.xml clean install -U', // the command coverity should wrap. alternatively, you can export BUILD_CMD in a previous pipeline step and it will be picked up.
+          buildCmd: 'mvn -s ./settings.xml clean install -U', // the build command coverity should wrap. alternatively, you can leverage banzai BanzaiUserData. see BanzaiUserData section of README
           projectName: 'your-coverity-project-name',
           abortOnError: true
         ]
@@ -96,7 +106,8 @@ banzai([
         [
           id: 'my-job',
           job: '/YOUR_PROJECT_FOLDER/Build/your-project/branch',
-          optional: true                       // when true, the downstream build will only run if the Pull Request contains a label in the format 'build:<job-id>', ie) 'build:my-job'
+          optional: true,                       // when true, the downstream build will only run if the Pull Request contains a label in the format 'build:<job-id>', ie) 'build:my-job',
+          wait: true                            // defaults to false. when true this build will block the pipeline until it completes
         ],
         [
           id: 'my-parallel-job',
@@ -107,7 +118,7 @@ banzai([
           id: 'my-parallel-job-2',
           job: '/YOUR_PROJECT_FOLDER/Build/your-project/branch',
           parallel: true,
-          propagate: true                     // this would mark 'my-job' as failed if 'my-parallel-job-2' fails
+          propagate: true                     // defaults to false. this would mark 'my-job' as failed if 'my-parallel-job-2' fails
         ],
         [
           id: 'my-serial-job',                // this build would run in serial AFTER the 2 parallel builds complete
@@ -147,10 +158,10 @@ banzai([
     ],
     gitOps: [                             // should be present with-in a GitOps repo when leveraging GitOps-style deployments
       autoDeploy: [
-        /develop/ : 'dev'              // in this example. when a Service's 'develop' branch triggers the GitOps job. It will automatically spawn a deployment to the 'dev' environment 
+        /develop/ : 'dev'                 // in this example. when a Service's 'develop' branch triggers the GitOps job. It will automatically spawn a deployment to the 'dev' environment 
       ],
       envs: [
-        'dev' : [:],                   // register an env with no additional configuration
+        'dev' : [:],                     // register an env with no additional configuration
         'qa' : [
             approvers: ['<jenkins-id>'], // approvers will be emailed for approval prior to this env moving forward with deployment
             watchers: ['<jenkins-id>']   // watchers will be emailed when an enviroment is deployed
@@ -177,14 +188,15 @@ banzai([
 ])
 ```
 
-### downstreamBuilds
-*Note: downstreamBuilds requires that `gitTokenId` is defined*
+## Features
+### Downstream Builds
+*Note: Downstream Builds requires that `gitTokenId` is defined*
 The downstream build definition supports all of the properties documented by [Jenkins Pipeline Build Step](https://jenkins.io/doc/pipeline/steps/pipeline-build-step/) as well as 3 custom properties `id`, `optional` and `parallel`. `id` is used to map Github PR labels in the event that `optional` is set to `true`. When a build completes and the next build(s) have `parallel: true` then it will by default start those builds but will not wait for them to complete. There are 3 scenarios where the build will wait for parallel builds to complete:
 1. the parallel build also has `wait: true`
 2. the parallel build also has `propagate: true`
 3. there is one or more non-parallel builds defined after the parallel build(s) that need to be executed once the parallel build(s) complete.
 
-### GitOps (Recommended)
+### GitOps
 Banzai supports [GitOps-style](https://www.xenonstack.com/insights/what-is-gitops/) deployments. GitOps allows you to back your environments and handle their deployments from a single repository as well as decouple CI from CD (good for security). Once configured, your Service repositories will complete all CI Banzai Pipeline steps. If Banzai determines that a new version has been created or a deployment should take place it will trigger a new Banzai Pipeline that builds your GitOps repository. The GitOps repository is responsible for recording all versions of each Service and updating your 'Stacks' with the correct versions in each environment. [You can view an example GitOps repo here](https://github.build.ge.com/Banzai-CICD/GitOps). For our purposes, a 'Stack' is merely a collection of indvidual Services that should be deployed together.
 
 There are 2 methods of deployment via Banzai GitOps.
@@ -198,7 +210,7 @@ There are 2 methods of deployment via Banzai GitOps.
     2. 'Promote Stack From Another Environment' - The versions from one environment will be copied to another
 
 #### GitOps Configuration
-First, update the .banzai file in the repository of each Service that you would like to trigger a GitOps job
+1. update the .banzai file in the repository of each Service that you would like to trigger a GitOps job
 .banzai additions
 ```
 # ensure that 'deploy' is removed then add:
@@ -209,17 +221,56 @@ gitOpsTrigger: [
   stackId: 'dib'                       # the GitOps 'stack' that this service is a member of
 ]
 ```
+2. At some point during your pipeline, write a `BanzaiUserData.[yml/json]` to the root of your project WORKSPACE like the following
+```
+"gitOps": {
+  "versions": {
+      "test-maven" : {          // add an entry for each service in a GitOps stack that should update its version
+          "version": "1.0.0",
+          "meta": {
+              "some": "example meta"
+          }
+      }
+  }
+}
+```
+This information will be passed to your GitOps pipeline so that it is aware of what services should be updated
 
-Next, create a GitOps repo. You can use the [GitOps-starter](https://github.build.ge.com/Banzai-CICD/GitOps-starter) to speed things up.  
+3. Create a GitOps repo. You can use the [GitOps-starter](https://github.build.ge.com/Banzai-CICD/GitOps-starter) to speed things up.  
 **Your GitOps Repo Must Contain**  
-- `envs` directory with sub-directories for each environment
-- `services` directory (this is where the available versions of each service will be stored)
-- `.banzai` file with a `gitOps` section
-- `deployScript.sh` (will be called for each deployment)
-
+- `envs` - directory with sub-directories for each environment
+- `services` - directory (this is where the available versions of each service will be stored)
+- `.banzai` - file with a `gitOps` section
+- `deployScript.sh` - will be called for each deployment as passed arguments containing the stack and service versions to deploy
 
 ### Coverity
 Coverity functionality requires the Coverity ~2.0.0 Plugin to be installed on the host Jenkins https://synopsys.atlassian.net/wiki/spaces/INTDOCS/pages/623018/Synopsys+Coverity+for+Jenkins#SynopsysCoverityforJenkins-Version2.0.0
 
 ### Custom Stages
 The `stages` property of the BanzaiCfg allows you to override the order of existing Banzai Stages as well as provide custom Stages of your own. Be aware, Stages and boilerplate that exist for supporting SCM, Power DevOps Reporting, Secrets Filtering, GitOps, proxy etc will still run. ie) when you leverage the `stages` property you will only be overriding the following Stages `vulnerabilityScans, qualityScans, build, publish, deploy, integrationTests`
+
+### BanzaiUserData
+BanzaiUserData serves 2 purposes
+1. Pass variables from a user-provided script in 1 stage to a user-provided script in another
+2. Supply values to a Banzai-provided Stage that aren't known until a user-provided script runs
+
+In order to persist BanzaiUserData you simply write a `BanzaiUserData.[yml/json]` file to the root of the project workspace during the execution of a user-provided script. The file will be ingested by Banzai and deleted so you do not have to be concerned with any sort of file collision if you write more UserData in a subsequent stage. BanzaiUserData will be passed as the 1st argument to all user-provided scripts in json format. While you may store arbitraty data in the BanzaiUserData object, there are some fields which are read by Banzai-provided stages. The following fields are reserved
+
+```
+{
+    "coverity": {
+        "buildCmd": "mvn clean install"
+    },
+    "gitOps": {
+      "versions": {
+          "test-maven" : {
+              "version": "1.0.0",
+              "meta": {
+                  "some": "example meta"
+              }
+          }
+      }
+    }
+}
+```
+
