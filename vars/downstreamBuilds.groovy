@@ -131,10 +131,7 @@ def executeSerialBuild(List<String> buildIds, List<BanzaiDownstreamBuildCfg> dow
         targetBuild.job = "/${targetBuild.job}"
     }
 
-    def buildDefaults = [
-        propagate: false,
-        wait: false
-    ]
+    BanzaiDownstreamBuildCfg buildDefaults = = new BanzaiDownstreamBuildCfg()
 
     def buildParams = [
         string(name: 'downstreamBuildIds', value: buildIds.join(',')),
@@ -185,10 +182,7 @@ def executeParallelBuilds(List<String> buildIds, List<BanzaiDownstreamBuildCfg> 
     parallelBuildIds.each {
         def targetBuild = findAndValidateTargetBuild(it, downstreamBuildCfgs)
 
-        def buildDefaults = [
-            propagate: false,
-            wait: false
-        ]
+        BanzaiDownstreamBuildCfg buildDefaults = new BanzaiDownstreamBuildCfg()
 
         def buildParams = (buildDefaults << targetBuild)
         // if there will be builds remaining after the parallel builds complete OR
