@@ -13,12 +13,12 @@ def call(BanzaiCfg cfg) {
     stageName: stageName
   )
   BanzaiStepCfg deployCfg
-  
+
   banzaiStage.validate {
     if (cfg.gitOps) {
       if (!cfg.internal.gitOps.DEPLOY) {
         // if this is a GitOps repo then cfg.internal.gitOps.DEPLOY must be set
-        return "${BRANCH_NAME} does qualify for GitOps deployment. Skipping ${stageName}"
+        return "${BRANCH_NAME} does not qualify for GitOps deployment. Skipping ${stageName}"
       }
 
       deployCfg = new BanzaiStepCfg()

@@ -221,7 +221,7 @@ gitOpsTrigger: [
   stackId: 'dib'                       # the GitOps 'stack' that this service is a member of
 ]
 ```
-2. At some point during your pipeline, write a `BanzaiUserData.[yml/json]` to the root of your project WORKSPACE like the following
+2. At some point during your pipeline, write a `BanzaiUserData.[yaml/json]` to the root of your project WORKSPACE like the following
 ```
 "gitOps": {
   "versions": {
@@ -254,7 +254,7 @@ BanzaiUserData serves 2 purposes
 1. Pass variables from a user-provided script in 1 stage to a user-provided script in another
 2. Supply values to a Banzai-provided Stage that aren't known until a user-provided script runs
 
-In order to persist BanzaiUserData you simply write a `BanzaiUserData.[yml/json]` file to the root of the project workspace during the execution of a user-provided script. The file will be ingested by Banzai and deleted so you do not have to be concerned with any sort of file collision if you write more UserData in a subsequent stage. BanzaiUserData will be passed as the 1st argument to all user-provided scripts in json format. While you may store arbitraty data in the BanzaiUserData object, there are some fields which are read by Banzai-provided stages. The following fields are reserved
+In order to persist BanzaiUserData you simply write a `BanzaiUserData.[yaml/json]` file to the root of the project workspace during the execution of a user-provided script. The file will be ingested by Banzai and deleted so you do not have to be concerned with any sort of file collision if you write more UserData in a subsequent stage. BanzaiUserData will be passed as the 1st argument to all user-provided scripts in json format. While you may store arbitraty data in the BanzaiUserData object, there are some fields which are read by Banzai-provided stages. The following fields are reserved
 
 ```
 {

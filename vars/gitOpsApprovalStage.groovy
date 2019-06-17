@@ -37,6 +37,7 @@ def finalizeDeployment(BanzaiCfg cfg) {
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
   String ENV = cfg.internal.gitOps.TARGET_ENV
   String STACK = cfg.internal.gitOps.TARGET_STACK
+  String DEPLOYMENT_ID = cfg.internal.gitOps.DEPLOYMENT_ID
   // 1. update the stack yaml with the versions it should be set to
   String stackFileName = "${ENV_DIR_NAME}/${ENV}/${STACK}.yaml"
 	def stackYaml = [:]
@@ -54,7 +55,18 @@ def finalizeDeployment(BanzaiCfg cfg) {
   sh "rm -rf ${stackFileName}"
   writeYaml file: stackFileName, data: stackYaml
 
-  // 3. commit stack updates
+  // 3. save the deployment info in the deployment-history
+  String deployHistDir = "${WORKSPACE}/deployment-history/${ENV}/${STACK}"
+  dir(deployHistDir) {
+		if (!fileExists("/")) {
+			logger "No ${deployHistDir} dir exists. Creating..."
+			sh "mkdir -p ${deployHistDir}"
+		}
+	}
+  sh "${deployHistDir}/${DEPLOYMENT_ID}.yaml" // just incase they give a dup ID...let them
+  writeYaml file: "${deployHistDir}/${DEPLOYMENT_ID}.yaml", data: stackYaml
+
+  // 4. commit updates
 	dir (WORKSPACE) {
 		def gitStatus = sh(returnStdout: true, script: 'git status')
 		if (!gitStatus.contains('nothing to commit')) {
@@ -65,7 +77,7 @@ def finalizeDeployment(BanzaiCfg cfg) {
 		}
 	}
 
-  // 4. pass the deployArgs that will get picked up by the Deploy Stage
+  // 5. pass the deployArgs that will get picked up by the Deploy Stage
   cfg.internal.gitOps.DEPLOY_ARGS = [cfg.internal.gitOps.TARGET_ENV, cfg.internal.gitOps.TARGET_STACK]
 }
 
