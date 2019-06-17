@@ -1,4 +1,6 @@
-library "Banzai@${BRANCH_NAME}"
+GIT_COMMIT_HASH = sh (script: "git log -n 1 --pretty=format:'%H'", returnStdout: true)
+
+library "Banzai@${GIT_COMMIT_HASH}"
 
 banzai([
   appName: 'banzai',
