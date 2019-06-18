@@ -25,11 +25,11 @@ def call(BanzaiCfg cfg) {
       def screen = itCfg.xvfbScreen ?: '1800x900x24'
 
       wrap([$class: 'Xvfb', screen: screen]) {
-          def script = itCfg.script ?: "integrationTests.sh"
+          def script = itCfg.shell ?: "integrationTests.sh"
           runScript(cfg, script)
       }
     } else {
-      def script = itCfg.script ?: "integrationTests.sh"
+      def script = itCfg.shell ?: "integrationTests.sh"
       runScript(cfg, script)
     }
   }

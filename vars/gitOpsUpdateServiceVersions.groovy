@@ -1,6 +1,8 @@
 #!/usr/bin/env groovy
 import net.sf.json.JSONObject
 import com.ge.nola.cfg.BanzaiCfg
+import java.time.ZoneOffset
+import java.time.OffsetDateTime
 
 def call(BanzaiCfg cfg) {
 	if (!cfg.gitOps) {
@@ -29,6 +31,7 @@ def call(BanzaiCfg cfg) {
 			cfg.internal.gitOps.TARGET_ENV = autoDepoyEnv
 			cfg.internal.gitOps.TARGET_STACK = params.gitOpsStackId
 			cfg.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE = [:]
+			cfg.internal.gitOps.DEPLOYMENT_ID = OffsetDateTime.now(ZoneOffset.UTC) as String
 		}
 	}
 

@@ -21,7 +21,7 @@ def call(BanzaiCfg cfg) {
   }
 
   banzaiStage.execute {
-    String script = publishCfg.script ?: "publish.sh"
+    String script = publishCfg.shell ?: "publish.sh"
     runScript(cfg, script)
   }
 }

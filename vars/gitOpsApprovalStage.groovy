@@ -2,6 +2,7 @@
 
 import hudson.model.User
 import com.ge.nola.cfg.BanzaiCfg
+import com.ge.nola.cfg.BanzaiGitOpsInputCfg
 
 @NonCPS
 def getRoleBasedUsersList(role) {
@@ -33,40 +34,49 @@ String[] getUserEmails(users) {
 }
 
 def finalizeDeployment(BanzaiCfg cfg) {
-  logger "Finalizing Deployment"
-  String ENV_DIR_NAME = "${WORKSPACE}/envs"
-  String ENV = cfg.internal.gitOps.TARGET_ENV
-  String STACK = cfg.internal.gitOps.TARGET_STACK
-  // 1. update the stack yaml with the versions it should be set to
-  String stackFileName = "${ENV_DIR_NAME}/${ENV}/${STACK}.yaml"
-	def stackYaml = [:]
-  try {
-    stackYaml = readYaml file: stackFileName
-  } catch (e) {
-    logger "Creating ${stackFileName} ..."
-  }
-  
-  cfg.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { id, version ->
-    logger "Updating Service '${id}' to '${version}' in Stack ${STACK}"
-    stackYaml[id] = version
-  }
-  // 2.  save the updated stack yaml
-  sh "rm -rf ${stackFileName}"
-  writeYaml file: stackFileName, data: stackYaml
+  stage ('Commit Deployment Details') {
+    logger "Commit Deployment Details"
+    String ENV_DIR_NAME = "${WORKSPACE}/envs"
+    String ENV = cfg.internal.gitOps.TARGET_ENV
+    String STACK = cfg.internal.gitOps.TARGET_STACK
+    String DEPLOYMENT_ID = cfg.internal.gitOps.DEPLOYMENT_ID
+    // 1. update the stack yaml with the versions it should be set to
+    String stackFileName = "${ENV_DIR_NAME}/${ENV}/${STACK}.yaml"
+    def stackYaml = [:]
+    try {
+      stackYaml = readYaml file: stackFileName
+    } catch (e) {
+      logger "Creating ${stackFileName} ..."
+    }
+    
+    cfg.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE.each { id, version ->
+      logger "Updating Service '${id}' to '${version}' in Stack ${STACK}"
+      stackYaml[id] = version
+    }
+    // 2.  save the updated stack yaml
+    sh "rm -rf ${stackFileName}"
+    writeYaml file: stackFileName, data: stackYaml
 
-  // 3. commit stack updates
-	dir (WORKSPACE) {
-		def gitStatus = sh(returnStdout: true, script: 'git status')
-		if (!gitStatus.contains('nothing to commit')) {
-			sh "git add . && git commit -m 'Updating the following Stack: ${ENV}/${STACK}'"
-			sh "git pull && git push origin master"
-		} else {
-			logger "No new channges to '/${ENV}/${STACK}.yaml' to be commited to the GitOps repository."
-		}
-	}
+    // 3. save the deployment info in the deployment-history
+    String deployHistDir = "${WORKSPACE}/deployment-history/${ENV}/${STACK}"
+    sh "mkdir -p ${deployHistDir}" // ensure the dir exists
+    sh "rm -rf ${deployHistDir}/${DEPLOYMENT_ID}.yaml" // just incase they give a dup ID...let them
+    writeYaml file: "${deployHistDir}/${DEPLOYMENT_ID}.yaml", data: stackYaml
 
-  // 4. pass the deployArgs that will get picked up by the Deploy Stage
-  cfg.internal.gitOps.DEPLOY_ARGS = [cfg.internal.gitOps.TARGET_ENV, cfg.internal.gitOps.TARGET_STACK]
+    // 4. commit updates
+    dir (WORKSPACE) {
+      def gitStatus = sh(returnStdout: true, script: 'git status')
+      if (!gitStatus.contains('nothing to commit')) {
+        sh "git add . && git commit -m 'Updating the following Stack: ${ENV}/${STACK}'"
+        sh "git pull && git push origin master"
+      } else {
+        logger "No new channges to '/${ENV}/${STACK}.yaml' to be commited to the GitOps repository."
+      }
+    }
+
+    // 5. pass the deployArgs that will get picked up by the Deploy Stage
+    cfg.internal.gitOps.DEPLOY_ARGS = [cfg.internal.gitOps.TARGET_ENV, cfg.internal.gitOps.TARGET_STACK]
+  }
 }
 
 def buildProposedVersionsBody(BanzaiCfg cfg) {
@@ -134,8 +144,9 @@ def call(BanzaiCfg cfg) {
   if (approverEmails && approverSSOs) {
     // notify approvers via email that there is a deployment
     // requested and provide an input step
+    BanzaiGitOpsInputCfg inputCfg = config.gitOps.inputCfg ?: new BanzaiGitOpsInputCfg()
     stage ("Approve Deployment to '${ENV}'") {
-      timeout(time: 3, unit: 'DAYS') {
+      timeout(time: inputCfg.approvalTimeoutDays, unit: 'DAYS') {
         def msg = "Deploy to '${ENV}'"
         script {
           try {
