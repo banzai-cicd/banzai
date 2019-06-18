@@ -249,8 +249,8 @@ def call(config) {
           message: 'Optionally provide a Deployment ID',
           ok: 'Next Step',
           parameters: [
-            [$class: 'TextParameterDefinition', 
-              defaultValue: OffsetDateTime.now(ZoneOffset.UTC) as String, 
+            [$class: 'StringParameterDefinition', 
+              defaultValue: OffsetDateTime.now(ZoneOffset.UTC) as String,
               description: "An ID for this deployment. Will be scoped to the '${targetStack}' stack in the '${targetEnvironment}' environment.", 
               name: 'Deployment ID'
             ]
