@@ -98,11 +98,11 @@ Map<String, String> rollbackStackStage(config, targetEnvironment, targetStack) {
     return
   }
 
-  String deploymentID
+  String deploymentId
   stage ("Select Previous Deployment for Rollback") {
     timeout (time: 10, unit: 'MINUTES') {
       script {
-        deploymentID = input(
+        deploymentId = input(
           id: 'rollbackDeploymentIdInput', 
           message: 'Select a Deployment ID to Rollback to',
           ok: 'Next Step',
@@ -110,12 +110,12 @@ Map<String, String> rollbackStackStage(config, targetEnvironment, targetStack) {
         ).trim()
       }
 
-      logger "Deployment ID selected! ${deploymentID}"
+      logger "Deployment ID selected! ${deploymentId}"
     }
   }
 
   // read stack versions in from the previous deployment
-  String deploymentFileName = "${HIST_DIR_NAME}/${deploymentID}.yaml"
+  String deploymentFileName = "${HIST_DIR_NAME}/${deploymentId}.yaml"
   def stack = readYaml file: deploymentFileName
   return stack
 }
@@ -251,13 +251,16 @@ def call(config) {
           parameters: [
             [$class: 'StringParameterDefinition', 
               defaultValue: OffsetDateTime.now(ZoneOffset.UTC) as String,
-              description: "An ID for this deployment. Will be scoped to the '${targetStack}' stack in the '${targetEnvironment}' environment.", 
+              description: "ex) '11-2-2018-blue'. The ID will be scoped to the '${targetStack}' stack in the '${targetEnvironment}' environment and therefor does not need to contain this information. ID's containing spaces or special characters (other than '-' or '.') will have them removed.", 
               name: 'Deployment ID'
             ]
           ]
         )
       }
 
+      // clean the spaces and special chars
+      deploymentId = deploymentId.replaceAll(/\s+/, '-')
+      deploymentId = deploymentId.replaceAll(/[^a-zA-Z0-9\-\.]+/,"")
       config.internal.gitOps.DEPLOYMENT_ID = deploymentId
       logger "Deployment ID set to ${deploymentId}"
     }
