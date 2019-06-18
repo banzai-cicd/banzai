@@ -2,6 +2,7 @@
 
 Banzai
 ========
+Banzai started as one team's solution to CICD and has grown to a full-featured CICD offering. All of Banazai's features are implemented with genericity and flexibility in mind so if something does not meet your needs please open a Git issue and let us know!
 
 * [Configuration Overview](#configuration-overview)
 * [BanzaiCfg](#banzaicfg)
@@ -38,15 +39,14 @@ Banzai
 Basic Jenkinsfile
 ```
 banzai([
-  appName: 'config-reviewer-server',
-  sshCreds: ['dev-ssh'],                                                 // add jenkins ssh cred with id 'dev-ssh' to the pipeline context
+  appName: 'my-app',
   build: [ /.*/: [:] ],                                                  // build all branches (calls build.sh)
   publish: [ /tag\-(.*)|develop/: [script : 'scripts/my-publish.sh'] ],  // publish tags and develop branch changes. Execute scripts/my-publish.sh instead of the default publish.sh
   deploy: [ /tag\-(.*)|develop/: [:] ],                                  // deploy tags and develop branch changes (calls deploy.sh)
 ])
 ```
 
-Exhaustive List of Options
+Exhaustive List of BanzaiCfg properties
 ```
 @Library('Banzai@1.0.0') _ // only necessary if configured as a 'Global Pipeline Library'. IMPORTANT: the _ is required after @Library. 
 banzai([
