@@ -2,6 +2,7 @@
 
 import hudson.model.User
 import com.ge.nola.cfg.BanzaiCfg
+import com.ge.nola.cfg.BanzaiGitOpsInputCfg
 
 @NonCPS
 def getRoleBasedUsersList(role) {
@@ -143,8 +144,9 @@ def call(BanzaiCfg cfg) {
   if (approverEmails && approverSSOs) {
     // notify approvers via email that there is a deployment
     // requested and provide an input step
+    BanzaiGitOpsInputCfg inputCfg = config.gitOps.inputCfg ?: new BanzaiGitOpsInputCfg()
     stage ("Approve Deployment to '${ENV}'") {
-      timeout(time: 3, unit: 'DAYS') {
+      timeout(time: inputCfg.approvalTimeoutDays, unit: 'DAYS') {
         def msg = "Deploy to '${ENV}'"
         script {
           try {

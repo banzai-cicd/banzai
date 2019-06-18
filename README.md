@@ -58,12 +58,12 @@ banzai([
     ],
     publish: [                                 // publish configuration which matches all branches and specifies a custom publish script location
       /.*/ : [
-        script: 'scripts/my-publish-script.sh'
+        shell: 'scripts/my-publish-script.sh'
       ]
     ],
     deploy: [                                 // deploy configuration which matches all branches and specifies a custom deploy script location
       /.*/ : [
-        script: 'scripts/my-deploy-script.sh'
+        shell: 'scripts/my-deploy-script.sh'
       ]
     ],
     jdk = 'jdk 10.0.1',                         // value must be the name given to a configured JDK in the Global Tools sections of Jenkins
