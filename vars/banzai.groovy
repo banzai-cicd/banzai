@@ -8,7 +8,7 @@ def call(cfgMap) {
     def cfg = new BanzaiCfg(cfgMap)
 
     if (cfg.throttle) {
-        throttle(cfg.throttle.tokenize(',')) {
+        throttle(cfg.throttle) {
             runPipeline(cfg)
         }
     } else {
