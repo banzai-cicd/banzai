@@ -241,7 +241,8 @@ banzai([
 ```
 
 ## BanzaiCfg
-The BanzaiCfg is the object passed to the `banzai()` entrypoint in your Jenkinsfile. Banzai is designed to manage as much of the pipeline process as possible while maintaining a high-level of flexibility.
+The BanzaiCfg is the object passed to the `banzai()` entrypoint in your Jenkinsfile. The Map that you pass in is mapped to typed BanzaiCfg objects. The specific typed objects are referenced throughout the following documentation.
+
 ### appName
 **String** <span style="color:red">*</span>  
 Used throughout the pipeline in various contexts to indentify the name of the app/service/lib/etc being processed.
