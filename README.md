@@ -334,7 +334,7 @@ ex)
 deploy: [
   /.*/ : [:]  // defaults to [ shell: 'deploy.sh' ]
 ],
-``
+```
 
 ### integrationTests
 **Map<String,[BanzaiIntegrationTestsCfg](src/com/ge/nola/cfg/BanzaiIntegrationTestsCfg.groovy)>**  
