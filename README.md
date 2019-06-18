@@ -296,7 +296,7 @@ The id of a Jenkins Credential of type 'secret' containing a Github Personal Acc
 
 ### httpProxy and httpsProxy
 **[BanzaiProxyCfg](src/com/ge/nola/cfg/BanzaiProxyCfg.groovy)**  
-If Jenkins is deployed behind a firewall it's a good idea to set the `httpProxy` and `httpsProxy`
+If Jenkins is deployed behind a firewall it's a good idea to set the `httpProxy` and `httpsProxy`. If you have an ENV var set in your Jenkins environment such as `HTTP_PROXY` that you would like to inherit from. Set the `envVar` property of the [BanzaiProxyCfg](src/com/ge/nola/cfg/BanzaiProxyCfg.groovy) equal to the name of that ENV var.
 
 ### preCleanWorkspace
 **Boolean**  <i>default: false</i>  
