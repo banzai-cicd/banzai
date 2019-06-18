@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 import java.time.ZoneOffset
 import java.time.OffsetDateTime
+import com.ge.nola.cfg.BanzaiGitOpsInputCfg
 
 Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) {
   String SERVICE_DIR_NAME = "${WORKSPACE}/services"
@@ -97,6 +98,10 @@ Map<String, String> rollbackStackStage(config, targetEnvironment, targetStack) {
     logger "No previous deployments found!"
     return
   }
+
+  // let's reverse the order and display the 8 most recent deployments (by default)
+  BanzaiGitOpsInputCfg inputCfg = config.gitOps.inputCfg ?: new BanzaiGitOpsInputCfg()
+  deploymentChoices = deploymentChoices.tokenize('\n').reverse().take(inputCfg.rollbackNumberOfChoices).join('\n')
 
   String deploymentId
   stage ("Select Previous Deployment for Rollback") {
