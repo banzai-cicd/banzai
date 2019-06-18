@@ -3,7 +3,7 @@
 Banzai
 ========
 
-* [Configuration](#configuration)
+* [Configuration Overview](#configuration-overview)
 * [BanzaiCfg](#banzaicfg)
   * [appName](#appName)
   * [sshCreds](#sshCreds)
@@ -34,7 +34,7 @@ Banzai
 * [Coverity](#coverity)
 * [BanzaiUserData](#banzaiuserdata)
 
-## Configuration
+## Configuration Overview
 Basic Jenkinsfile
 ```
 banzai([
@@ -208,29 +208,29 @@ banzai([
         stackId: 'dib'
       ]
     ],
-    gitOps: [                             // should be present with-in a GitOps repo when leveraging GitOps-style deployments
+    gitOps: [
       autoDeploy: [
-        /develop/ : 'dev'                 // in this example. when a Service's 'develop' branch triggers the GitOps job. It will automatically spawn a deployment to the 'dev' environment 
+        /develop/ : 'dev'
       ],
       envs: [
-        'dev' : [:],                     // register an env with no additional configuration
+        'dev' : [:],
         'qa' : [
-            approvers: ['<jenkins-id>'], // approvers will be emailed for approval prior to this env moving forward with deployment
-            watchers: ['<jenkins-id>']   // watchers will be emailed when an enviroment is deployed
+            approvers: ['<jenkins-id>'],
+            watchers: ['<jenkins-id>']
         ]
       ]
     ],
-    stages: [                             // override the the build-in Banzai Stage order and provide custom Stages
-      [ name: 'build' ],                  // call a built-in Banzai Stage using a reserved name 'build|deploy|publish|integrationTests|scans:vulnerability|scans:quality'
+    stages: [
+      [ name: 'build' ],
       [
-        name: 'My Arbitrary Stage',       // provide a custom Banzai Stage name
+        name: 'My Arbitrary Stage',
         steps: [
-          /.*/: [                         // steps for a custom stage can be configured per branch via regex
+          /.*/: [
             [
-              groovy: { logger "YO I RAN A CLOSURE FROM A CUSTOM STAGE!" }  // example of running a groovy closure
+              groovy: { logger "YO I RAN A CLOSURE FROM A CUSTOM STAGE!" }
             ], 
             [
-              shell: 'customStageScript.sh'  // example running a shell script
+              shell: 'customStageScript.sh'
             ]
           ]
         ]
@@ -243,15 +243,15 @@ banzai([
 ## BanzaiCfg
 The BanzaiCfg is the object passed to the `banzai()` entrypoint in your Jenkinsfile. Banzai is designed to manage as much of the pipeline process as possible while maintaining a high-level of flexibility.
 ### appName
-**String** <span style='color:red;'>*</span>  
+**String** <span style="color:red">*</span>  
 Used throughout the pipeline in various contexts to indentify the name of the app/service/lib/etc being processed.
 
 ### sshCreds
-**List<String>**  
+**List\<String>**  
 A list of id's that map to Jenkins Credentials of type 'SSH Username with private key'. When configured, the ssh credentials will be available for the duration of the pipeline run.
 
 ### throttle
-**List<String>**  
+**List\<String>**  
 The `throttle` property leverages the [Throttle Concurrent Builds Plugin](https://github.com/jenkinsci/throttle-concurrent-builds-plugin) to provide a way of restricting the number of concurrent builds belonging to a particular 'throttle category' at any given time. This is useful when you have builds that require a large number of resources.
 1. Install the [Throttle Concurrent Builds Plugin](https://github.com/jenkinsci/throttle-concurrent-builds-plugin), 
 2. Configure the plugin (create a throttle group)
@@ -291,7 +291,7 @@ When true, will skip cloning down the repsitory which triggered the pipeline.
 When true, adds additional logs to Jenkins console
 
 ### gitTokenId
-**String** <span style='color:red;'>*</span>  
+**String** <span style="color:red">*</span>  
 The id of a Jenkins Credential of type 'secret' containing a Github Personal Access Token. Currently used for updating PR statuses and by the [downstreamBuilds](#downstreamBuilds) feature. The token must include at a minimum the entire `repo` scope. 
 
 ### httpProxy and httpsProxy
@@ -325,6 +325,7 @@ publish: [
   /.*/ : [:]  // defaults to [ shell: 'publish.sh' ]
 ],
 ```
+
 ### deploy
 **Map<String,[BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy)>**  
 Configures the built-in 'Deploy' stage of Banzai. The config is branch-based meaning that the keys of the supplied Map should be regex patterns matching the branch that each [BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy) should apply to. To accept the defaults pass an empty object (`[:]`) as your [BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy).
@@ -333,6 +334,7 @@ ex)
 deploy: [
   /.*/ : [:]  // defaults to [ shell: 'deploy.sh' ]
 ],
+``
 
 ### integrationTests
 **Map<String,[BanzaiIntegrationTestsCfg](src/com/ge/nola/cfg/BanzaiIntegrationTestsCfg.groovy)>**  
