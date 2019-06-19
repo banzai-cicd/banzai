@@ -10,8 +10,7 @@ class BanzaiCfg {
     String noProxy
     BanzaiProxyCfg httpProxy
     BanzaiProxyCfg httpsProxy
-    Boolean preCleanWorkspace
-    Boolean postCleanWorkspace
+    BanzaiCleanWorkspaceCfg cleanWorkspace
     Boolean skipSCM = false
     Map<String, BanzaiFlowdockCfg> flowdock
     Map<String, BanzaiEmailCfg> email
