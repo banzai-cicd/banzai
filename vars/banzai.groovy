@@ -47,23 +47,26 @@ def runPipeline(BanzaiCfg cfg) {
             setProxy(cfg)
 
             // support for jenkins 'tools'
-            if (cfg.jdk) {
-                jdk = tool name: cfg.jdk
-                env.JAVA_HOME = "${jdk}"
+            if (cfg.tools) {
+                if (cfg.tools.jdk) {
+                    def jdk = tool name: cfg.tools.jdk
+                    env.JAVA_HOME = "${jdk}"
 
-                logger "JAVA_HOME: ${jdk}"
-            }
+                    logger "JAVA_HOME: ${jdk}"
+                }
 
-            if (cfg.nodejs) {
-                def nodeVersion = "node ${cfg.nodejs}"
-                env.NODEJS_HOME = "${tool nodeVersion}"
-                // on linux / mac
-                env.PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
+                if (cfg.tools.nodejs) {
+                    def nodeTool = tool name: cfg.tools.nodejs
+                    env.NODEJS_HOME = "${nodeTool}"
+                    // on linux / mac
+                    env.PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
+                }
             }
             
             if (!cfg.sshCreds) {
                 cfg.sshCreds = []
             }
+
             sshagent(credentials: cfg.sshCreds) {
                 notify(cfg, [
                     scope: BanzaiEvent.Scope.PIPELINE,

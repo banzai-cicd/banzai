@@ -20,8 +20,7 @@ Banzai started as one team's solution to CICD and has grown to a full-featured C
   * [publish](#publish)
   * [deploy](#deploy)
   * [itegrationTests](#integrationTests)
-  * [jdk](#jdk)
-  * [node](#node)
+  * [tools](#tools)
   * [notifications](#notifications)
   * [vulnerabilityScans](#vulnerabilityScans)
   * [vulnerabilityAbortOnError](#vulnerabilityAbortOnError)
@@ -88,7 +87,10 @@ banzai([
         shell: 'scripts/my-it-script.sh'
       ]
     ],
-    jdk = 'jdk 10.0.1',
+    tools: [
+      jdk: 'jdk 10.0.1',
+      node: '8'
+    ],
     flowdock: [
       banzaiFlow: [
         credId: 'banzai-flowtoken',
@@ -235,7 +237,7 @@ banzai([
           ]
         ]
       ]
-    ],
+    ]
   ]
 ])
 ```
@@ -341,9 +343,9 @@ deploy: [
 **Map<String,[BanzaiIntegrationTestsCfg](src/com/ge/nola/cfg/BanzaiIntegrationTestsCfg.groovy)>**  
 Extends the [BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy) and adds additional properties for `xvfb` and `xvfbScreen`. *note xvfb features require that the [Xvfb Plugin](https://wiki.jenkins.io/display/JENKINS/Xvfb+Plugin) is installed on the Jenkins instance.*
 
-### jdk
-**String**  
-If there are multiple JDK's configured in Jenkins Global Tool Configuration and the id is provided to the `jdk` property it will be used for the duration of the pipeline run.
+### tools
+**[BanzaiToolsCfg](src/com/ge/nola/cfg/BanzaiToolsCfg.groovy)**  
+The `tools` property allows you to target specific items from your Jenkins Global Tool Configuration ie) `jdk`, `nodejs`. Tools configured via the [BanzaiToolsCfg](src/com/ge/nola/cfg/BanzaiToolsCfg.groovy) object will be in scope for the duration of the pipeline run. 
 
 ### node
 If there are multiple Node versions configured in Jenkins Global Tool Configuration and the id is provided to the `node` property it will be used for the duration of the pipeline run.

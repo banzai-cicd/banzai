@@ -2,8 +2,7 @@ package com.ge.nola.cfg;
 
 class BanzaiCfg {
     String appName
-    String jdk
-    String nodejs
+    BanzaiToolsCfg tools
     String throttle
     List<String> sshCreds
     Boolean debug
