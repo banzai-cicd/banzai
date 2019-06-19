@@ -7,9 +7,9 @@ class BanzaiInternalGitOpsCfg {
     Boolean DEPLOY = false
     List<String> DEPLOY_ARGS
     String DEPLOYMENT_ID
-    Boolean PIPELINE_FAILURE_NOTIF_SENT = false
 }
 
 class BanzaiInternalCfg {
+    Boolean PIPELINE_FAILURE_NOTIF_SENT = false
     BanzaiInternalGitOpsCfg gitOps = new BanzaiInternalGitOpsCfg()
 }
