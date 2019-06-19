@@ -7,7 +7,7 @@ void call(BanzaiCfg cfg, Map eventOpts) {
   BanzaiEvent event = new BanzaiEvent(eventOpts)
   try {
     if (event.message != 'githubdown' 
-      && cfg.internal.PIPELINE_FAILURE_NOTIF_SENT != true) {
+      || cfg.internal.PIPELINE_FAILURE_NOTIF_SENT != true) {
       /*
         only notify git if github is not down && the pipeline hasn't
         already been marked as a failure
