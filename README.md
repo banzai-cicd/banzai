@@ -14,8 +14,7 @@ Banzai started as one team's solution to CICD and has grown to a full-featured C
   * [debug](#debug)
   * [gitTokenId](#gitTokenId)
   * [httpProxy and httpsProxy](#httpProxy-and-httpsProxy)
-  * [preCleanWorkspace](#preCleanWorkspace)
-  * [postCleanWorkspace](#postCleanWorkspace)
+  * [cleanWorkspace](#cleanworkspace)
   * [build](#build)
   * [publish](#publish)
   * [deploy](#deploy)
@@ -67,8 +66,10 @@ banzai([
       host: 'proxyhost',
       port: '80'
     ],
-    preCleanWorkspace: true,
-    postCleanWorkspace: true,
+    cleanWorkspace: [
+      pre: true,
+      post: true
+    ],
     build: [
       /.*/ : [:]
     ],
@@ -301,13 +302,16 @@ The id of a Jenkins Credential of type 'secret' containing a Github Personal Acc
 **[BanzaiProxyCfg](src/com/ge/nola/cfg/BanzaiProxyCfg.groovy)**  
 If Jenkins is deployed behind a firewall it's a good idea to set the `httpProxy` and `httpsProxy`. If you have an ENV var set in your Jenkins environment such as `HTTP_PROXY` that you would like to inherit from. Set the `envVar` property of the [BanzaiProxyCfg](src/com/ge/nola/cfg/BanzaiProxyCfg.groovy) equal to the name of that ENV var.
 
-### preCleanWorkspace
-**Boolean**  <i>default: false</i>  
-When true, deletes all files of an existing workspace prior to running
-
-### postCleanWorkspace
-**Boolean**  <i>default: false</i>  
-When true, deletes all files of a workspace after a **successful** pipeline run.
+### cleanWorkspace
+**[BanzaiCleanWorkspaceCfg](src/com/ge/nola/cfg/BanzaiCleanWorkspaceCfg.groovy)**  
+Ensure a cleaned WORKSPACE prior to pipeline run or clean up the WORKSPACE after a pipeline run.  
+ex)
+```
+cleanWorkspace : [
+  pre: true,
+  post: true
+]
+```
 
 ### build
 **Map<String,[BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy)>**  

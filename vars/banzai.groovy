@@ -41,108 +41,110 @@ def runPipeline(BanzaiCfg cfg) {
         )
 
         node() {
-            printEnv()
+            try {
+                printEnv()
 
-            // ensure proxy fields are properly set
-            setProxy(cfg)
+                // ensure proxy fields are properly set
+                setProxy(cfg)
 
-            // support for jenkins 'tools'
-            if (cfg.tools) {
-                if (cfg.tools.jdk) {
-                    def jdk = tool name: cfg.tools.jdk
-                    env.JAVA_HOME = "${jdk}"
+                // support for jenkins 'tools'
+                if (cfg.tools) {
+                    if (cfg.tools.jdk) {
+                        def jdk = tool name: cfg.tools.jdk
+                        env.JAVA_HOME = "${jdk}"
 
-                    logger "JAVA_HOME: ${jdk}"
-                }
-
-                if (cfg.tools.nodejs) {
-                    def nodeTool = tool name: cfg.tools.nodejs
-                    env.NODEJS_HOME = "${nodeTool}"
-                    // on linux / mac
-                    env.PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
-                }
-            }
-            
-            if (!cfg.sshCreds) {
-                cfg.sshCreds = []
-            }
-
-            sshagent(credentials: cfg.sshCreds) {
-                notify(cfg, [
-                    scope: BanzaiEvent.Scope.PIPELINE,
-                    status: BanzaiEvent.Status.PENDING,
-                    message: 'Pipeline pending...'
-                ])
-                // TODO notify Flowdock build starting
-                echo "My branch is: ${env.BRANCH_NAME}"
-
-                // checkout the branch that triggered the build if not explicitly skipped
-                if (cfg.preCleanWorkspace) {
-                    logger "Cleaning Workspace"
-                    step([$class: 'WsCleanup'])
-                }
-                
-                scmStage(cfg)
-                powerDevOpsInitReportingSettings(cfg)
-                filterSecretsStage(cfg)
-                // gitOps input stages
-                gitOpsUpdateServiceVersionsStage(cfg)
-                gitOpsUserInputStages(cfg)
-                gitOpsApprovalStage(cfg)
-                // project-provided pipeline stages
-                if (cfg.stages) {
-                    logger "Executing Custom Banzai Stages"
-                    cfg.stages.each { BanzaiStageCfg stage ->
-                        if (stage.isBanzaiStage()) {
-                            List<String> parts = stage.name.tokenize(':')
-                            String stageName = parts.removeAt(0)
-                            def args = [cfg] + parts
-                            /*
-                                jenkins doesn't support the friggin spread operator so I can't do
-                                this."${stageName}Stage"(*args)
-                                which would be a nice one-liner for supporting stages w/ variable args
-                                ugggghhhhhhhhhhh
-                            */
-                            if (stageName == 'scans') {
-                                "${stageName}Stage"(args[0], args[1])
-                            } else {
-                                "${stageName}Stage"(args[0])
-                            }
-                        } else {
-                            customBanzaiStage(cfg, stage)
-                        }
+                        logger "JAVA_HOME: ${jdk}"
                     }
-                } else {
-                    buildStage(cfg)
-                    scansStage(cfg, 'vulnerability')
-                    scansStage(cfg, 'quality')
-                    publishStage(cfg)
-                    deployStage(cfg)
-                    integrationTestsStage(cfg)
+
+                    if (cfg.tools.nodejs) {
+                        def nodeTool = tool name: cfg.tools.nodejs
+                        env.NODEJS_HOME = "${nodeTool}"
+                        // on linux / mac
+                        env.PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
+                    }
                 }
                 
-                // gitOps trigger stage
-                gitOpsTriggerStage(cfg)
-                // report results to power devOps
-                powerDevOpsReportingStage(cfg)
+                if (!cfg.sshCreds) {
+                    cfg.sshCreds = []
+                }
 
-                if (cfg.postCleanWorkspace) {
+                sshagent(credentials: cfg.sshCreds) {
+                    notify(cfg, [
+                        scope: BanzaiEvent.Scope.PIPELINE,
+                        status: BanzaiEvent.Status.PENDING,
+                        message: 'Pipeline pending...'
+                    ])
+                    // TODO notify Flowdock build starting
+                    echo "My branch is: ${env.BRANCH_NAME}"
+
+                    // checkout the branch that triggered the build if not explicitly skipped
+                    if (cfg.cleanWorkspace && cfg.cleanWorkspace.pre) {
+                        logger "Cleaning Workspace"
+                        step([$class: 'WsCleanup'])
+                    }
+                    
+                    scmStage(cfg)
+                    powerDevOpsInitReportingSettings(cfg)
+                    filterSecretsStage(cfg)
+                    // gitOps input stages
+                    gitOpsUpdateServiceVersionsStage(cfg)
+                    gitOpsUserInputStages(cfg)
+                    gitOpsApprovalStage(cfg)
+                    // project-provided pipeline stages
+                    if (cfg.stages) {
+                        logger "Executing Custom Banzai Stages"
+                        cfg.stages.each { BanzaiStageCfg stage ->
+                            if (stage.isBanzaiStage()) {
+                                List<String> parts = stage.name.tokenize(':')
+                                String stageName = parts.removeAt(0)
+                                def args = [cfg] + parts
+                                /*
+                                    jenkins doesn't support the friggin spread operator so I can't do
+                                    this."${stageName}Stage"(*args)
+                                    which would be a nice one-liner for supporting stages w/ variable args
+                                    ugggghhhhhhhhhhh
+                                */
+                                if (stageName == 'scans') {
+                                    "${stageName}Stage"(args[0], args[1])
+                                } else {
+                                    "${stageName}Stage"(args[0])
+                                }
+                            } else {
+                                customBanzaiStage(cfg, stage)
+                            }
+                        }
+                    } else {
+                        buildStage(cfg)
+                        scansStage(cfg, 'vulnerability')
+                        scansStage(cfg, 'quality')
+                        publishStage(cfg)
+                        deployStage(cfg)
+                        integrationTestsStage(cfg)
+                    }
+                    
+                    // gitOps trigger stage
+                    gitOpsTriggerStage(cfg)
+                    // report results to power devOps
+                    powerDevOpsReportingStage(cfg)
+
+                    if (cfg.downstreamBuilds || params.downstreamBuildIds != 'empty') {
+                        downstreamBuilds(cfg)
+                    }
+
+                    currentBuild.result = 'SUCCESS'
+                    notify(cfg, [
+                        scope: BanzaiEvent.Scope.PIPELINE,
+                        status: BanzaiEvent.Status.SUCCESS,
+                        message: 'All Stages Complete'
+                    ])
+                    return
+                } // ssh-agent
+            } finally { // ensure cleanup is performed if configured
+                if (cfg.cleanWorkspace && cfg.cleanWorkspace.post) {
                     logger "Cleaning Workspace"
                     step([$class: 'WsCleanup'])
                 }
-
-                if (cfg.downstreamBuilds || params.downstreamBuildIds != 'empty') {
-                    downstreamBuilds(cfg)
-                }
-
-                currentBuild.result = 'SUCCESS'
-                notify(cfg, [
-                    scope: BanzaiEvent.Scope.PIPELINE,
-                    status: BanzaiEvent.Status.SUCCESS,
-                    message: 'All Stages Complete'
-                ])
-                return
-            } // ssh-agent
+            }
         } // node
     }
 }
