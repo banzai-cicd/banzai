@@ -25,7 +25,5 @@ void call(BanzaiCfg cfg, Map eventOpts) {
     notifyEmail(cfg, event)  
   } catch (Exception e) {
     error(e.message)
-  } finally {
-    
   }
 }

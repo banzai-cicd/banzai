@@ -11,8 +11,8 @@ class BanzaiEvent {
         FAILURE
     }
     
-    String scope
-    String status
+    BanzaiEvent.Scope scope
+    BanzaiEvent.Status status
     String stage
     String message
 
