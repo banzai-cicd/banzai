@@ -131,6 +131,7 @@ def runPipeline(BanzaiCfg cfg) {
                     }
                 } // ssh-agent
             } catch (Exception e) {
+                logger "Pipeline FAILED"
                 currentBuild.result = "${BanzaiEvent.Status.FAILURE}"
                 notify(cfg, [
                     scope: BanzaiEvent.Scope.PIPELINE,

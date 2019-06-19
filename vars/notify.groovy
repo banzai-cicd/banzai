@@ -6,11 +6,9 @@ import com.ge.nola.BanzaiEvent
 void call(BanzaiCfg cfg, Map eventOpts) {
   BanzaiEvent event = new BanzaiEvent(eventOpts)
   if (event.scope == BanzaiEvent.Scope.PIPELINE && event.status == BanzaiEvent.Status.FAILURE) {
-    logger "Pipeline failed"
     cfg.internal.PIPELINE_FAILED = true
   }
 
-  logger "cfg.internal.PIPELINE_FAILED: ${cfg.internal.PIPELINE_FAILED}"
   try {
     if (cfg.internal.PIPELINE_FAILED == false && event.message != 'githubdown') {
       /*
