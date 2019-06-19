@@ -10,6 +10,6 @@ class BanzaiInternalGitOpsCfg {
 }
 
 class BanzaiInternalCfg {
-    Boolean PIPELINE_FAILURE_NOTIF_SENT = false
+    Boolean PIPELINE_FAILED = false
     BanzaiInternalGitOpsCfg gitOps = new BanzaiInternalGitOpsCfg()
 }

@@ -55,8 +55,14 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
       //   threadId = "${threadId}+pr"
       // }
 
+      // if the pipline has been marked as a failure, every subsequent message should
+      // mark the thread as failed
+      String threadStatus = cfg.internal.PIPELINE_FAILED
+        ? "FAILURE"
+        : event.status
+
       def color 
-      switch (event.status) {
+      switch (threadStatus) {
         case "PENDING":
             color = "yellow"
             break
@@ -79,7 +85,7 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
           title: title, // title of the whole thread
           status: [
             color: color,
-            value: event.status
+            value: threadStatus
           ]
         ],
         link: env.BUILD_URL
