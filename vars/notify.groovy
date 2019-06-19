@@ -12,8 +12,7 @@ void call(BanzaiCfg cfg, Map eventOpts) {
 
   logger "cfg.internal.PIPELINE_FAILED: ${cfg.internal.PIPELINE_FAILED}"
   try {
-    if (event.message != 'githubdown'
-      || cfg.internal.PIPELINE_FAILED == false) {
+    if (cfg.internal.PIPELINE_FAILED == false && event.message != 'githubdown') {
       /*
         only notify git if github is not down && the pipeline hasn't
         already been marked as a failure
