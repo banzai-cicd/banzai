@@ -19,6 +19,8 @@ class BanzaiStage {
     }
 
     def execute(CpsClosure2 c) {
+        logger stageName
+        
         if (validationMessage) {
             pipeline.logger validationMessage
             return

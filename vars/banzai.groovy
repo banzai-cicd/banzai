@@ -79,8 +79,7 @@ def runPipeline(BanzaiCfg cfg) {
 
                     // checkout the branch that triggered the build if not explicitly skipped
                     if (cfg.cleanWorkspace && cfg.cleanWorkspace.pre) {
-                        logger "Cleaning Workspace"
-                        step([$class: 'WsCleanup'])
+                        cleanWorkspace(cfg)
                     }
                     
                     scmStage(cfg)
@@ -141,8 +140,7 @@ def runPipeline(BanzaiCfg cfg) {
                 } // ssh-agent
             } finally { // ensure cleanup is performed if configured
                 if (cfg.cleanWorkspace && cfg.cleanWorkspace.post) {
-                    logger "Cleaning Workspace"
-                    step([$class: 'WsCleanup'])
+                    cleanWorkspace(cfg)
                 }
             }
         } // node
