@@ -2,7 +2,9 @@ library "Banzai@${BRANCH_NAME}"
 
 banzai([
   appName: 'banzai',
-  preCleanWorkspace: true,
+  cleanWorkspace: [
+    pre: true
+  ],
   gitTokenId: 'sweeney-git-token',
   flowdock: [
     banzaiFlow: [
