@@ -129,20 +129,29 @@ def runPipeline(BanzaiCfg cfg) {
                     if (cfg.downstreamBuilds || params.downstreamBuildIds != 'empty') {
                         downstreamBuilds(cfg)
                     }
-
-                    currentBuild.result = 'SUCCESS'
-                    notify(cfg, [
-                        scope: BanzaiEvent.Scope.PIPELINE,
-                        status: BanzaiEvent.Status.SUCCESS,
-                        message: 'All Stages Complete'
-                    ])
-                    return
                 } // ssh-agent
+            } catch (Exception e) {
+                currentBuild.result = "${BanzaiEvent.Status.FAILURE}"
+                notify(cfg, [
+                    scope: BanzaiEvent.Scope.PIPELINE,
+                    status: BanzaiEvent.Status.FAILURE,
+                    message: 'Error During Pipeline Execution'
+                ])
+
+                throw e
             } finally { // ensure cleanup is performed if configured
                 if (cfg.cleanWorkspace && cfg.cleanWorkspace.post) {
                     cleanWorkspace(cfg)
                 }
             }
+
+            currentBuild.result = "${BanzaiEvent.Status.SUCCESS}"
+            notify(cfg, [
+                scope: BanzaiEvent.Scope.PIPELINE,
+                status: BanzaiEvent.Status.SUCCESS,
+                message: 'All Stages Complete'
+            ])
+            return
         } // node
     }
 }

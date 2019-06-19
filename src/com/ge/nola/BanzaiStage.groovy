@@ -48,8 +48,8 @@ class BanzaiStage {
                     set the currentBuild.result to something other than
                     SUCCESS and we shouldn't overwrite that.
                 */
-                if (pipeline.currentBuild.result == 'SUCCESS') { 
-                    pipeline.currentBuild.result = 'FAILURE'
+                if (pipeline.currentBuild.result == "${BanzaiEvent.Status.SUCCESS}") { 
+                    pipeline.currentBuild.result = "${BanzaiEvent.Status.FAILURE}"
                 }
 
                 if (pipeline.isGithubError(err)) {
