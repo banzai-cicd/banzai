@@ -144,7 +144,7 @@ def call(BanzaiCfg cfg) {
   if (approverEmails && approverSSOs) {
     // notify approvers via email that there is a deployment
     // requested and provide an input step
-    BanzaiGitOpsInputCfg inputCfg = config.gitOps.inputCfg ?: new BanzaiGitOpsInputCfg()
+    BanzaiGitOpsInputCfg inputCfg = cfg.gitOps.inputCfg ?: new BanzaiGitOpsInputCfg()
     stage ("Approve Deployment to '${ENV}'") {
       timeout(time: inputCfg.approvalTimeoutDays, unit: 'DAYS') {
         def msg = "Deploy to '${ENV}'"
