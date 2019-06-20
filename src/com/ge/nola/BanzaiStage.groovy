@@ -51,7 +51,7 @@ class BanzaiStage {
                     stage: stageName,
                     message: 'Aborted'
                 ])
-                pipeline.error(err)
+                throw err
             } catch (Exception err2) {
                 pipeline.logger "Caught: ${err2}"
                 /*
