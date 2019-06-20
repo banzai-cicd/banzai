@@ -8,6 +8,7 @@ Banzai started as one team's solution to CICD and has grown to a full-featured C
 * [BanzaiCfg](#banzaicfg)
   * [appName](#appName)
   * [sshCreds](#sshCreds)
+  * [timeout](#timeout)
   * [throttle](#throttle)
   * [filterSecrets](#filterSecrets)
   * [skipScm](#skipSCM)
@@ -50,6 +51,7 @@ Exhaustive List of BanzaiCfg properties
 banzai([
     appName: 'config-reviewer-server',
     sshCreds: ['cred1', 'cred2'],
+    timeout: 30,
     throttle: ['my-project'],
     filterSecrets: [
       /develop/: [
@@ -253,6 +255,10 @@ Used throughout the pipeline in various contexts to indentify the name of the ap
 ### sshCreds
 **List\<String>**  
 A list of id's that map to Jenkins Credentials of type 'SSH Username with private key'. When configured, the ssh credentials will be available for the duration of the pipeline run.
+
+### timeout
+**int** *default: 30*  
+Time in minutes the pipeline must complete with-in before being aborted
 
 ### throttle
 **List\<String>**  

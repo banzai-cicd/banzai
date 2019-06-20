@@ -26,6 +26,9 @@ def printEnv() {
 
 def runPipeline(BanzaiCfg cfg) {
     pipeline {
+        options {
+            timeout(cfg.timeout) 
+        }
         // clean up old builds (experimental, not sure if this is actually working or not. time will tell)
         properties(
             [
