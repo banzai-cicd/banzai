@@ -7,7 +7,7 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
   logger "notifyGit called"
   String GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
   /*
-    Stage Events that reach github: PENDING, FAILURE
+    Stage Events that reach github: PENDING, FAILURE, ABORTED
     Pipeline Events that reach github: SUCCESS
     ie) we don't want to mark the build as a success after each stage, only after PIPELINE
     and in the event of a failure we want the stage that failed to remain the last notification

@@ -4,6 +4,7 @@ import com.ge.nola.cfg.BanzaiCfg
 import com.ge.nola.BanzaiEvent
 import org.jenkinsci.plugins.workflow.cps.CpsClosure2
 import org.codehaus.groovy.runtime.GStringImpl
+import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 
 class BanzaiStage {
     def pipeline
@@ -41,8 +42,18 @@ class BanzaiStage {
                     stage: stageName,
                     message: 'Success'
                 ])
-            } catch (err) {
-                pipeline.logger "Caught: ${err}"
+            } catch (FlowInterruptedException err) {
+                pipeline.logger "Pipeline Aborted"
+                pipeline.currentBuild.result = "${BanzaiEvent.Status.ABORTED}"
+                pipeline.notify(cfg, [
+                    scope: BanzaiEvent.Scope.STAGE,
+                    status: BanzaiEvent.Status.FAILURE,
+                    stage: stageName,
+                    message: 'Aborted'
+                ])
+                pipeline.error(err)
+            } catch (Exception err2) {
+                pipeline.logger "Caught: ${err2}"
                 /*
                     sometimes the originator of the error will
                     set the currentBuild.result to something other than
@@ -52,7 +63,7 @@ class BanzaiStage {
                     pipeline.currentBuild.result = "${BanzaiEvent.Status.FAILURE}"
                 }
 
-                if (pipeline.isGithubError(err)) {
+                if (pipeline.isGithubError(err2)) {
                     pipeline.notify(cfg, [
                         scope: BanzaiEvent.Scope.STAGE,
                         status: BanzaiEvent.Status.FAILURE,
@@ -68,7 +79,7 @@ class BanzaiStage {
                     ])
                 }
                 
-                pipeline.error(err.message)
+                pipeline.error(err2.message)
             }
         }
     }

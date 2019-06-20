@@ -8,7 +8,8 @@ class BanzaiEvent {
     static final enum Status {
         PENDING,
         SUCCESS,
-        FAILURE
+        FAILURE,
+        ABORTED
     }
     
     BanzaiEvent.Scope scope
