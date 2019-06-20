@@ -76,7 +76,7 @@ def runPipeline(BanzaiCfg cfg) {
                             message: 'Pipeline pending...'
                         ])
                         // TODO notify Flowdock build starting
-                        echo "My branch is: ${env.BRANCH_NAME}"
+                        logger "My branch is: ${env.BRANCH_NAME}"
 
                         // checkout the branch that triggered the build if not explicitly skipped
                         if (cfg.cleanWorkspace && cfg.cleanWorkspace.pre) {

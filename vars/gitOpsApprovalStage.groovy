@@ -6,7 +6,7 @@ import com.ge.nola.cfg.BanzaiGitOpsInputCfg
 
 @NonCPS
 def getRoleBasedUsersList(role) {
-  echo "Retrieving users for ${role}..."
+  logger "Retrieving users for ${role}..."
   def users = [:]
   def authStrategy = Jenkins.instance.getAuthorizationStrategy()
   if (authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy) {
@@ -18,7 +18,7 @@ def getRoleBasedUsersList(role) {
           users[sid] = usrmail.getAddress()
       }
       //Jenkins.instance.getUser(sid).fullName
-      echo "${sid}: ${usrmail.getAddress()}"
+      logger "${sid}: ${usrmail.getAddress()}"
     }
     return users
   } else {

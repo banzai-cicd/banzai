@@ -29,7 +29,7 @@ def call(BanzaiCfg cfg) {
           message: 'Success'
       ])
     } catch (err) {
-        echo "Caught: ${err}"
+        logger "Caught: ${err}"
         currentBuild.result = 'FAILURE'
         notify(cfg, [
             scope: BanzaiEvent.Scope.STAGE,
