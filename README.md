@@ -564,7 +564,7 @@ gitOpsTrigger: [
   ]
 ]
 ```
-2. At some point during your pipeline, write a `BanzaiUserData.[yaml/json]` to the root of your project WORKSPACE like the following
+2. At some point during your pipeline, write a `BanzaiUserData.[yaml/json]` (see [BanzaiUserData](#banzaiuserdata) for more) to the root of your project WORKSPACE like the following
 ```
 "gitOps": {
   "versions": {
@@ -605,11 +605,11 @@ gitOps: [
 
 ### stages
 **List<[BanzaiStageCfg](src/com/ge/nola/cfg/BanzaiStageCfg.groovy)>**  
-If the supplied build,publish,deploy,integrationTests do not satisfy your pipeline needs you can compose your own steps via the `stages` BanzaiCfg property. The `stages` property can contain a list of custom steps or a mixture of custom stages and Banzai-provided stages (such as build,publish,etc). Because of this, the `name` property of the [BanazaiStageCfg](src/com/ge/nola/cfg/BanzaiStageCfg.groovy) is reserved for `build|deploy|publish|integrationTests|scans:vulnerability|scans:quality`.  
+If the Banzai-provided build,publish,deploy,integrationTests stages do not satisfy your pipeline needs you can compose your own via the `stages` BanzaiCfg property. The `stages` property can contain a mixuture of User-provided and Banzai-provided stages (such as the built-in build/publish). Because of this, the `name` property of the [BanazaiStageCfg](src/com/ge/nola/cfg/BanzaiStageCfg.groovy) is reserved for `build|deploy|publish|integrationTests|scans:vulnerability|scans:quality`.  
 
-Banzai will perform basic functions such as notifications and error handling for you during your custom stage execution. Be aware, Stages and boilerplate that exist for supporting SCM, Power DevOps Reporting, Secrets Filtering, GitOps, proxy etc will still evaluate. ie) when you leverage the `stages` property you will only be overriding the following Stages `vulnerabilityScans, qualityScans, build, publish, deploy, integrationTests`  
+Banzai will perform basic functions such as notifications and error handling for you during your User-provided stage execution. Be aware, Stages and boilerplate that exist for supporting SCM, Power DevOps Reporting, Secrets Filtering, GitOps, proxy etc will still evaluate as normal. To re-iterate, when you leverage the `stages` property you will only be overriding the following Stages `vulnerabilityScans, qualityScans, build, publish, deploy, integrationTests`  
 
-ex) the following example contains a mix of Banzai-provided Stages and User-provided Stages. Note, when calling a Banzai-provided stage you should still configure that stage using it's existing BanzaiCfg property.
+ex) the following example contains a mix of Banzai-provided Stages and User-provided Stages. Note, when calling a Banzai-provided stage you should still configure that stage using it's existing [BanzaiCfg](src/com/ge/nola/cfg/BanzaiCfg.groovy) property.
 ```
 build: [
       /.*/ : [ shell: 'scripts/build.sh' ]
