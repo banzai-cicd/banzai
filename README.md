@@ -92,7 +92,7 @@ banzai([
     ],
     tools: [
       jdk: 'jdk 10.0.1',
-      node: '8'
+      nodejs: '8'
     ],
     flowdock: [
       banzaiFlow: [
