@@ -246,7 +246,7 @@ banzai([
 ```
 
 ## BanzaiCfg
-The BanzaiCfg is the object passed to the `banzai()` entrypoint in your Jenkinsfile. The Map that you pass in is mapped to typed [BanzaiCfg](src/com/ge/nola/cfg/BanzaiCfg.groovy) objects. The specific typed objects are referenced throughout the following documentation.
+The BanzaiCfg is the object passed to the `banzai()` entrypoint in your Jenkinsfile. The Map that you pass in is mapped to typed [BanzaiCfg](src/com/ge/nola/cfg/BanzaiCfg.groovy) objects. The BanzaiCfg properties are referenced throughout the following documentation.
 
 ### appName
 **String** <span style="color:red">*</span>  
