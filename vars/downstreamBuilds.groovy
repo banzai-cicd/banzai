@@ -51,6 +51,10 @@ List<String> getBuildIdsWithOptional(BanzaiCfg cfg, List<BanzaiDownstreamBuildCf
         def prListResponse = httpRequest(url: prListUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
         def prList = readJSON(text: prListResponse.content)
         String targetPr = prList.find { it.merge_commit_sha == latestCommit }
+        if (targetPr == null) {
+            logger "No PRs found matching ${latestCommit}"
+            return []
+        }
         logger "PR found matching commit ${latestCommit} . PR:${targetPr.number}"
         
         // determine if the pr has any labels
