@@ -3,6 +3,7 @@ import main.groovy.cicd.pipeline.settings.PipelineSettings;
 import com.ge.nola.cfg.BanzaiCfg
 import com.ge.nola.cfg.BanzaiQualityCfg
 import com.ge.nola.BanzaiStage
+import com.ge.nola.BanzaiEvent
 
 def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
     def stages = [:]
@@ -20,6 +21,12 @@ def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
                     banzaiStage.execute {
                         try {
                             sonarqubeQualityCheck();
+                            notify(cfg, [
+                                scope: BanzaiEvent.Scope.QUALITY,
+                                status: BanzaiEvent.Status.SUCCESS,
+                                stage: stageName,
+                                message: 'Sonar Scan Success'
+                            ])
 
                             Boolean proxyOn = false
                             def sonarHost = PipelineSettings.SonarQubeSettings.sonarHostUrl.replaceFirst(/(http|https):\/\//, "")
@@ -31,6 +38,12 @@ def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
                             sonarqubeQualityResults(proxyOn);
                         } catch (Exception e) {
                             logger "${e.message}"
+                            notify(cfg, [
+                                scope: BanzaiEvent.Scope.QUALITY,
+                                status: BanzaiEvent.Status.FAILURE,
+                                stage: stageName,
+                                message: 'Sonar Scan Failure'
+                            ])
                             currentBuild.result = 'UNSTABLE'
                             String abort = it.abortOnError ? "true" : "false"
                             throw new Exception(abort) // let the scansStage know if it should abort
