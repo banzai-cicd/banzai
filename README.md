@@ -128,7 +128,11 @@ banzai([
             'everyone': ['PIPELINE:(FAILURE|SUCCESS)']
           ],
           individuals: [
-            'tom': ['PIPELINE:PENDING']
+            'tom': [
+              'PIPELINE:PENDING',
+              'VULNERABILITY:.*',
+              'QUALITY:.*'
+            ]
           ]
         ]
       ]
@@ -703,7 +707,9 @@ notifications: [
   ],
   email : [
     individuals: [
-      'steve' : ['PIPELINE:(FAILURE|SUCCESS)']
+      'steve' : [
+        'PIPELINE:(FAILURE|SUCCESS)'
+      ]
     ]
   ]
 ]
