@@ -21,6 +21,8 @@ Banzai started as one team's solution to CICD and has grown to a full-featured C
   * [deploy](#deploy)
   * [itegrationTests](#integrationTests)
   * [tools](#tools)
+  * [flowdock](#flowdock)
+  * [email](email)
   * [notifications](#notifications)
   * [vulnerabilityScans](#vulnerabilityScans)
   * [vulnerabilityAbortOnError](#vulnerabilityAbortOnError)
@@ -33,6 +35,7 @@ Banzai started as one team's solution to CICD and has grown to a full-featured C
   * [stages](#stages)
 * [Coverity](#coverity)
 * [BanzaiUserData](#banzaiuserdata)
+* [Notifications and Events](#notifications-and-events)
 
 ## Configuration Overview
 Basic Jenkinsfile
@@ -355,12 +358,17 @@ Extends the [BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy) and adds a
 **[BanzaiToolsCfg](src/com/ge/nola/cfg/BanzaiToolsCfg.groovy)**  
 The `tools` property allows you to target specific items from your Jenkins Global Tool Configuration ie) `jdk`, `nodejs`. Tools configured via the [BanzaiToolsCfg](src/com/ge/nola/cfg/BanzaiToolsCfg.groovy) object will be in scope for the duration of the pipeline run. 
 
-### node
-If there are multiple Node versions configured in Jenkins Global Tool Configuration and the id is provided to the `node` property it will be used for the duration of the pipeline run.
+### flowdock
+**Map<String, [BanzaiFlowdockCfg](src/com/ge/nola/cfg/BanzaiFlowdockCfg.groovy)>**  
+A branch-based configuration providing flowdock cfgs that are available for reference in the [notifications](#notifications) cfg
+
+### email
+**Map<String, [BanzaiEmailCfg](BanzaiEmailCfg)>**  
+A branch-based configuration providing individual emails and groups that are available for reference in the [notifications](#notifications) cfg
 
 ### notifications
 **[BanzaiNotificationsCfg](src/com/ge/nola/cfg/BanzaiNotificationsCfg.groovy)**  
-Determines when/how notifications are sent and who recieves those notifications. the `notifications` property works in tandem with the [email](src/com/ge/nola/cfg/BanzaiEmailCfg.groovy) and [flowdock](/src/com/ge/nola/cfg/BanzaiFlowdockCfg.groovy) properties
+Determines when/how notifications are sent and who recieves those notifications. the `notifications` property works in tandem with the [email](src/com/ge/nola/cfg/BanzaiEmailCfg.groovy) and [flowdock](/src/com/ge/nola/cfg/BanzaiFlowdockCfg.groovy) properties. See [Notifications and Events](#notifications-and-events) for more.  
 ex)
 ```
 flowdock: [
@@ -411,7 +419,6 @@ vulnerabilityScans = [
     [
       type: 'checkmarx',
       credId: 'ge-checkmarx',               // jenkins credential containing user/pass for checkmarx
-      resultEmails: ['your.email@email.com'],
       preset: '17',                         // defaults to '17'
       teamUUID: 'your-checkmarx-team-uuid'
     ],
@@ -421,7 +428,6 @@ vulnerabilityScans = [
       toolId: 'coverity-2018.12',           // the id given to Coverity i the Jenkins Global Tool installation
       serverHost: 'coverity.power.ge.com',
       serverPort: '443',
-      resultEmails: ['your.email@email.com'],
       buildCmd: 'mvn -s ./settings.xml clean install -U', // the build command coverity should wrap. alternatively, you can leverage banzai BanzaiUserData. see BanzaiUserData section of README
       projectName: 'your-coverity-project-name'
     ]
@@ -661,3 +667,45 @@ In order to persist BanzaiUserData you simply write a `BanzaiUserData.[yaml/json
 }
 ```
 
+## Notifications and Events
+There are 3 components to configuring notifications.
+1. The [BanzaiEvent](src/com/ge/nola/BanzaiEvent.groovy)
+2. The Notification Method, ie) [email](#email), [flowdock](#flowdock)
+3. The [notifications](#notifications) cfg which associates the [BanzaiEvent](src/com/ge/nola/BanzaiEvent.groovy) with the desired Notification Method
+
+The decoupling of the [BanzaiEvent](src/com/ge/nola/BanzaiEvent.groovy) from the specific notification in-tandem with each being configuratble at the branch-level allows for a high-level of flexibility.  
+
+ex) *The following example would send emails to 'steve' when a Pipeline execution reports FAILURE or SUCCESS for all branches. It would also send notification to the flowdock configuration with the id 'myFlowCfg' for all BanzaiEvents when the branch is 'develop'*
+```
+flowdock: [
+  myFlowCfg: [
+    credId: 'banzai-flowtoken',
+    author: [
+      name: 'Banzai',
+      avatarUrl: 'https://github.com/avatars/u/55576?s=400&u=700c7e70356d1f5a679908c1d7c7e5bf8e2beab6',
+      email: 'banzai@banzai.com'
+    ]
+  ]
+],
+email: [
+  addresses: [
+    steve: 'steve@email.com'
+  ],
+  groups: [
+    everyone: ['steve'],
+  ]
+],
+notifications: [
+  flowdock : [
+    /develop/ : [
+      'myFlowCfg' : ['.*']
+    ]
+  ],
+  email : [
+    individuals: [
+      'steve' : ['PIPELINE:(FAILURE|SUCCESS)']
+    ]
+  ]
+]
+```
+As shown above, event's can be bound to in the format '${BanzaiEvent.SCOPE}:${BanzaiEvent.STATUS}'. Please see the [BanzaiEvent](src/com/ge/nola/BanzaiEvent.groovy) to determine the available event combinations. *Note* for `BanzaiEvent.scopes.VULNERABILTY` and `BanzaiEvent.scopes.QUALITY` only the statues `SUCCESS` and `FAILURE` are reported.
