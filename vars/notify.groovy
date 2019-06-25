@@ -5,6 +5,7 @@ import com.ge.nola.BanzaiEvent
 
 void call(BanzaiCfg cfg, Map eventOpts) {
   BanzaiEvent event = new BanzaiEvent(eventOpts)
+  logger "notify ${event.scope}:${event.status}"
   if (event.scope == BanzaiEvent.Scope.PIPELINE && event.status == BanzaiEvent.Status.FAILURE) {
     cfg.internal.PIPELINE_FAILED = true
   }

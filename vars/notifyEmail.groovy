@@ -5,8 +5,6 @@ import com.ge.nola.BanzaiEvent
 import com.ge.nola.cfg.BanzaiNotificationsEmailCfg
 
 void call(BanzaiCfg cfg, BanzaiEvent event) {
-    logger "notifyEmail"
-
     if (!cfg.email 
         || (!cfg.email.addresses || !cfg.email.groups)
         || !cfg.notifications 
@@ -18,7 +16,7 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
     if (emailCfg == null) {
         return 
     }
-
+    logger "email configuration for branch '${BRANCH_NAME}' detected"
     /*
         determine if there are groups or individuals configured with a regex
         pattern matching this event
@@ -45,9 +43,8 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
     }
 
     if (addresses.size() > 0) {
-        String details = "${env.JOB_NAME} ${event.scope} ${event.status}"
-        String subject = "${details}"
+        String subject = "${env.JOB_NAME} ${event.scope} ${event.status}"
         String body = "Message: ${event.message}"
-        sendEmail(addresses.join(','), subject, body, null)
+        sendEmail(addresses.join(','), subject, body, event.attachmentPattern)
     }
 }
