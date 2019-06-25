@@ -708,4 +708,4 @@ notifications: [
   ]
 ]
 ```
-As shown above, event's can be bound to in the format '${BanzaiEvent.SCOPE}:${BanzaiEvent.STATUS}'. Please see the [BanzaiEvent](src/com/ge/nola/BanzaiEvent.groovy) to determine the available event combinations. *Note* for `BanzaiEvent.scopes.VULNERABILTY` and `BanzaiEvent.scopes.QUALITY` only the statues `SUCCESS` and `FAILURE` are reported.
+As shown above, event's can be bound to in the format '${BanzaiEvent.SCOPE}:${BanzaiEvent.STATUS}'. Please see the [BanzaiEvent](src/com/ge/nola/BanzaiEvent.groovy) to determine the available event combinations. *Note* for `BanzaiEvent.scopes.VULNERABILTY` and `BanzaiEvent.scopes.QUALITY` only the statues `SUCCESS` and `FAILURE` are reported. For more examples of notification cofigurations please see [TestMavenBuild](https://github.build.ge.com/Banzai-CICD/TestMavenBuild/blob/master/.banzai) and [TestDownstreamBuild](https://github.build.ge.com/Banzai-CICD/TestDownstreamBuild/blob/master/.banzai)
