@@ -12,6 +12,7 @@ def call(BanzaiCfg config, vulnerabilityCfg) {
     }
     if (!vulnerabilityCfg.teamUUID) {
       error("teamUUID is required for Checkmarx")
+      return
     }
 
     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: vulnerabilityCfg.credId,
@@ -39,12 +40,5 @@ def call(BanzaiCfg config, vulnerabilityCfg) {
 
     if (config.powerDevOpsReporting) {
         checkmarxSastResults()
-    }
-
-    if (vulnerabilityCfg.resultEmails) {
-        vulnerabilityCfg.resultEmails.each {
-          sendEmail(it, "Checkmarx Scan Results: ${env.JOB_NAME}", "BUILD_URL: ${BUILD_URL}",
-            '**/ScanReport.pdf')
-        }
     }
 }

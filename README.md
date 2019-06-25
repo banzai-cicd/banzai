@@ -135,7 +135,6 @@ banzai([
         [
           type: 'checkmarx',
           credId: 'ge-checkmarx',
-          resultEmails: ['your_email@ge.com'],
           preset: '17',
           teamUUID: 'your-checkmarx-team-uuid',
           abortOnError: false
@@ -146,7 +145,6 @@ banzai([
           toolId: 'coverity-2018.12',
           serverHost: 'coverity.power.ge.com',
           serverPort: '443',
-          resultEmails: ['simon.townsend1@ge.com'],
           buildCmd: 'mvn -s ./settings.xml clean install -U',
           projectName: 'your-coverity-project-name',
           abortOnError: true
@@ -587,11 +585,11 @@ This information will be passed to your GitOps pipeline so that it is aware of w
 - `deployScript.sh` - will be called for each deployment as passed arguments containing the stack and service versions to deploy
 
 3a. ensure your .banzai file in the GitOps repo includes an instance of **[BanzaiGitOpsCfg](src/com/ge/nola/cfg/BanzaiGitOpsCfg.groovy)**  
-ex)
+ex) *in the following example, GitOps will automatically re-deploy any project thats 'develop' branch triggered the GitOps build to the 'dev' environment*
 ```
 gitOps: [
     autoDeploy: [
-        /develop/ : 'dev'
+        /develop/ : 'dev'  // <-- if the triggering project's branch matches 'develop' then re-deploy the 'dev' env.
     ],
     envs: [
         'dev' : [:],

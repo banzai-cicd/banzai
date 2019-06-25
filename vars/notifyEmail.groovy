@@ -5,6 +5,8 @@ import com.ge.nola.BanzaiEvent
 import com.ge.nola.cfg.BanzaiNotificationsEmailCfg
 
 void call(BanzaiCfg cfg, BanzaiEvent event) {
+    logger "notifyEmail"
+
     if (!cfg.email 
         || (!cfg.email.addresses || !cfg.email.groups)
         || !cfg.notifications 
@@ -17,6 +19,10 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
         return 
     }
 
+    /*
+        determine if there are groups or individuals configured with a regex
+        pattern matching this event
+    */
     String currentEvent = event.getEventLabel()
     Set<String> addresses = []
     if (emailCfg.groups) {
