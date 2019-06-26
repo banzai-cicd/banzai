@@ -43,7 +43,7 @@ def call(BanzaiCfg cfg, vulnerabilityCfg) {
         """
           unset https_proxy && unset no_proxy \
           && export https_proxy=${httpsProxy} && export no_proxy=${cfg.noProxy} \
-          && cov-manage-im --mode streams --show --name  ${COV_STREAM} ${hostAndPort} --ssl ${credParams}"
+          && cov-manage-im --mode streams --show --name  ${COV_STREAM} ${hostAndPort} --ssl ${credParams}
         """
         def streamList
         try { // have to wrap this because a negative result by cov-manage-im is returned as a shell exit code of 1. awesome TODO, figure out how to get jenkins to ignore this failure in Blue Ocean
