@@ -1,5 +1,4 @@
 #!/usr/bin/env groovy
-import main.groovy.cicd.pipeline.settings.PipelineSettings;
 import com.ge.nola.cfg.BanzaiCfg
 import com.ge.nola.cfg.BanzaiQualityCfg
 import com.ge.nola.BanzaiStage
@@ -10,7 +9,7 @@ def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
     def pipeline = this
     scanConfigs.each {
         switch (it.type) {
-            case "sonar": // requires https://github.build.ge.com/PowerDevOps/jenkins-master-shared-library
+            case "sonar":
                 stages[it.type] = {
                     String stageName = "Sonar"
                     BanzaiStage banzaiStage = new BanzaiStage(
@@ -20,22 +19,13 @@ def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
                     )
                     banzaiStage.execute {
                         try {
-                            sonarqubeQualityCheck();
+                            sonarQube(it);
                             notify(cfg, [
                                 scope: BanzaiEvent.Scope.QUALITY,
                                 status: BanzaiEvent.Status.SUCCESS,
                                 stage: stageName,
                                 message: 'Sonar Scan Success'
                             ])
-
-                            Boolean proxyOn = false
-                            def sonarHost = PipelineSettings.SonarQubeSettings.sonarHostUrl.replaceFirst(/(http|https):\/\//, "")
-                            if ((!cfg.noProxy || !cfg.noProxy.contains(sonarHost)) && cfg.httpsProxy) {
-                                logger "setting sonar proxy ${cfg.httpsProxy.host}:${cfg.httpsProxy.port}"
-                                proxyOn = true
-                            }
-                            
-                            sonarqubeQualityResults(proxyOn);
                         } catch (Exception e) {
                             logger "${e.message}"
                             notify(cfg, [

@@ -5,4 +5,5 @@ class BanzaiQualityCfg {
     String credId
     // sonar
     String serverUrl
+    String projectKey
 }

@@ -39,7 +39,7 @@ def call(BanzaiCfg config, Map powerDevOpsReporting) {
 
     initializeApplicationMetadata(reportingConfig.uai, reportingConfig.ci);
     initializeCodeCheckoutSettings();
-    initializeSonarQubeSettings(reportingConfig);
+    initializeSonarQubeSettings(config, reportingConfig);
     initializeCheckmarxSettings();
     initializePipelineMetadata();
     initializeBuildSettings();
@@ -86,7 +86,7 @@ private def initializeCodeCheckoutSettings() {
     PipelineSettings.CodeCheckoutSettings.currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim(); //branchInfo.commit.sha;
 }
 
-private def initializeSonarQubeSettings(reportingConfig) {   
+private def initializeSonarQubeSettings(BanzaiCfg config, reportingConfig) {   
     if (!reportingConfig.sonarUrl || !reportingConfig.sonarCredId) {
         logger "Sonar not configured in powerDevOpsReporting, will not report results"
         return
@@ -97,7 +97,15 @@ private def initializeSonarQubeSettings(reportingConfig) {
     *   SonarQube settings
     */
     // Set project key to use when calling SQ REST API
-    PipelineSettings.SonarQubeSettings.projectKey = "${PipelineSettings.CodeCheckoutSettings.repo}:${PipelineSettings.CodeCheckoutSettings.branch}";
+    String projectKey = "${PipelineSettings.CodeCheckoutSettings.repo}:${PipelineSettings.CodeCheckoutSettings.branch}"
+    // add the key to the BanzaiQualityCfg for the Sonar step.
+    def key = config.qualityScans.keySet().find { BRANCH_NAME ==~ it }
+    config.qualityScans[key].each {
+        if (it.type == 'sonar') {
+            it.projectKey = projectKey
+        }
+    }
+    PipelineSettings.SonarQubeSettings.projectKey = projectKey
     PipelineSettings.SonarQubeSettings.sonarHostUrl = reportingConfig.sonarUrl;
 
     withCredentials([string(credentialsId: reportingConfig.sonarCredId, variable: 'SECRET')]) {
