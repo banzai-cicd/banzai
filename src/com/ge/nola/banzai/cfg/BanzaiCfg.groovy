@@ -26,7 +26,6 @@ class BanzaiCfg {
     Map<String, List<BanzaiQualityCfg>> qualityScans
     Map<String, List<BanzaiDownstreamBuildCfg>> downstreamBuilds
     Map<String, BanzaiFilterSecretsCfg> filterSecrets
-    BanzaiDevOpsReportingCfg powerDevOpsReporting
     Map<String, BanzaiGitOpsTriggerCfg> gitOpsTrigger
     BanzaiGitOpsCfg gitOps
     /* strictly for internal banzai usage */
