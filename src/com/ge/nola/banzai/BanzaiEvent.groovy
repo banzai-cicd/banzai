@@ -1,4 +1,4 @@
-package com.ge.nola
+package com.ge.nola.banzai;
 
 class BanzaiEvent {
     static final enum Scope {

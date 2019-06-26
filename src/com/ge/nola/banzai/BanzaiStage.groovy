@@ -1,4 +1,4 @@
-package com.ge.nola;
+package com.ge.nola.banzai;
 
 import com.ge.nola.banzai.cfg.BanzaiCfg
 import com.ge.nola.banzai.BanzaiEvent
