@@ -19,7 +19,7 @@ def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
                     )
                     banzaiStage.execute {
                         try {
-                            sonarQube(it);
+                            sonarQube(cfg, it);
                             notify(cfg, [
                                 scope: BanzaiEvent.Scope.QUALITY,
                                 status: BanzaiEvent.Status.SUCCESS,
