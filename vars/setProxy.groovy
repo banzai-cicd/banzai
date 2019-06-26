@@ -9,7 +9,6 @@ def call(config) {
             host: hostAndPort[0],
             port: hostAndPort[1]
         ]
-        config.noProxy = config.noProxy ?: env.no_proxy
     }
     if (config.httpProxy?.envVar) {
         logger "Setting HTTP Proxy from environment variable ${config.httpProxy.envVar}"
@@ -19,9 +18,9 @@ def call(config) {
             host: hostAndPort[0],
             port: hostAndPort[1]
         ]
-        config.noProxy = env.no_proxy
-        config.noProxy = config.noProxy ?: env.no_proxy
     }
+
+    config.noProxy = config.noProxy ?: env.no_proxy ?: env.NO_PROXY
 
     if (config.httpsProxy) {
         config.httpsProxy.protocol = 'https'
