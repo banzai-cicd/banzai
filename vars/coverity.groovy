@@ -66,16 +66,30 @@ def call(BanzaiCfg cfg, vulnerabilityCfg) {
         // 2. run the remaining commsnds 
         def commands = []
         if (addStream) {
-          def covAddStreamCmd = "cov-manage-im --mode streams --add --set name:${COV_STREAM} --set lang:mixed ${credParams} ${hostAndPort} --ssl"
-          def covBindStreamCmd = "cov-manage-im --mode projects --name ${COV_PROJECT} --update --insert stream:${COV_STREAM} ${credParams} ${hostAndPort} --ssl"
+          def covAddStreamCmd = 
+          """
+            unset https_proxy && unset no_proxy \
+            && export https_proxy=${httpsProxy} && export no_proxy=${cfg.noProxy} \
+            cov-manage-im --mode streams --add --set name:${COV_STREAM} --set lang:mixed ${credParams} ${hostAndPort} --ssl
+          """
+          def covBindStreamCmd = 
+          """
+            unset https_proxy && unset no_proxy \
+            && export https_proxy=${httpsProxy} && export no_proxy=${cfg.noProxy} \
+            cov-manage-im --mode projects --name ${COV_PROJECT} --update --insert stream:${COV_STREAM} ${credParams} ${hostAndPort} --ssl
+          """
           commands.addAll([covAddStreamCmd, covBindStreamCmd])
         }
 
         def covBuildCmd = "cov-build --dir ${iDir} ${buildCmd}"
         def covAnalyzeCmd = "cov-analyze --dir ${iDir}"
-        def covCommitCmd = "cov-commit-defects --dir ${iDir} --stream ${COV_STREAM} ${credParams} --url ${COV_URL}"
+        def covCommitCmd = """
+          unset https_proxy && unset no_proxy \
+          && export https_proxy=${httpsProxy} && export no_proxy=${cfg.noProxy} \
+          cov-commit-defects --dir ${iDir} --stream ${COV_STREAM} ${credParams} --url ${COV_URL}
+        """
         commands.addAll([covBuildCmd, covAnalyzeCmd, covCommitCmd])
-        
+
         // run each command
         commands.each {
           sh it
