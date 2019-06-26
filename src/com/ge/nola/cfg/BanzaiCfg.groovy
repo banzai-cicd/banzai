@@ -48,12 +48,14 @@ class BanzaiCfg {
         }
         if (props.vulnerabilityScans) {
             props.vulnerabilityScans.keySet().each { branchKey ->
-                props.vulnerabilityScans[branchKey].collect { new BanzaiVulnerabilityCfg(it) }
+                this.vulnerabilityScans[branchKey] = 
+                    props.vulnerabilityScans[branchKey].collect { new BanzaiVulnerabilityCfg(it) }
             }
         }
         if (props.qualityScans) {
             props.qualityScans.keySet().each { branchKey ->
-                props.qualityScans[branchKey].collect { new BanzaiQualityCfg(it) }
+                this.qualityScans[branchKey] = 
+                    props.qualityScans[branchKey].collect { new BanzaiQualityCfg(it) }
             }
         }
     }
