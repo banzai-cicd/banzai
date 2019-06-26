@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-import com.ge.nola.BanzaiCfg
+import com.ge.nola.cfg.BanzaiCfg
 import com.ge.nola.cfg.BanzaiQualityCfg
 
 def call(BanzaiCfg cfg, BanzaiQualityCfg qualityCfg) {
