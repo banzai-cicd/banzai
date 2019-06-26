@@ -1,8 +1,8 @@
 #!/usr/bin/env groovy
-import com.ge.nola.cfg.BanzaiCfg
-import com.ge.nola.cfg.BanzaiVulnerabilityCfg
-import com.ge.nola.cfg.BanzaiQualityCfg
-import com.ge.nola.BanzaiStage
+import com.ge.nola.banzai.cfg.BanzaiCfg
+import com.ge.nola.banzai.cfg.BanzaiVulnerabilityCfg
+import com.ge.nola.banzai.cfg.BanzaiQualityCfg
+import com.ge.nola.banzai.BanzaiStage
 
 /*
  Stage that can be re-used for vulnerabilityScans and qualityScans

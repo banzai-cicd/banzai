@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
-import com.ge.nola.cfg.BanzaiCfg
-import com.ge.nola.BanzaiEvent
+import com.ge.nola.banzai.cfg.BanzaiCfg
+import com.ge.nola.banzai.BanzaiEvent
 
 void call(BanzaiCfg cfg, BanzaiEvent event) {
   logger "notifyGit called"

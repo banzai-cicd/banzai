@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-import com.ge.nola.cfg.BanzaiCfg
-import com.ge.nola.cfg.BanzaiQualityCfg
+import com.ge.nola.banzai.cfg.BanzaiCfg
+import com.ge.nola.banzai.cfg.BanzaiQualityCfg
 
 def call(BanzaiCfg cfg, BanzaiQualityCfg qualityCfg) {
     String toolName = cfg.tools?.sonarQube ?: 'SonarQube'

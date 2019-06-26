@@ -1,4 +1,4 @@
-package com.ge.nola.cfg;
+package com.ge.nola.banzai.cfg;
 
 class BanzaiGitOpsCfg {
     Map<String, String> autoDeploy

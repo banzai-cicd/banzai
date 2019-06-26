@@ -4,8 +4,8 @@ import java.util.regex.Pattern
 import java.util.regex.Matcher
 import groovy.json.JsonOutput
 import net.sf.json.JSONObject
-import com.ge.nola.cfg.BanzaiCfg
-import com.ge.nola.cfg.BanzaiDownstreamBuildCfg
+import com.ge.nola.banzai.cfg.BanzaiCfg
+import com.ge.nola.banzai.cfg.BanzaiDownstreamBuildCfg
 
 String determineOrgName(url) {
     def finder = (url =~ /:([^:]*)\//)

@@ -1,4 +1,4 @@
-package com.ge.nola.cfg;
+package com.ge.nola.banzai.cfg;
 
 class BanzaiEmailCfg {
     Map<String, String> addresses

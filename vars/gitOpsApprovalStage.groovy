@@ -1,8 +1,8 @@
 #!/usr/bin/env groovy
 
 import hudson.model.User
-import com.ge.nola.cfg.BanzaiCfg
-import com.ge.nola.cfg.BanzaiGitOpsInputCfg
+import com.ge.nola.banzai.cfg.BanzaiCfg
+import com.ge.nola.banzai.cfg.BanzaiGitOpsInputCfg
 
 @NonCPS
 def getRoleBasedUsersList(role) {

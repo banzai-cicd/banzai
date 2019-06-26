@@ -1,7 +1,7 @@
 package com.ge.nola;
 
-import com.ge.nola.cfg.BanzaiCfg
-import com.ge.nola.BanzaiEvent
+import com.ge.nola.banzai.cfg.BanzaiCfg
+import com.ge.nola.banzai.BanzaiEvent
 import org.jenkinsci.plugins.workflow.cps.CpsClosure2
 import org.codehaus.groovy.runtime.GStringImpl
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException

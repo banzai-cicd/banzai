@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
-import com.ge.nola.cfg.BanzaiCfg
-import com.ge.nola.cfg.BanzaiStageCfg
-import com.ge.nola.BanzaiEvent
+import com.ge.nola.banzai.cfg.BanzaiCfg
+import com.ge.nola.banzai.cfg.BanzaiStageCfg
+import com.ge.nola.banzai.BanzaiEvent
 
 def call(cfgMap) {
     // evaluate the body block, and collect configuration into the object
@@ -123,7 +123,7 @@ def runPipeline(BanzaiCfg cfg) {
 
                         // gitOps trigger stage
                         gitOpsTriggerStage(cfg)
-                        
+
                         if (cfg.hooks?.stages?.post != null) {
                             // call post-stages-run hook
                             cfg.hooks.stages.post(cfg)

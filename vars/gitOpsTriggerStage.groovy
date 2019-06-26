@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
-import com.ge.nola.cfg.BanzaiCfg
-import com.ge.nola.cfg.BanzaiGitOpsTriggerCfg
-import com.ge.nola.BanzaiEvent
+import com.ge.nola.banzai.cfg.BanzaiCfg
+import com.ge.nola.banzai.cfg.BanzaiGitOpsTriggerCfg
+import com.ge.nola.banzai.BanzaiEvent
 
 def call(BanzaiCfg cfg) {
   if (cfg.gitOpsTrigger == null) { return }

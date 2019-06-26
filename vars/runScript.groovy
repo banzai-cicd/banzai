@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-import com.ge.nola.cfg.BanzaiCfg
+import com.ge.nola.banzai.cfg.BanzaiCfg
 import org.jenkinsci.plugins.workflow.cps.CpsClosure2
 
 def call(BanzaiCfg cfg, scriptPathOrClosure, List args=null) {
