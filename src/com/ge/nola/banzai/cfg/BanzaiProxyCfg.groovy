@@ -2,10 +2,11 @@ package com.ge.nola.banzai.cfg;
 
 class BanzaiProxyCfg {
     String envVar
+    String protocol
     String host
     String port
 
     String getUrl() {
-        "${this.host}:${this.port}"
+        "${this.protocol}://${this.host}:${this.port}"
     }
 }

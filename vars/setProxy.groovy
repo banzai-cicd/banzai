@@ -6,6 +6,7 @@ def call(config) {
         logger "Setting HTTPS Proxy from environment variable ${config.httpsProxy.envVar}"
         def hostAndPort = env[config.httpsProxy.envVar].tokenize(":")
         config.httpsProxy = [
+            protocol: 'https',
             host: hostAndPort[0],
             port: hostAndPort[1]
         ]
@@ -15,6 +16,7 @@ def call(config) {
         logger "Setting HTTP Proxy from environment variable ${config.httpProxy.envVar}"
         def hostAndPort = env[config.httpProxy.envVar].tokenize(":")
         config.httpProxy = [
+            protocol: 'http',
             host: hostAndPort[0],
             port: hostAndPort[1]
         ]
@@ -23,11 +25,11 @@ def call(config) {
     }
 
     if (config.httpsProxy) {
-        logger "HTTPS PROXY set to ${config.httpsProxy.host}:${config.httpsProxy.port}"
+        logger "HTTPS PROXY set to ${config.httpsProxy.getUrl()}"
     }
 
     if (config.httpProxy) {
-        logger "HTTP PROXY set to ${config.httpProxy.host}:${config.httpProxy.port}"
+        logger "HTTP PROXY set to ${config.httpProxy.getUrl()}"
     }
 
     if (config.httpsProxy || config.httpProxy) {
