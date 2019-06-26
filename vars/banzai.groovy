@@ -84,7 +84,6 @@ def runPipeline(BanzaiCfg cfg) {
                             // call pre-stages-run hook
                             cfg.hooks.stages.pre(cfg)
                         }
-                        //powerDevOpsInitReportingSettings(cfg)
                         filterSecretsStage(cfg)
                         // gitOps input stages
                         gitOpsUpdateServiceVersionsStage(cfg)
@@ -124,12 +123,11 @@ def runPipeline(BanzaiCfg cfg) {
 
                         // gitOps trigger stage
                         gitOpsTriggerStage(cfg)
-                        // report results to power devOps
+                        
                         if (cfg.hooks?.stages?.post != null) {
                             // call post-stages-run hook
                             cfg.hooks.stages.post(cfg)
                         }
-                        //powerDevOpsReportingStage(cfg)
 
                         if (cfg.downstreamBuilds || params.downstreamBuildIds != 'empty') {
                             downstreamBuilds(cfg)
