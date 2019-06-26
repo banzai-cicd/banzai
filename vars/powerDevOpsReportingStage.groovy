@@ -2,8 +2,8 @@
 import com.ge.nola.cfg.BanzaiCfg
 import com.ge.nola.BanzaiStage
 
-def call(BanzaiCfg cfg) {
-  if (cfg.powerDevOpsReporting == null) { return }
+def call(BanzaiCfg cfg, Map powerDevOpsReporting) {
+  if (powerDevOpsReporting == null) { return }
 
   def stageName = 'PowerDevOps Reporting'
   BanzaiStage banzaiStage = new BanzaiStage(
@@ -13,7 +13,7 @@ def call(BanzaiCfg cfg) {
   )
 
   banzaiStage.validate {
-    if (cfg.powerDevOpsReporting.branches && !(BRANCH_NAME ==~ cfg.powerDevOpsReporting.branches)) {
+    if (powerDevOpsReporting.branches && !(BRANCH_NAME ==~ powerDevOpsReporting.branches)) {
       return "${BRANCH_NAME} does not match the powerDevOpsReporting.branches pattern. Skipping ${stageName}"
     }
   }

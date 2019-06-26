@@ -6,10 +6,10 @@ import main.groovy.cicd.pipeline.helpers.Utilities;
 // jenkins API imports
 import hudson.FilePath;
 import jenkins.model.Jenkins;
+import com.ge.nola.cfg.BanzaiCfg;
 
-def call(config)
-{
-    if (!config.powerDevOpsReporting) {
+def call(BanzaiCfg config, Map powerDevOpsReporting) {
+    if (!config || !powerDevOpsReporting) {
         logger "No config.powerDevOpsReporting, skipping powerDevOpsInitReportingSettings"
         return
     }
@@ -31,7 +31,7 @@ def call(config)
         }
     }
     
-    def reportingConfig = config.powerDevOpsReporting.asMap() << [
+    def reportingConfig = powerDevOpsReporting << [
         proxy: config.httpsProxy,
         sonarUrl:  sonarUrl,
         sonarCredId: sonarCredId
@@ -49,8 +49,7 @@ def call(config)
     initializeProxySettings(reportingConfig);
 }
 
-private def initializeApplicationMetadata(uai, ci)
-{   
+private def initializeApplicationMetadata(uai, ci) {   
     logger "initializeApplicationMetadata ${uai}, ${ci}"
     /*
     *   Application Metadata settings
@@ -69,8 +68,7 @@ String determineRepoName(url) {
     return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last().split("\\.")[0]
 }
 
-private def initializeCodeCheckoutSettings()
-{
+private def initializeCodeCheckoutSettings() {
     logger "initializeCodeCheckoutSettings"
     /*
     *   Code Checkout settings
@@ -88,8 +86,7 @@ private def initializeCodeCheckoutSettings()
     PipelineSettings.CodeCheckoutSettings.currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim(); //branchInfo.commit.sha;
 }
 
-private def initializeSonarQubeSettings(reportingConfig)
-{   
+private def initializeSonarQubeSettings(reportingConfig) {   
     if (!reportingConfig.sonarUrl || !reportingConfig.sonarCredId) {
         logger "Sonar not configured in powerDevOpsReporting, will not report results"
         return
@@ -110,14 +107,12 @@ private def initializeSonarQubeSettings(reportingConfig)
     PipelineSettings.SonarQubeSettings.initializeQualityMetrics();
 }
 
-private def initializeCheckmarxSettings()
-{
+private def initializeCheckmarxSettings() {
     logger "initializeCheckmarxSettings"
     PipelineSettings.CheckmarxSettings.initializeSastMetrics();
 }
 
-private def initializePipelineMetadata()
-{
+private def initializePipelineMetadata() {
     /*
     *   Pipeline Metadata settings
     */
@@ -129,8 +124,7 @@ private def initializePipelineMetadata()
     PipelineSettings.PipelineMetadata.version = null;
 }
 
-private def initializeBuildSettings()
-{
+private def initializeBuildSettings() {
     logger "initializeBuildSettings"
     // conditionally open file path on java.io.File(workspace) if node is master
     def nodeWorkspace = null;
@@ -157,8 +151,7 @@ private def initializeBuildSettings()
     PipelineSettings.BuildSettings.version = settings['version'];
 }
 
-private def initializePublishSettings()
-{
+private def initializePublishSettings() {
     logger "initializePublishSettings"
     def nodeWorkspace = new FilePath(Jenkins.getInstance().getComputer(NODE_NAME).getChannel(), pwd());
     def publishScript = nodeWorkspace.child('publishScript.sh');
@@ -178,8 +171,7 @@ private def initializePublishSettings()
     PipelineSettings.PublishSettings.key = '';
 }
 
-private def initializeDeploySettings(reportingConfig)
-{
+private def initializeDeploySettings(reportingConfig) {
     logger "initializeDeploySettings"
     def envKey = 0
     if (reportingConfig.environments) {
@@ -194,8 +186,7 @@ private def initializeDeploySettings(reportingConfig)
     PipelineSettings.DeploySettings.environment = envKey
 }
 
-private def initializeReportingSettings(reportingConfig)
-{   
+private def initializeReportingSettings(reportingConfig) { 
     if (!reportingConfig.uaaCredId) {
         logger "No uaaCredId cred id present in powerDevOpsReporting. Will not report"
         return
@@ -214,8 +205,7 @@ private def initializeReportingSettings(reportingConfig)
     }
 }
 
-private def initializeProxySettings(reportingConfig)
-{
+private def initializeProxySettings(reportingConfig) {
     logger "initializeProxySettings"
     /*
     *   Proxy settings

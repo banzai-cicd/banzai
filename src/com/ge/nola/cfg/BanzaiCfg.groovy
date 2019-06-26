@@ -5,7 +5,7 @@ class BanzaiCfg {
     BanzaiToolsCfg tools
     String throttle
     int timeout = 30
-    List<String> sshCreds
+    List<String> sshCreds = []
     Boolean debug
     String gitTokenId
     String noProxy
@@ -33,6 +33,7 @@ class BanzaiCfg {
     BanzaiInternalCfg internal = new BanzaiInternalCfg()
     List<BanzaiStageCfg> stages
     Map<String, String> userData = [:] // a map of variables returned by bash scripts
+    BanzaiHooksCfg hooks
 
     public BanzaiCfg(LinkedHashMap props) {
         /*

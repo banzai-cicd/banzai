@@ -64,10 +64,6 @@ def runPipeline(BanzaiCfg cfg) {
                             env.PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
                         }
                     }
-                    
-                    if (!cfg.sshCreds) {
-                        cfg.sshCreds = []
-                    }
 
                     sshagent(credentials: cfg.sshCreds) {
                         notify(cfg, [
@@ -79,12 +75,16 @@ def runPipeline(BanzaiCfg cfg) {
                         logger "My branch is: ${env.BRANCH_NAME}"
 
                         // checkout the branch that triggered the build if not explicitly skipped
-                        if (cfg.cleanWorkspace && cfg.cleanWorkspace.pre) {
+                        if (cfg.cleanWorkspace?.pre? != null) {
                             cleanWorkspace(cfg)
                         }
                         
                         scmStage(cfg)
-                        powerDevOpsInitReportingSettings(cfg)
+                        if (cfg.hooks?.stages?.pre? != null) {
+                            // call pre-stages-run hook
+                            cfg.hooks.stages.pre(cfg)
+                        }
+                        //powerDevOpsInitReportingSettings(cfg)
                         filterSecretsStage(cfg)
                         // gitOps input stages
                         gitOpsUpdateServiceVersionsStage(cfg)
@@ -99,10 +99,10 @@ def runPipeline(BanzaiCfg cfg) {
                                     String stageName = parts.removeAt(0)
                                     def args = [cfg] + parts
                                     /*
-                                        jenkins doesn't support the friggin spread operator so I can't do
+                                        jenkins doesn't support the spread operator so I can't do
                                         this."${stageName}Stage"(*args)
                                         which would be a nice one-liner for supporting stages w/ variable args
-                                        ugggghhhhhhhhhhh
+                                        ugggghhhhhhhhhhh. TODO: revisit with consistent args object
                                     */
                                     if (stageName == 'scans') {
                                         "${stageName}Stage"(args[0], args[1])
@@ -121,11 +121,15 @@ def runPipeline(BanzaiCfg cfg) {
                             deployStage(cfg)
                             integrationTestsStage(cfg)
                         }
-                        
+
                         // gitOps trigger stage
                         gitOpsTriggerStage(cfg)
                         // report results to power devOps
-                        powerDevOpsReportingStage(cfg)
+                        if (cfg.hooks?.stages?.post? != null) {
+                            // call post-stages-run hook
+                            cfg.hooks.stages.post(cfg)
+                        }
+                        //powerDevOpsReportingStage(cfg)
 
                         if (cfg.downstreamBuilds || params.downstreamBuildIds != 'empty') {
                             downstreamBuilds(cfg)
@@ -142,7 +146,7 @@ def runPipeline(BanzaiCfg cfg) {
 
                     throw e
                 } finally { // ensure cleanup is performed if configured
-                    if (cfg.cleanWorkspace && cfg.cleanWorkspace.post) {
+                    if (cfg.cleanWorkspace?.post? != null) {
                         cleanWorkspace(cfg)
                     }
                 }
