@@ -46,5 +46,15 @@ class BanzaiCfg {
         if (props.stages) {
             this.stages = props.stages.collect { new BanzaiStageCfg(it) }
         }
+        if (props.vulnerabilityScans) {
+            props.vulnerabilityScans.keySet().each { branchKey ->
+                props.vulnerabilityScans[branchKey].collect { new BanzaiVulnerabilityCfg(it) }
+            }
+        }
+        if (props.qualityScans) {
+            props.qualityScans.keySet().each { branchKey ->
+                props.qualityScans[branchKey].collect { new BanzaiQualityCfg(it) }
+            }
+        }
     }
 }
