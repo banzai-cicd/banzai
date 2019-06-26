@@ -598,7 +598,7 @@ stages: [
 ```
 
 ### hooks
-**[BanzaiHooksCfg](src/com/ge/nola/banzai/cfg/BanzaiHooksCfg/groovy)**  
+**[BanzaiHooksCfg](src/com/ge/nola/banzai/cfg/BanzaiHooksCfg.groovy)**  
 Hooks are designed to provide an opportunity at certain points during the pipeline execution to run arbitrarty code. Currently, the only hooks supported are the `hooks.stages.pre` and `hooks.stages.post`. These hooks wrap the main pipeline stages (`pre` runs just after `scm` but before `filterSecrets`. `post` runs after `gitOptsTrigger` and before `downstreamBuilds`)  
 ex) *note: the closures that you provide recieve an instance of your entire BanzaiCfg as an argument.
 ```
