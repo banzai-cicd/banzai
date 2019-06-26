@@ -29,10 +29,10 @@ Banzai started as one team's solution to CICD and has grown to a full-featured C
   * [qualityScans](#qualityScans)
   * [qualityAbortOnError](#qualityAbortOnError)
   * [downstreamBuilds](#downstreamBuilds)
-  * [powerDevOpsReporting](#powerDevOpsReporting)
   * [gitOpsTrigger and gitOps](#gitopstrigger-and-gitops)
     * [GitOps Configuration](#gitops-configuration)
   * [stages](#stages)
+  * [hooks](#hooks)
 * [Coverity](#coverity)
 * [BanzaiUserData](#banzaiuserdata)
 * [Notifications and Events](#notifications-and-events)
@@ -141,7 +141,7 @@ banzai([
       /develop|master/: [
         [
           type: 'checkmarx',
-          credId: 'ge-checkmarx',
+          credId: 'checkmarx-cred-id',
           preset: '17',
           teamUUID: 'your-checkmarx-team-uuid',
           abortOnError: false
@@ -150,7 +150,7 @@ banzai([
           type: 'coverity',
           credId: 'coverity-auth-key-file',
           toolId: 'coverity-2018.12',
-          serverHost: 'coverity.power.ge.com',
+          serverHost: 'my.coverity.server.com',
           serverPort: '443',
           buildCmd: 'mvn -s ./settings.xml clean install -U',
           projectName: 'your-coverity-project-name',
@@ -194,24 +194,6 @@ banzai([
         ]
       ]
     ],
-    powerDevOpsReporting: [
-      branches: /master|develop/
-      ci: 'your-ci',
-      uai: 'your-uai',
-      uaaCredId: 'uaa-cred-id',                     // UAA Bearer Token stored as Jenkins Cred
-      uaaUrl: 'https://a8a2ffc4-b04e-4ec1-bfed-7a51dd408725.predix-uaa.run.aws-usw02-pr.ice.predix.io/oauth/token?grant_type=client_credentials',
-      metricsUrl: 'https://dev-cicadavpc-secure-pipeline-services-vanguard.cicada.digital.ge.com',
-      environments: [
-        /develop/ : [
-          key: 0,
-          name: 'develop'
-        ],
-        /master/ : [
-          key: 1,
-          name: 'qa'
-        ]
-      ]
-    ],
     gitOpsTrigger: [
       /develop|tag-*/ : [
         jenkinsJob: '/Banzai/GitOps/master',
@@ -251,7 +233,7 @@ banzai([
 ```
 
 ## BanzaiCfg
-The BanzaiCfg is the object passed to the `banzai()` entrypoint in your Jenkinsfile. The Map that you pass in is mapped to typed [BanzaiCfg](src/com/ge/nola/cfg/BanzaiCfg.groovy) objects. The BanzaiCfg properties are referenced throughout the following documentation.
+The BanzaiCfg is the object passed to the `banzai()` entrypoint in your Jenkinsfile. The Map that you pass in is mapped to typed [BanzaiCfg](src/com/ge/nola/banzai/cfg/BanzaiCfg.groovy) objects. The BanzaiCfg properties are referenced throughout the following documentation.
 
 ### appName
 **String** <span style="color:red">*</span>  
@@ -276,7 +258,7 @@ throttle = ['my-throttle-group']
 ```
 
 ### filterSecrets
-**[BanzaiFilterSecretsCfg](src/com/ge/nola/cfg/BanzaiFilterSecretsCfg.groovy)**  
+**[BanzaiFilterSecretsCfg](src/com/ge/nola/banzai/cfg/BanzaiFilterSecretsCfg.groovy)**  
 If your pipeline requires secret values exist in files but you do not want to store them in version control, `filterSecrets` can help.
 
 1. Add a credential to Jenkins of type 'secret'. (remember the id)
@@ -310,11 +292,11 @@ When true, adds additional logs to Jenkins console
 The id of a Jenkins Credential of type 'secret' containing a Github Personal Access Token. Currently used for updating PR statuses and by the [downstreamBuilds](#downstreamBuilds) feature. The token must include at a minimum the entire `repo` scope. 
 
 ### httpProxy and httpsProxy
-**[BanzaiProxyCfg](src/com/ge/nola/cfg/BanzaiProxyCfg.groovy)**  
-If Jenkins is deployed behind a firewall it's a good idea to set the `httpProxy` and `httpsProxy`. If you have an ENV var set in your Jenkins environment such as `HTTP_PROXY` that you would like to inherit from. Set the `envVar` property of the [BanzaiProxyCfg](src/com/ge/nola/cfg/BanzaiProxyCfg.groovy) equal to the name of that ENV var.
+**[BanzaiProxyCfg](src/com/ge/nola/banzai/cfg/BanzaiProxyCfg.groovy)**  
+If Jenkins is deployed behind a firewall it's a good idea to set the `httpProxy` and `httpsProxy`. If you have an ENV var set in your Jenkins environment such as `HTTP_PROXY` that you would like to inherit from. Set the `envVar` property of the [BanzaiProxyCfg](src/com/ge/nola/banzai/cfg/BanzaiProxyCfg.groovy) equal to the name of that ENV var.
 
 ### cleanWorkspace
-**[BanzaiCleanWorkspaceCfg](src/com/ge/nola/cfg/BanzaiCleanWorkspaceCfg.groovy)**  
+**[BanzaiCleanWorkspaceCfg](src/com/ge/nola/banzai/cfg/BanzaiCleanWorkspaceCfg.groovy)**  
 Ensure a cleaned WORKSPACE prior to pipeline run or clean up the WORKSPACE after a pipeline run.  
 ex)
 ```
@@ -325,8 +307,8 @@ cleanWorkspace : [
 ```
 
 ### build
-**Map<String,[BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy)>**  
-Configures the built-in 'Build' stage of Banzai. The config is branch-based meaning that the keys of the supplied Map should be regex patterns matching the branch that each [BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy) should apply to. To accept the defaults pass an empty object (`[:]`) as your [BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy).
+**Map<String,[BanzaiStepCfg](src/com/ge/nola/banzai/cfg/BanzaiStepCfg.groovy)>**  
+Configures the built-in 'Build' stage of Banzai. The config is branch-based meaning that the keys of the supplied Map should be regex patterns matching the branch that each [BanzaiStepCfg](src/com/ge/nola/banzai/cfg/BanzaiStepCfg.groovy) should apply to. To accept the defaults pass an empty object (`[:]`) as your [BanzaiStepCfg](src/com/ge/nola/banzai/cfg/BanzaiStepCfg.groovy).
 ex)
 ```
 build: [
@@ -335,8 +317,8 @@ build: [
 ```
 
 ### publish
-**Map<String,[BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy)>**  
-Configures the built-in 'Publish' stage of Banzai. The config is branch-based meaning that the keys of the supplied Map should be regex patterns matching the branch that each [BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy) should apply to. To accept the defaults pass an empty object (`[:]`) as your [BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy).
+**Map<String,[BanzaiStepCfg](src/com/ge/nola/banzai/cfg/BanzaiStepCfg.groovy)>**  
+Configures the built-in 'Publish' stage of Banzai. The config is branch-based meaning that the keys of the supplied Map should be regex patterns matching the branch that each [BanzaiStepCfg](src/com/ge/nola/banzai/cfg/BanzaiStepCfg.groovy) should apply to. To accept the defaults pass an empty object (`[:]`) as your [BanzaiStepCfg](src/com/ge/nola/banzai/cfg/BanzaiStepCfg.groovy).
 ex)
 ```
 publish: [
@@ -345,8 +327,8 @@ publish: [
 ```
 
 ### deploy
-**Map<String,[BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy)>**  
-Configures the built-in 'Deploy' stage of Banzai. The config is branch-based meaning that the keys of the supplied Map should be regex patterns matching the branch that each [BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy) should apply to. To accept the defaults pass an empty object (`[:]`) as your [BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy).
+**Map<String,[BanzaiStepCfg](src/com/ge/nola/banzai/cfg/BanzaiStepCfg.groovy)>**  
+Configures the built-in 'Deploy' stage of Banzai. The config is branch-based meaning that the keys of the supplied Map should be regex patterns matching the branch that each [BanzaiStepCfg](src/com/ge/nola/banzai/cfg/BanzaiStepCfg.groovy) should apply to. To accept the defaults pass an empty object (`[:]`) as your [BanzaiStepCfg](src/com/ge/nola/banzai/cfg/BanzaiStepCfg.groovy).
 ex)
 ```
 deploy: [
@@ -355,15 +337,15 @@ deploy: [
 ```
 
 ### integrationTests
-**Map<String,[BanzaiIntegrationTestsCfg](src/com/ge/nola/cfg/BanzaiIntegrationTestsCfg.groovy)>**  
-Extends the [BanzaiStepCfg](src/com/ge/nola/cfg/BanzaiStepCfg.groovy) and adds additional properties for `xvfb` and `xvfbScreen`. *note xvfb features require that the [Xvfb Plugin](https://wiki.jenkins.io/display/JENKINS/Xvfb+Plugin) is installed on the Jenkins instance.*
+**Map<String,[BanzaiIntegrationTestsCfg](src/com/ge/nola/banzai/cfg/BanzaiIntegrationTestsCfg.groovy)>**  
+Extends the [BanzaiStepCfg](src/com/ge/nola/banzai/cfg/BanzaiStepCfg.groovy) and adds additional properties for `xvfb` and `xvfbScreen`. *note xvfb features require that the [Xvfb Plugin](https://wiki.jenkins.io/display/JENKINS/Xvfb+Plugin) is installed on the Jenkins instance.*
 
 ### tools
-**[BanzaiToolsCfg](src/com/ge/nola/cfg/BanzaiToolsCfg.groovy)**  
-The `tools` property allows you to target specific items from your Jenkins Global Tool Configuration ie) `jdk`, `nodejs`. Tools configured via the [BanzaiToolsCfg](src/com/ge/nola/cfg/BanzaiToolsCfg.groovy) object will be in scope for the duration of the pipeline run. 
+**[BanzaiToolsCfg](src/com/ge/nola/banzai/cfg/BanzaiToolsCfg.groovy)**  
+The `tools` property allows you to target specific items from your Jenkins Global Tool Configuration ie) `jdk`, `nodejs`. Tools configured via the [BanzaiToolsCfg](src/com/ge/nola/banzai/cfg/BanzaiToolsCfg.groovy) object will be in scope for the duration of the pipeline run. 
 
 ### flowdock
-**Map<String, [BanzaiFlowdockCfg](src/com/ge/nola/cfg/BanzaiFlowdockCfg.groovy)>**  
+**Map<String, [BanzaiFlowdockCfg](src/com/ge/nola/banzai/cfg/BanzaiFlowdockCfg.groovy)>**  
 A branch-based configuration providing flowdock cfgs that are available for reference in the [notifications](#notifications) cfg
 
 ### email
@@ -371,8 +353,8 @@ A branch-based configuration providing flowdock cfgs that are available for refe
 A branch-based configuration providing individual emails and groups that are available for reference in the [notifications](#notifications) cfg
 
 ### notifications
-**[BanzaiNotificationsCfg](src/com/ge/nola/cfg/BanzaiNotificationsCfg.groovy)**  
-Determines when/how notifications are sent and who recieves those notifications. the `notifications` property works in tandem with the [email](src/com/ge/nola/cfg/BanzaiEmailCfg.groovy) and [flowdock](/src/com/ge/nola/cfg/BanzaiFlowdockCfg.groovy) properties. See [Notifications and Events](#notifications-and-events) for more.  
+**[BanzaiNotificationsCfg](src/com/ge/nola/banzai/cfg/BanzaiNotificationsCfg.groovy)**  
+Determines when/how notifications are sent and who recieves those notifications. the `notifications` property works in tandem with the [email](src/com/ge/nola/banzai/cfg/BanzaiEmailCfg.groovy) and [flowdock](/src/com/ge/nola/banzai/cfg/BanzaiFlowdockCfg.groovy) properties. See [Notifications and Events](#notifications-and-events) for more.  
 ex)
 ```
 flowdock: [
@@ -414,8 +396,8 @@ notifications: [
 ```
 
 ### vulnerabilityScans
-**Map<String, List<[BanzaiVulnerabilityCfg](src/com/ge/nola/cfg/BanzaiVulnerabilityCfg.groovy)>>**  
-Banzai supports `checkmarx` and `coverity` Vulnerability Scans. The config is branch-based meaning that the keys of the supplied Map should be regex patterns matching the branch that each [BanzaiVulnerabilityCfg](src/com/ge/nola/cfg/BanzaiVulnerabilityCfg.groovy) should apply to.
+**Map<String, List<[BanzaiVulnerabilityCfg](src/com/ge/nola/banzai/cfg/BanzaiVulnerabilityCfg.groovy)>>**  
+Banzai supports `checkmarx` and `coverity` Vulnerability Scans. The config is branch-based meaning that the keys of the supplied Map should be regex patterns matching the branch that each [BanzaiVulnerabilityCfg](src/com/ge/nola/banzai/cfg/BanzaiVulnerabilityCfg.groovy) should apply to.
 ex)
 ```
 vulnerabilityScans = [
@@ -430,7 +412,7 @@ vulnerabilityScans = [
       type: 'coverity',
       credId: 'coverity-auth-key-file',     // jenkins credId of type 'file' representing your users authentication key (exported from coverity server UI)
       toolId: 'coverity-2018.12',           // the id given to Coverity i the Jenkins Global Tool installation
-      serverHost: 'coverity.power.ge.com',
+      serverHost: 'my.coverity.server.com',
       serverPort: '443',
       buildCmd: 'mvn -s ./settings.xml clean install -U', // the build command coverity should wrap. alternatively, you can leverage banzai BanzaiUserData. see BanzaiUserData section of README
       projectName: 'your-coverity-project-name'
@@ -444,15 +426,15 @@ vulnerabilityScans = [
 Aborts the pipeline if any of the Vulnerability Scans throw an error during execution
 
 ### qualityScans
-**Map<String, List<[BanzaiQualityCfg](src/com/ge/nola/cfg/BanzaiQualityCfg.groovy)>>**  
-Banzai supports `sonar` Quality Scans. The config is branch-based meaning that the keys of the supplied Map should be regex patterns matching the branch that each [BanzaiQualityCfg](src/com/ge/nola/cfg/BanzaiQualityCfg.groovy) should apply to.
+**Map<String, List<[BanzaiQualityCfg](src/com/ge/nola/banzai/cfg/BanzaiQualityCfg.groovy)>>**  
+Banzai supports `sonar` Quality Scans. The config is branch-based meaning that the keys of the supplied Map should be regex patterns matching the branch that each [BanzaiQualityCfg](src/com/ge/nola/banzai/cfg/BanzaiQualityCfg.groovy) should apply to.
 ex)
 ```
 qualityScans: [
   /develop|master/: [
     [
       type: 'sonar',
-      serverUrl: 'https://my-sonar.ge.com'
+      serverUrl: 'https://my.sonar.server.com'
       credId: 'sonar-auth-token-id'        // jenkins credential (of type secret) containing a sonar server auth token
     ]
   ]
@@ -464,7 +446,7 @@ qualityScans: [
 Aborts the pipeline if any of the Quality Scans throw an error during execution
 
 ### downstreamBuilds
-**Map<String, List<[BanzaiDownstreamBuildCfg](src/com/ge/nola/cfg/BanzaiDownstreamBuildCfg.groovy)>>**  
+**Map<String, List<[BanzaiDownstreamBuildCfg](src/com/ge/nola/banzai/cfg/BanzaiDownstreamBuildCfg.groovy)>>**  
 Banzai allows you to execute additional builds on completion of a pipeline. These 'Downstream Builds' can be optional or required. In the event that they are required they will always run upon success of a build. If they are marked as 'optional' the Pull Request must contain a label in the format `build:<buildId>`. 
 ex) running a downstream job where the parent job depends on the result.
 ```
@@ -517,31 +499,6 @@ downstreamBuilds: [
 
 *Note: Downstream Builds requires that `gitTokenId` is defined*
 
-### powerDevOpsReporting
-**[BanzaiDevOpsReportingCfg](src/com/ge/nola/cfg/BanzaiDevOpsReportingCfg.groovy)**  
-Banzai is full integrated with the Power DevOps Reporting Dashboard. By providing the following configuration information about your pipeline run and any scans executed will be sent automatically to the Dashboard  
-ex)
-```
-powerDevOpsReporting: [
-  branches: /master|develop/
-  ci: 'your-ci',
-  uai: 'your-uai',
-  uaaCredId: 'uaa-cred-id', // Jenkins Cred stored as a 'username and password' where the password is a UAA Bearer Token
-  uaaUrl: 'https://a8a2ffc4-b04e-4ec1-bfed-7a51dd408725.predix-uaa.run.aws-usw02-pr.ice.predix.io/oauth/token?grant_type=client_credentials',
-  metricsUrl: 'https://prod-cicadavpc-secure-pipeline-services-vanguard.cicada.digital.ge.com',
-  environments: [
-    /develop/ : [
-      key: 0,
-      name: 'develop'
-    ],
-    /master/ : [
-      key: 1,
-      name: 'qa'
-    ]
-  ]
-]
-```
-
 ### gitOpsTrigger and gitOps
 ****
 Banzai supports [GitOps-style](https://www.xenonstack.com/insights/what-is-gitops/) deployments. GitOps allows you to back your environments and handle their deployments from a single repository as well as decouple CI from CD (good for security). Once configured, your Service repositories will complete all CI Banzai Pipeline steps. If Banzai determines that a new version has been created or a deployment should take place it will trigger a new Banzai Pipeline that builds your GitOps repository. The GitOps repository is responsible for recording all versions of each Service and updating your 'Stacks' with the correct versions in each environment. [You can view an example GitOps repo here](https://github.build.ge.com/Banzai-CICD/GitOps). For our purposes, a 'Stack' is merely a collection of indvidual Services that should be deployed together.
@@ -559,7 +516,7 @@ There are 2 methods of deployment via Banzai GitOps.
 
 #### GitOps Configuration
 
-1. update the .banzai file in the repository of each Service that you would like to trigger a GitOps job with an instance of **Map<String, [BanzaiGitOpsTriggerCfg](src/com/ge/nola/cfg/BanzaiGitOpsTriggerCfg.groovy)>**  
+1. update the .banzai file in the repository of each Service that you would like to trigger a GitOps job with an instance of **Map<String, [BanzaiGitOpsTriggerCfg](src/com/ge/nola/banzai/cfg/BanzaiGitOpsTriggerCfg.groovy)>**  
 
 ex)
 ```
@@ -594,7 +551,7 @@ This information will be passed to your GitOps pipeline so that it is aware of w
 - `.banzai` - file with a `gitOps` section
 - `deployScript.sh` - will be called for each deployment as passed arguments containing the stack and service versions to deploy
 
-3a. ensure your .banzai file in the GitOps repo includes an instance of **[BanzaiGitOpsCfg](src/com/ge/nola/cfg/BanzaiGitOpsCfg.groovy)**  
+3a. ensure your .banzai file in the GitOps repo includes an instance of **[BanzaiGitOpsCfg](src/com/ge/nola/banzai/cfg/BanzaiGitOpsCfg.groovy)**  
 ex) *in the following example, GitOps will automatically re-deploy any project thats 'develop' branch triggered the GitOps build to the 'dev' environment*
 ```
 gitOps: [
@@ -612,12 +569,12 @@ gitOps: [
 ```
 
 ### stages
-**List<[BanzaiStageCfg](src/com/ge/nola/cfg/BanzaiStageCfg.groovy)>**  
-If the Banzai-provided build,publish,deploy,integrationTests stages do not satisfy your pipeline needs you can compose your own via the `stages` BanzaiCfg property. The `stages` property can contain a mixuture of User-provided and Banzai-provided stages (such as the built-in build/publish). Because of this, the `name` property of the [BanazaiStageCfg](src/com/ge/nola/cfg/BanzaiStageCfg.groovy) is reserved for `build|deploy|publish|integrationTests|scans:vulnerability|scans:quality`.  
+**List<[BanzaiStageCfg](src/com/ge/nola/banzai/cfg/BanzaiStageCfg.groovy)>**  
+If the Banzai-provided build,publish,deploy,integrationTests stages do not satisfy your pipeline needs you can compose your own via the `stages` BanzaiCfg property. The `stages` property can contain a mixuture of User-provided and Banzai-provided stages (such as the built-in build/publish). Because of this, the `name` property of the [BanazaiStageCfg](src/com/ge/nola/banzai/cfg/BanzaiStageCfg.groovy) is reserved for `build|deploy|publish|integrationTests|scans:vulnerability|scans:quality`.  
 
 Banzai will perform basic functions such as notifications and error handling for you during your User-provided stage execution. Be aware, Stages and boilerplate that exist for supporting SCM, Power DevOps Reporting, Secrets Filtering, GitOps, proxy etc will still evaluate as normal. To re-iterate, when you leverage the `stages` property you will only be overriding the following Stages `vulnerabilityScans, qualityScans, build, publish, deploy, integrationTests`  
 
-ex) the following example contains a mix of Banzai-provided Stages and User-provided Stages. Note, when calling a Banzai-provided stage you should still configure that stage using it's existing [BanzaiCfg](src/com/ge/nola/cfg/BanzaiCfg.groovy) property.
+ex) the following example contains a mix of Banzai-provided Stages and User-provided Stages. Note, when calling a Banzai-provided stage you should still configure that stage using it's existing [BanzaiCfg](src/com/ge/nola/banzai/cfg/BanzaiCfg.groovy) property.
 ```
 build: [
       /.*/ : [ shell: 'scripts/build.sh' ]
@@ -637,6 +594,23 @@ stages: [
       ]
     ]
   ]
+]
+```
+
+### hooks
+**[BanzaiHooksCfg](src/com/ge/nola/banzai/banzai/cfg/BanzaiHooksCfg/groovy)**  
+Hooks are designed to provide an opportunity at certain points during the pipeline execution to run arbitrarty code. Currently, the only hooks supported are the `hooks.stages.pre` and `hooks.stages.post`. These hooks wrap the main pipeline stages (`pre` runs just after `scm` but before `filterSecrets`. `post` runs after `gitOptsTrigger` and before `downstreamBuilds`)  
+ex) *note: the closures that you provide recieve an instance of your entire BanzaiCfg as an argument.
+```
+hooks: [
+    stages: [
+        pre: { cfg ->
+            logger 'I ran before the pipeline!'
+        },
+        post: { cfg ->
+            logger 'I ran after the pipeline!'
+        }
+    ]
 ]
 ```
 
@@ -673,11 +647,11 @@ In order to persist BanzaiUserData you simply write a `BanzaiUserData.[yaml/json
 
 ## Notifications and Events
 There are 3 components to configuring notifications.
-1. The [BanzaiEvent](src/com/ge/nola/BanzaiEvent.groovy)
+1. The [BanzaiEvent](src/com/ge/nola/banzai/BanzaiEvent.groovy)
 2. The Notification Method, ie) [email](#email), [flowdock](#flowdock)
-3. The [notifications](#notifications) cfg which associates the [BanzaiEvent](src/com/ge/nola/BanzaiEvent.groovy) with the desired Notification Method
+3. The [notifications](#notifications) cfg which associates the [BanzaiEvent](src/com/ge/nola/banzai/BanzaiEvent.groovy) with the desired Notification Method
 
-The decoupling of the [BanzaiEvent](src/com/ge/nola/BanzaiEvent.groovy) from the specific notification in-tandem with each being configuratble at the branch-level allows for a high-level of flexibility.  
+The decoupling of the [BanzaiEvent](src/com/ge/nola/banzai/BanzaiEvent.groovy) from the specific notification in-tandem with each being configuratble at the branch-level allows for a high-level of flexibility.  
 
 ex) *The following example would send emails to 'steve' when a Pipeline execution reports FAILURE or SUCCESS for all branches. It would also send notification to the flowdock configuration with the id 'myFlowCfg' for all BanzaiEvents when the branch is 'develop'*
 ```
@@ -714,4 +688,4 @@ notifications: [
   ]
 ]
 ```
-As shown above, event's can be bound to in the format '${BanzaiEvent.SCOPE}:${BanzaiEvent.STATUS}'. Please see the [BanzaiEvent](src/com/ge/nola/BanzaiEvent.groovy) to determine the available event combinations. *Note* for `BanzaiEvent.scopes.VULNERABILTY` and `BanzaiEvent.scopes.QUALITY` only the statues `SUCCESS` and `FAILURE` are reported. For more examples of notification cofigurations please see [TestMavenBuild](https://github.build.ge.com/Banzai-CICD/TestMavenBuild/blob/master/.banzai) and [TestDownstreamBuild](https://github.build.ge.com/Banzai-CICD/TestDownstreamBuild/blob/master/.banzai)
+As shown above, event's can be bound to in the format '${BanzaiEvent.SCOPE}:${BanzaiEvent.STATUS}'. Please see the [BanzaiEvent](src/com/ge/nola/banzai/BanzaiEvent.groovy) to determine the available event combinations. *Note* for `BanzaiEvent.scopes.VULNERABILTY` and `BanzaiEvent.scopes.QUALITY` only the statues `SUCCESS` and `FAILURE` are reported. For more examples of notification cofigurations please see [TestMavenBuild](https://github.build.ge.com/Banzai-CICD/TestMavenBuild/blob/master/.banzai) and [TestDownstreamBuild](https://github.build.ge.com/Banzai-CICD/TestDownstreamBuild/blob/master/.banzai)
