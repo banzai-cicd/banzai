@@ -37,8 +37,4 @@ def call(BanzaiCfg config, vulnerabilityCfg) {
                 generatePdfReport: true
         ])
     }
-
-    if (config.powerDevOpsReporting) {
-        checkmarxSastResults()
-    }
 }
