@@ -75,12 +75,12 @@ def runPipeline(BanzaiCfg cfg) {
                         logger "My branch is: ${env.BRANCH_NAME}"
 
                         // checkout the branch that triggered the build if not explicitly skipped
-                        if (cfg.cleanWorkspace?.pre? != null) {
+                        if (cfg.cleanWorkspace?.pre != null) {
                             cleanWorkspace(cfg)
                         }
                         
                         scmStage(cfg)
-                        if (cfg.hooks?.stages?.pre? != null) {
+                        if (cfg.hooks?.stages?.pre != null) {
                             // call pre-stages-run hook
                             cfg.hooks.stages.pre(cfg)
                         }
@@ -125,7 +125,7 @@ def runPipeline(BanzaiCfg cfg) {
                         // gitOps trigger stage
                         gitOpsTriggerStage(cfg)
                         // report results to power devOps
-                        if (cfg.hooks?.stages?.post? != null) {
+                        if (cfg.hooks?.stages?.post != null) {
                             // call post-stages-run hook
                             cfg.hooks.stages.post(cfg)
                         }
@@ -146,7 +146,7 @@ def runPipeline(BanzaiCfg cfg) {
 
                     throw e
                 } finally { // ensure cleanup is performed if configured
-                    if (cfg.cleanWorkspace?.post? != null) {
+                    if (cfg.cleanWorkspace?.post != null) {
                         cleanWorkspace(cfg)
                     }
                 }
