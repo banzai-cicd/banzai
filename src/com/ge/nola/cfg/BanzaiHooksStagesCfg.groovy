@@ -1,6 +1,6 @@
 package com.ge.nola.cfg;
 
-class BanzaiHooksCfg {
+class BanzaiHooksStagesCfg {
     Closure<BanzaiCfg> pre
     Closure<BanzaiCfg> post
 }
