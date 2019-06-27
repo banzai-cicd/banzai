@@ -2,7 +2,7 @@
 import jenkins.model.Jenkins;
 import com.ge.nola.banzai.cfg.BanzaiCfg;
 
-def call(BanazaiCfg cfg) {
+def call(BanzaiCfg cfg) {
     if (!cfg.proxy) {
         Jenkins j = Jenkins.getInstance();
         if (j.proxy == null) {
