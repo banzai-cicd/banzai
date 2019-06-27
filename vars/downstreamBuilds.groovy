@@ -19,7 +19,7 @@ String determineRepoName(url) {
 
 String getHostName(String url) {
     logger "getHostName for ${url}"
-    URI uri = new URI(url)
+    URI uri = new URI(url.replace("git@", "https://"))
     String hostname = uri.getHost()
     // to provide faultproof result, check if not null then return only hostname, without www.
     if (hostname != null) {
