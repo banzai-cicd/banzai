@@ -1,38 +1,33 @@
 #!/usr/bin/env groovy
-// TODO: hate this..refactor
-def call(config) {
-    if (config.httpsProxy?.envVar) {
-        logger "Setting HTTPS Proxy from environment variable ${config.httpsProxy.envVar}"
-        def hostAndPort = env[config.httpsProxy.envVar].tokenize(":")
-        config.httpsProxy = [
-            protocol: 'https',
-            host: hostAndPort[0],
-            port: hostAndPort[1]
-        ]
-    }
-    if (config.httpProxy?.envVar) {
-        logger "Setting HTTP Proxy from environment variable ${config.httpProxy.envVar}"
-        def hostAndPort = env[config.httpProxy.envVar].tokenize(":")
-        config.httpProxy = [
-            protocol: 'http',
-            host: hostAndPort[0],
-            port: hostAndPort[1]
-        ]
-    }
+import jenkins.model.Jenkins;
+import com.ge.nola.banzai.cfg.BanazaiCfg;
 
-    config.noProxy = config.noProxy ?: env.no_proxy ?: env.NO_PROXY
-
-    if (config.httpsProxy) {
-        config.httpsProxy.protocol = 'https'
-        logger "HTTPS PROXY set to ${config.httpsProxy.getUrl()}"
-    }
-
-    if (config.httpProxy) {
-        config.httpProxy.protocol = 'http'
-        logger "HTTP PROXY set to ${config.httpProxy.getUrl()}"
+def call(BanazaiCfg cfg) {
+    if (!cfg.proxy) {
+        Jenkins j = Jenkins.getInstance();
+        if (j.proxy == null) {
+            // attempt setting proxy via env vars
+            String envProxy = env.http_proxy ?: env.HTTP_PROXY
+            if (envString != null) {
+                String[] hostAndPort = envProxy.tokenize(":")
+                cfg.proxy = [
+                    host: hostAndPort[0],
+                    port: hostAndPort[1]
+                ]
+            }
+            cfg.noProxy = env.no_proxy ?: env.NO_PROXY
+        } else {
+            // default to proxy settings already set via Plugin Management -> Advanced
+            cfg.proxy = [
+                host: j.proxy.name,
+                port: j.proxy.port
+            ]
+            cfg.noProxy = j.proxy.noProxyHost
+        }
     }
 
-    if (config.httpsProxy || config.httpProxy) {
+    if (cfg.proxy) {
+        logger "HTTP PROXY set to ${config.proxy.toString()}"
         logger "NO PROXY set to ${config.noProxy}"
     }
 }

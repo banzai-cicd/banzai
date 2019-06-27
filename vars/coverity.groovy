@@ -36,13 +36,12 @@ def call(BanzaiCfg cfg, vulnerabilityCfg) {
         // 1. check for the existence of the stream 
         //def listStreamsCmd = "unset https_proxy && cov-manage-im --mode streams --show --name ${COV_STREAM} --url ${COV_URL} --ssl ${credParams} | grep ${COV_STREAM}"
         def httpsProxy
-        if (cfg.httpsProxy) {
-          httpsProxy = cfg.httpsProxy.getUrl()
+        if (cfg.proxy) {
+          httpsProxy = "https://${cfg.proxy.toString()}"
         }
         def listStreamsCmd =
         """
-          unset https_proxy && unset no_proxy \
-          && export https_proxy=${httpsProxy} && export no_proxy=${cfg.noProxy} \
+          export https_proxy=${httpsProxy} && export no_proxy=${cfg.noProxy} \
           && cov-manage-im --mode streams --show --name  ${COV_STREAM} ${hostAndPort} --ssl ${credParams}
         """
         def streamList
@@ -68,14 +67,12 @@ def call(BanzaiCfg cfg, vulnerabilityCfg) {
         if (addStream) {
           def covAddStreamCmd = 
           """
-            unset https_proxy && unset no_proxy \
-            && export https_proxy=${httpsProxy} && export no_proxy=${cfg.noProxy} \
+            export https_proxy=${httpsProxy} && export no_proxy=${cfg.noProxy} \
             && cov-manage-im --mode streams --add --set name:${COV_STREAM} --set lang:mixed ${credParams} ${hostAndPort} --ssl
           """
           def covBindStreamCmd = 
           """
-            unset https_proxy && unset no_proxy \
-            && export https_proxy=${httpsProxy} && export no_proxy=${cfg.noProxy} \
+            export https_proxy=${httpsProxy} && export no_proxy=${cfg.noProxy} \
             && cov-manage-im --mode projects --name ${COV_PROJECT} --update --insert stream:${COV_STREAM} ${credParams} ${hostAndPort} --ssl
           """
           commands.addAll([covAddStreamCmd, covBindStreamCmd])
@@ -84,8 +81,7 @@ def call(BanzaiCfg cfg, vulnerabilityCfg) {
         def covBuildCmd = "cov-build --dir ${iDir} ${buildCmd}"
         def covAnalyzeCmd = "cov-analyze --dir ${iDir}"
         def covCommitCmd = """
-          unset https_proxy && unset no_proxy \
-          && export https_proxy=${httpsProxy} && export no_proxy=${cfg.noProxy} \
+          export https_proxy=${httpsProxy} && export no_proxy=${cfg.noProxy} \
           && cov-commit-defects --dir ${iDir} --stream ${COV_STREAM} ${credParams} --url ${COV_URL}
         """
         commands.addAll([covBuildCmd, covAnalyzeCmd, covCommitCmd])

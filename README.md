@@ -14,7 +14,8 @@ Banzai started as one team's solution to CICD and has grown to a full-featured C
   * [skipScm](#skipSCM)
   * [debug](#debug)
   * [gitTokenId](#gitTokenId)
-  * [httpProxy and httpsProxy](#httpProxy-and-httpsProxy)
+  * [proxy](#proxy)
+  * [noProxy](noproxy)
   * [cleanWorkspace](#cleanworkspace)
   * [build](#build)
   * [publish](#publish)
@@ -36,6 +37,7 @@ Banzai started as one team's solution to CICD and has grown to a full-featured C
 * [Coverity](#coverity)
 * [BanzaiUserData](#banzaiuserdata)
 * [Notifications and Events](#notifications-and-events)
+* [Proxies](#proxies)
 
 ## Configuration Overview
 Basic Jenkinsfile
@@ -66,8 +68,7 @@ banzai([
     skipSCM: true,
     debug: false,
     gitTokenId: 'sweeney-git-token',
-    httpsProxy: [
-      envVar: 'https_proxy',                    // optionally use an env variable from the host to set the proxy info. should be in "{host}:{port}" format.
+    proxy: [
       host: 'proxyhost',
       port: '80'
     ],
@@ -291,9 +292,20 @@ When true, adds additional logs to Jenkins console
 **String** <span style="color:red">*</span>  
 The id of a Jenkins Credential of type 'secret' containing a Github Personal Access Token. Currently used for updating PR statuses and by the [downstreamBuilds](#downstreamBuilds) feature. The token must include at a minimum the entire `repo` scope. 
 
-### httpProxy and httpsProxy
+### proxy
 **[BanzaiProxyCfg](src/com/ge/nola/banzai/cfg/BanzaiProxyCfg.groovy)**  
-If Jenkins is deployed behind a firewall it's a good idea to set the `httpProxy` and `httpsProxy`. If you have an ENV var set in your Jenkins environment such as `HTTP_PROXY` that you would like to inherit from. Set the `envVar` property of the [BanzaiProxyCfg](src/com/ge/nola/banzai/cfg/BanzaiProxyCfg.groovy) equal to the name of that ENV var.
+By default, Banzai will automatically populate the [BanzaiProxyCfg](src/com/ge/nola/banzai/cfg/BanzaiProxyCfg.groovy) with the values set in the `Manage Jenkins -> Manage Plugins -> Advanced` of your Jenkins instance and if these are not available fall back to `env.http_proxy`, `env.HTTP_PROXY`, `env.no_proxy` and `env.NO_PROXY` in the environment. If for some reason you would like to override your Jenkins proxy settings you may define the `proxy` property of the BanzaiCfg yourself.
+ex)
+```
+proxy: [
+  host: 'proxyhost',
+  port: '80'
+]
+```
+
+### noProxy
+**String**  
+A comma-delimted list of hosts that the proxies should not apply to. Leave empty if you would like the pipeline to default to available `env.no_proxy` and `env.NO_PROXY` env vars.
 
 ### cleanWorkspace
 **[BanzaiCleanWorkspaceCfg](src/com/ge/nola/banzai/cfg/BanzaiCleanWorkspaceCfg.groovy)**  
@@ -615,7 +627,7 @@ hooks: [
 ```
 
 ## Coverity
-Coverity functionality requires the Coverity ~2.0.0 Plugin to be installed on the host Jenkins https://synopsys.atlassian.net/wiki/spaces/INTDOCS/pages/623018/Synopsys+Coverity+for+Jenkins#SynopsysCoverityforJenkins-Version2.0.0
+Coverity functionality requires the Coverity ~2.0.0 Plugin to be installed on the host Jenkins https://synopsys.atlassian.net/wiki/spaces/INTDOCS/pages/623018/Synopsys+Coverity+for+Jenkins#SynopsysCoverityforJenkins-Version2.0.0. Also, if your Jenkins has a proxy configured it MUST support the `https` protocol for Coverity to work.
 
 ## Custom Stages
 The `stages` property of the BanzaiCfg allows you to override the order of existing Banzai Stages as well as provide custom Stages of your own. 
@@ -689,3 +701,6 @@ notifications: [
 ]
 ```
 As shown above, event's can be bound to in the format '${BanzaiEvent.SCOPE}:${BanzaiEvent.STATUS}'. Please see the [BanzaiEvent](src/com/ge/nola/banzai/BanzaiEvent.groovy) to determine the available event combinations. *Note* for `BanzaiEvent.scopes.VULNERABILTY` and `BanzaiEvent.scopes.QUALITY` only the statues `SUCCESS` and `FAILURE` are reported. For more examples of notification cofigurations please see [TestMavenBuild](https://github.build.ge.com/Banzai-CICD/TestMavenBuild/blob/master/.banzai) and [TestDownstreamBuild](https://github.build.ge.com/Banzai-CICD/TestDownstreamBuild/blob/master/.banzai)
+
+## Proxies
+Operating a Jenkins pipeline behind a corporate firewall can be somewhat tricky due to the different levels in-which a proxy must be configured. For instance, `Manage Jenkins -> Manage Plugins -> Advanced` allows you to set the proxy with-in the Jenkins instance and most plugins used by the pipeline will honor this setting. However, there are instances in Banzai where features are implemented via shell commands and

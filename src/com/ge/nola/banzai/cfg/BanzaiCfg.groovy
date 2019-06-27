@@ -9,8 +9,7 @@ class BanzaiCfg {
     Boolean debug
     String gitTokenId
     String noProxy
-    BanzaiProxyCfg httpProxy
-    BanzaiProxyCfg httpsProxy
+    BanzaiProxyCfg proxy
     BanzaiCleanWorkspaceCfg cleanWorkspace
     Boolean skipSCM = false
     Map<String, BanzaiFlowdockCfg> flowdock
