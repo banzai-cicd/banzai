@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 import jenkins.model.Jenkins;
-import com.ge.nola.banzai.cfg.BanazaiCfg;
+import com.ge.nola.banzai.cfg.BanzaiCfg;
 
 def call(BanazaiCfg cfg) {
     if (!cfg.proxy) {
