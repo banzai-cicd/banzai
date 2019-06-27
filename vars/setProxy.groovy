@@ -9,6 +9,7 @@ def call(BanzaiCfg cfg) {
             // attempt setting proxy via env vars
             String envProxy = env.http_proxy ?: env.HTTP_PROXY
             if (envString != null) {
+                logger "Setting proxy from env vars"
                 String[] hostAndPort = envProxy.tokenize(":")
                 cfg.proxy = [
                     host: hostAndPort[0],
@@ -17,6 +18,7 @@ def call(BanzaiCfg cfg) {
             }
             cfg.noProxy = env.no_proxy ?: env.NO_PROXY
         } else {
+            logger "Setting proxy from values found in Jenkins 'Plugin Management -> Advanced'"
             // default to proxy settings already set via Plugin Management -> Advanced
             cfg.proxy = [
                 host: j.proxy.name,
