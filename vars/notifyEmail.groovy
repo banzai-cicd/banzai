@@ -45,6 +45,6 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
     if (addresses.size() > 0) {
         String subject = "${env.JOB_NAME} ${event.scope} ${event.status}"
         String body = "Message: ${event.message}"
-        sendEmail(emailCfg.admin, addresses.join(','), subject, body, event.attachmentPattern)
+        sendEmail(cfg.email.admin, addresses.join(','), subject, body, event.attachmentPattern)
     }
 }
