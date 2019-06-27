@@ -27,7 +27,7 @@ def call(BanzaiCfg cfg) {
     }
 
     if (cfg.proxy) {
-        logger "HTTP PROXY set to ${config.proxy.toString()}"
-        logger "NO PROXY set to ${config.noProxy}"
+        logger "HTTP PROXY set to ${cfg.proxy.toString()}"
+        logger "NO PROXY set to ${cfg.noProxy}"
     }
 }
