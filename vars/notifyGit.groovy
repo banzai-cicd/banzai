@@ -18,6 +18,7 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
   logger "notifyGit called"
   String hostName = getHostName(scm.getUserRemoteConfigs()[0].getUrl())
   String GITHUB_API_URL = "https://${hostName}/api/v3"
+  logger "notifiyGit url: ${GITHUB_API_URL}"
   /*
     Stage Events that reach github: PENDING, FAILURE, ABORTED
     Pipeline Events that reach github: SUCCESS
