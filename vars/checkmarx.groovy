@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-import com.ge.nola.banzai.cfg.BanzaiCfg
-import com.ge.nola.banzai.cfg.BanzaiVulnerabilityCfg
+import com.github.banzaicicd.cfg.BanzaiCfg
+import com.github.banzaicicd.cfg.BanzaiVulnerabilityCfg
 
 def call(BanzaiCfg config, vulnerabilityCfg) {
     def PROJECT_NAME = "${config.appName}-${env.BRANCH_NAME}"
@@ -29,7 +29,7 @@ def call(BanzaiCfg config, vulnerabilityCfg) {
                 password: "${CHECKMARX_PASSWORD}",
                 preset: PRESET,
                 projectName: "${PROJECT_NAME}",
-                serverUrl: 'https://checkmarx.security.ge.com',
+                serverUrl: 'https://my-checkmarx.com',
                 sourceEncoding: '1',
                 username: "${CHECKMARX_USER}",
                 vulnerabilityThresholdResult: 'FAILURE',

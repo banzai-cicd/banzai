@@ -1,8 +1,8 @@
 #!/usr/bin/env groovy
 
-import com.ge.nola.banzai.cfg.BanzaiCfg
-import com.ge.nola.banzai.BanzaiEvent
-import com.ge.nola.banzai.cfg.BanzaiNotificationsEmailCfg
+import com.github.banzaicicd.cfg.BanzaiCfg
+import com.github.banzaicicd.BanzaiEvent
+import com.github.banzaicicd.cfg.BanzaiNotificationsEmailCfg
 
 void call(BanzaiCfg cfg, BanzaiEvent event) {
     if (!cfg.email 
@@ -45,6 +45,6 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
     if (addresses.size() > 0) {
         String subject = "${env.JOB_NAME} ${event.scope} ${event.status}"
         String body = "Message: ${event.message}"
-        sendEmail(addresses.join(','), subject, body, event.attachmentPattern)
+        sendEmail(emailCfg.admin, addresses.join(','), subject, body, event.attachmentPattern)
     }
 }

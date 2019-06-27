@@ -1,11 +1,23 @@
 #!/usr/bin/env groovy
 
-import com.ge.nola.banzai.cfg.BanzaiCfg
-import com.ge.nola.banzai.BanzaiEvent
+import com.github.banzaicicd.cfg.BanzaiCfg
+import com.github.banzaicicd.BanzaiEvent
+
+String getHostName(String url) {
+    logger "getHostName for ${url}"
+    URI uri = new URI(url)
+    String hostname = uri.getHost()
+    // to provide faultproof result, check if not null then return only hostname, without www.
+    if (hostname != null) {
+        return hostname.startsWith("www.") ? hostname.substring(4) : hostname
+    }
+    return hostname;
+}
 
 void call(BanzaiCfg cfg, BanzaiEvent event) {
   logger "notifyGit called"
-  String GITHUB_API_URL = 'https://github.build.ge.com/api/v3'
+  String hostName = getHostName(scm.getUserRemoteConfigs()[0].getUrl())
+  String GITHUB_API_URL = "https://${hostName}/api/v3"
   /*
     Stage Events that reach github: PENDING, FAILURE, ABORTED
     Pipeline Events that reach github: SUCCESS

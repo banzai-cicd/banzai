@@ -1,8 +1,8 @@
 #!/usr/bin/env groovy
 import groovy.json.JsonOutput
-import com.ge.nola.banzai.cfg.BanzaiCfg
-import com.ge.nola.banzai.cfg.BanzaiFlowdockCfg
-import com.ge.nola.banzai.BanzaiEvent
+import com.github.banzaicicd.cfg.BanzaiCfg
+import com.github.banzaicicd.cfg.BanzaiFlowdockCfg
+import com.github.banzaicicd.BanzaiEvent
 
 //def call(BanzaiCfg config, String stage, String message, String status) {
 void call(BanzaiCfg cfg, BanzaiEvent event) {

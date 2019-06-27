@@ -1,4 +1,4 @@
-package com.ge.nola.banzai.cfg;
+package com.github.banzaicicd.cfg;
 
 // allows users to define their own stage
 class BanzaiStageCfg {

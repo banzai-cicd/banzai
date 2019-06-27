@@ -1,7 +1,7 @@
-package com.ge.nola.banzai;
+package com.github.banzaicicd;
 
-import com.ge.nola.banzai.cfg.BanzaiCfg
-import com.ge.nola.banzai.BanzaiEvent
+import com.github.banzaicicd.cfg.BanzaiCfg
+import com.github.banzaicicd.BanzaiEvent
 import org.jenkinsci.plugins.workflow.cps.CpsClosure2
 import org.codehaus.groovy.runtime.GStringImpl
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException

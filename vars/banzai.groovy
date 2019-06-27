@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
-import com.ge.nola.banzai.cfg.BanzaiCfg
-import com.ge.nola.banzai.cfg.BanzaiStageCfg
-import com.ge.nola.banzai.BanzaiEvent
+import com.github.banzaicicd.cfg.BanzaiCfg
+import com.github.banzaicicd.cfg.BanzaiStageCfg
+import com.github.banzaicicd.BanzaiEvent
 
 def call(cfgMap) {
     // evaluate the body block, and collect configuration into the object

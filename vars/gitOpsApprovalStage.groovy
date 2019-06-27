@@ -1,8 +1,8 @@
 #!/usr/bin/env groovy
 
 import hudson.model.User
-import com.ge.nola.banzai.cfg.BanzaiCfg
-import com.ge.nola.banzai.cfg.BanzaiGitOpsInputCfg
+import com.github.banzaicicd.cfg.BanzaiCfg
+import com.github.banzaicicd.cfg.BanzaiGitOpsInputCfg
 
 @NonCPS
 def getRoleBasedUsersList(role) {
@@ -27,7 +27,7 @@ def getRoleBasedUsersList(role) {
 }
 
 String[] getUserEmails(users) {
-  return users.collect { 
+  return users.collect {
     def mail = Jenkins.instance.getUser(it).getProperty(hudson.tasks.Mailer.UserProperty.class)
     return mail.getAddress()
   }
@@ -155,7 +155,7 @@ def call(BanzaiCfg cfg) {
             def approvalSubject = "Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested"
             def approvalMsg = "${approvalSubject} with the following verisions:"
             def approvalBody = "${approvalMsg}\n${proposedServiceVersions}"
-            sendEmail(approverEmails, approvalSubject, approvalBody, null)
+            sendEmail('admin@jenkins.com', approverEmails, approvalSubject, approvalBody, null)
 
             // present input steps
             def approverId = input message: msg,
@@ -168,7 +168,7 @@ def call(BanzaiCfg cfg) {
             String subject = "Deployment of the '${STACK}' Stack to the '${ENV}' Environment is approved"
             String approvedMsg = "${subject} by ${approverName} with the following versions:"
             String approvedBody = "${approvedMsg}\n${proposedServiceVersions}"
-            sendEmail([approverEmails, watcherEmails].join(','), subject, approvedBody, null)
+            sendEmail('admin@jenkins.com', [approverEmails, watcherEmails].join(','), subject, approvedBody, null)
             
             // Finalize!
             finalizeDeployment(cfg)
@@ -178,7 +178,7 @@ def call(BanzaiCfg cfg) {
             String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
             logger deniedMsg
             currentBuild.result = 'ABORTED'
-            sendEmail([approverEmails, watcherEmails].join(','), deniedSubject, deniedMsg, null)
+            sendEmail('admin@jenkins.com', [approverEmails, watcherEmails].join(','), deniedSubject, deniedMsg, null)
           }
         }
       }

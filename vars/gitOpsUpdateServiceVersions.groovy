@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 import net.sf.json.JSONObject
-import com.ge.nola.banzai.cfg.BanzaiCfg
+import com.github.banzaicicd.cfg.BanzaiCfg
 import java.time.ZoneOffset
 import java.time.OffsetDateTime
 

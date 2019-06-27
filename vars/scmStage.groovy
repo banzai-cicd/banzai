@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-import com.ge.nola.banzai.cfg.BanzaiCfg
-import com.ge.nola.banzai.BanzaiStage
+import com.github.banzaicicd.cfg.BanzaiCfg
+import com.github.banzaicicd.BanzaiStage
 
 def call(BanzaiCfg cfg) {
   if (cfg.skipSCM == true) { return }

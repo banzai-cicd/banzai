@@ -1,4 +1,4 @@
-package com.ge.nola.banzai.cfg;
+package com.github.banzaicicd.cfg;
 
 class BanzaiNotificationsEmailCfg {
     Map<String, Map<String, List<String>>> groups

@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
-import com.ge.nola.banzai.cfg.BanzaiCfg
-import com.ge.nola.banzai.BanzaiEvent
+import com.github.banzaicicd.cfg.BanzaiCfg
+import com.github.banzaicicd.BanzaiEvent
 
 void call(BanzaiCfg cfg, Map eventOpts) {
   BanzaiEvent event = new BanzaiEvent(eventOpts)

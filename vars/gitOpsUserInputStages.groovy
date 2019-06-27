@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 import java.time.ZoneOffset
 import java.time.OffsetDateTime
-import com.ge.nola.banzai.cfg.BanzaiGitOpsInputCfg
+import com.github.banzaicicd.cfg.BanzaiGitOpsInputCfg
 
 Map<String, String> selectVersionsStage(config, targetEnvironment, targetStack) {
   String SERVICE_DIR_NAME = "${WORKSPACE}/services"

@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
-import com.ge.nola.banzai.cfg.BanzaiCfg
-import com.ge.nola.banzai.cfg.BanzaiStepCfg
-import com.ge.nola.banzai.BanzaiStage
+import com.github.banzaicicd.cfg.BanzaiCfg
+import com.github.banzaicicd.cfg.BanzaiStepCfg
+import com.github.banzaicicd.BanzaiStage
 
 def call(BanzaiCfg cfg) {
   String stageName = 'Clean Workspace'

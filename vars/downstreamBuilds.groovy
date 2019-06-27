@@ -4,8 +4,9 @@ import java.util.regex.Pattern
 import java.util.regex.Matcher
 import groovy.json.JsonOutput
 import net.sf.json.JSONObject
-import com.ge.nola.banzai.cfg.BanzaiCfg
-import com.ge.nola.banzai.cfg.BanzaiDownstreamBuildCfg
+import com.github.banzaicicd.cfg.BanzaiCfg
+import com.github.banzaicicd.cfg.BanzaiDownstreamBuildCfg
+import java.net.URI
 
 String determineOrgName(url) {
     def finder = (url =~ /:([^:]*)\//)
@@ -13,7 +14,18 @@ String determineOrgName(url) {
 }
 
 String determineRepoName(url) {
-    return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last().split("\\.")[0]
+    return url.tokenize('/').last().split("\\.")[0]
+}
+
+String getHostName(String url) {
+    logger "getHostName for ${url}"
+    URI uri = new URI(url)
+    String hostname = uri.getHost()
+    // to provide faultproof result, check if not null then return only hostname, without www.
+    if (hostname != null) {
+        return hostname.startsWith("www.") ? hostname.substring(4) : hostname
+    }
+    return hostname;
 }
 
 Map findBuildCfg(id, List<BanzaiDownstreamBuildCfg> downstreamBuildCfgs) {
@@ -36,18 +48,19 @@ List<String> getBuildIdsWithOptional(BanzaiCfg cfg, List<BanzaiDownstreamBuildCf
     withCredentials([string(credentialsId: cfg.gitTokenId, variable: 'TOKEN')]) {
         // determine base repo/branch git url info
         String url = scm.getUserRemoteConfigs()[0].getUrl()
+        String hostName = getHostName(url)
         String orgName = determineOrgName(url)
         String repoName = determineRepoName(url)
 
         // get latest commit hash from the current branch
-        String branchInfoUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/branches/${BRANCH_NAME}"
+        String branchInfoUrl = "https://${hostName}/api/v3/repos/${orgName}/${repoName}/branches/${BRANCH_NAME}"
         def branchInfoResponse = httpRequest(url: branchInfoUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
         def branchInfo = readJSON(text: branchInfoResponse.content)
         String latestCommit = branchInfo.commit.sha
         logger "Latest ${BRANCH_NAME} branch commit: ${latestCommit}"
 
         // find the pr with this merge_hash
-        String prListUrl = "https://github.build.ge.com/api/v3/repos/${orgName}/${repoName}/pulls?state=closed"
+        String prListUrl = "https://${hostName}/api/v3/repos/${orgName}/${repoName}/pulls?state=closed"
         def prListResponse = httpRequest(url: prListUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
         def prList = readJSON(text: prListResponse.content)
         String targetPr = prList.find { it.merge_commit_sha == latestCommit }

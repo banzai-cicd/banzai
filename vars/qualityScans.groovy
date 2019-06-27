@@ -1,8 +1,8 @@
 #!/usr/bin/env groovy
-import com.ge.nola.banzai.cfg.BanzaiCfg
-import com.ge.nola.banzai.cfg.BanzaiQualityCfg
-import com.ge.nola.banzai.BanzaiStage
-import com.ge.nola.banzai.BanzaiEvent
+import com.github.banzaicicd.cfg.BanzaiCfg
+import com.github.banzaicicd.cfg.BanzaiQualityCfg
+import com.github.banzaicicd.BanzaiStage
+import com.github.banzaicicd.BanzaiEvent
 
 def call(BanzaiCfg cfg, List<BanzaiQualityCfg> scanConfigs) {
     def stages = [:]
