@@ -13,6 +13,7 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
     // determine if there is an email config for this branch
     BanzaiNotificationsEmailCfg emailCfg = findValueInRegexObject(cfg.notifications.email, BRANCH_NAME)
     if (emailCfg == null) {
+        logger "emailCfg is null"
         return 
     }
     logger "email configuration for branch '${BRANCH_NAME}' detected"
@@ -20,7 +21,6 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
 
     if (addresses.size() > 0) {
         String subject = "${env.JOB_NAME} ${event.scope} ${event.status}"
-        String body = "Message: ${event.message}"
-        sendEmail(cfg.email.admin, addresses.join(','), subject, body, event.attachmentPattern)
+        sendEmail(cfg.email.admin, addresses.join(','), subject, event.message, event.attachmentPattern)
     }
 }
