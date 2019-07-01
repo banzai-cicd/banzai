@@ -143,15 +143,14 @@ def call(BanzaiCfg cfg) {
             String approverName = Jenkins.instance.getUser(approverId).getDisplayName()
             String approvedMsg =
             """
-            Deployment of the '${STACK}' Stack to the '${ENV}' Environment approved \
-            by ${approverName} with the following versions:
+            Deployment of the '${STACK}' Stack to the '${ENV}' Environment approved by ${approverName} with the following versions:
             ${serviceVersions}
             """.stripMargin().stripIndent()
             notify(cfg, [
                 scope: BanzaiEvent.Scope.GITOPS,
                 status: BanzaiEvent.Status.APPROVED,
                 stage: stageName,
-                message: approvedMsg
+                message: approvedMsg\
             ])
             
             // Finalize!
