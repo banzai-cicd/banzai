@@ -102,8 +102,8 @@ def call(BanzaiCfg cfg) {
   // see if we have any required approvers
   def envConfig = cfg.gitOps.envs[ENV]
   def approverIds
-  if (envConfig.approvers) {
-    approverIds = envConfig.approvers
+  if (envConfig.approverIds) {
+    approverIds = envConfig.approverIds
 	} else if (envConfig.approverRoles) { // requires role
     approverIds = getRoleBasedUserIds(envConfig.approverRoles)
   }
