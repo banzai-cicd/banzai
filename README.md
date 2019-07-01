@@ -208,8 +208,7 @@ banzai([
       envs: [
         'dev' : [:],
         'qa' : [
-            approvers: ['<jenkins-id>'],
-            watchers: ['<jenkins-id>']
+            approversIds: ['<jenkins-id>']
         ]
       ]
     ],
