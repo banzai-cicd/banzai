@@ -1,7 +1,6 @@
 #!/usr/bin/env groovy
 
 import hudson.model.User
-import com.github.banzaicicd.BanzaiEmailUtil
 import com.github.banzaicicd.cfg.BanzaiCfg
 import com.github.banzaicicd.cfg.BanzaiGitOpsInputCfg
 

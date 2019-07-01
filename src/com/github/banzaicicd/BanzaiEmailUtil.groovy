@@ -5,18 +5,11 @@ import com.github.banzaicicd.BanzaiEvent
 
 class BanzaiEmailUtil {
 
-    static void sendEmail(String from, String to, String subject, String body, String attachmentsPattern) {
-        logger "Sending Email to ${to}: ${subject}"
-        String url = env.RUN_DISPLAY_URL ?: env.BUILD_URL
-        String jobInfo = "Job: ${env.JOB_NAME} #${env.BUILD_NUMBER} \nBuild URL: ${url}\n\n"
-        emailext from: from,
-            to: to,
-            subject:"Banzai: ${subject}",
-            body: "${jobInfo}${body}",
-            attachmentsPattern: attachmentsPattern
-    }
-
-    Set<String> getAddressesForEvent(BanzaiCfg cfg, BanzaiEvent event) {
+    /*
+        determine if there are groups or individuals configured with a regex
+        pattern matching this event
+    */
+    static Set<String> getAddressesForEvent(BanzaiCfg cfg, BanzaiEvent event) {
         String currentEvent = event.getEventLabel()
         Set<String> addresses = []
         if (emailCfg.groups) {

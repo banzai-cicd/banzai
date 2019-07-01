@@ -18,10 +18,6 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
         return 
     }
     logger "email configuration for branch '${BRANCH_NAME}' detected"
-    /*
-        determine if there are groups or individuals configured with a regex
-        pattern matching this event
-    */
     Set<String> addresses = BanzaiEmailUtil.getAddressesForEvent(cfg, event)
 
     if (addresses.size() > 0) {
