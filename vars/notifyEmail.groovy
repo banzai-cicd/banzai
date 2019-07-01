@@ -1,7 +1,8 @@
 #!/usr/bin/env groovy
 
-import com.github.banzaicicd.cfg.BanzaiCfg
 import com.github.banzaicicd.BanzaiEvent
+import com.github.banzaicicd.BanzaiEmailUtil
+import com.github.banzaicicd.cfg.BanzaiCfg
 import com.github.banzaicicd.cfg.BanzaiNotificationsEmailCfg
 
 void call(BanzaiCfg cfg, BanzaiEvent event) {
@@ -21,26 +22,7 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
         determine if there are groups or individuals configured with a regex
         pattern matching this event
     */
-    String currentEvent = event.getEventLabel()
-    Set<String> addresses = []
-    if (emailCfg.groups) {
-        // find groupIds
-        Set<String> groupIds = emailCfg.groups.keySet().findAll { groupId ->
-             emailCfg.groups[groupId].find { regex -> currentEvent ==~ regex }
-        }
-        
-        groupIds.each { groupId ->
-            List<String> emailIds = cfg.email.groups[groupId]
-            emailIds.each { addresses.add(cfg.email.addresses[it]) }
-        }
-    }
-    if (emailCfg.individuals) {
-        Set<String> emailIds = emailCfg.individuals.keySet().findAll { emailId ->
-            emailCfg.individuals[emailId].find { regex -> currentEvent ==~ regex }
-        }
-
-        emailIds.each { addresses.add(cfg.email.addresses[it]) }
-    }
+    Set<String> addresses = BanzaiEmailUtil.getAddressesForEvent(cfg, event)
 
     if (addresses.size() > 0) {
         String subject = "${env.JOB_NAME} ${event.scope} ${event.status}"

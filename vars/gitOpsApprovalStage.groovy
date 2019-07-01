@@ -1,36 +1,25 @@
 #!/usr/bin/env groovy
 
 import hudson.model.User
+import com.github.banzaicicd.BanzaiEmailUtil
 import com.github.banzaicicd.cfg.BanzaiCfg
 import com.github.banzaicicd.cfg.BanzaiGitOpsInputCfg
 
 @NonCPS
-def getRoleBasedUsersList(role) {
-  logger "Retrieving users for ${role}..."
-  def users = [:]
+List<String> getRoleBasedUserIds(List<String> roles) {
+  logger "Retrieving users for roles '${roles}'"
+  def users = []
   def authStrategy = Jenkins.instance.getAuthorizationStrategy()
   if (authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy) {
-    def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
-    sids.each { sid ->        
-      User usr = Jenkins.instance.getUser(sid)
-      def usrmail = usr.getProperty(hudson.tasks.Mailer.UserProperty.class)
-      if (usrmail.getAddress()) {
-          users[sid] = usrmail.getAddress()
-      }
-      //Jenkins.instance.getUser(sid).fullName
-      logger "${sid}: ${usrmail.getAddress()}"
+    roles.each { role ->
+      def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
+      users = users + sids
     }
-    return users
   } else {
     throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
   }
-}
 
-String[] getUserEmails(users) {
-  return users.collect {
-    def mail = Jenkins.instance.getUser(it).getProperty(hudson.tasks.Mailer.UserProperty.class)
-    return mail.getAddress()
-  }
+  return users.size() > 0 ? users : null
 }
 
 def finalizeDeployment(BanzaiCfg cfg) {
@@ -79,7 +68,7 @@ def finalizeDeployment(BanzaiCfg cfg) {
   }
 }
 
-def buildProposedVersionsBody(BanzaiCfg cfg) {
+def buildProposedVersionsString(BanzaiCfg cfg) {
   String ENV_DIR_NAME = "${WORKSPACE}/envs"
   String ENV = cfg.internal.gitOps.TARGET_ENV
   String STACK = cfg.internal.gitOps.TARGET_STACK
@@ -111,74 +100,77 @@ def call(BanzaiCfg cfg) {
   String ENV = cfg.internal.gitOps.TARGET_ENV
   String STACK = cfg.internal.gitOps.TARGET_STACK
 
-  /////
-  // if necessary, get approvals
-  /////
+  // see if we have any required approvers
   def envConfig = cfg.gitOps.envs[ENV]
-  String approverEmails
-  String approverSSOs
-  String watcherEmails
-  if (envConfig.approvers || envConfig.watchers) {
-    if (envConfig.approvers) {
-      approverSSOs = envConfig.approvers.join(",")
-      approverEmails = getUserEmails(envConfig.approvers).join(",")
-    }
-    if (envConfig.watchers) {
-      watcherEmails = getUserEmails(envConfig.watchers).join(",")
-    }
-	} else if (envConfig.approverRole || envConfig.watcherRole) {
-    if (envConfig.approverRole) {
-      def approverMap = getRoleBasedUsersList(envConfig.approverRole)
-      logger "approverMap: ${approverMap.toMapString()}"
-      approverEmails = approverMap.values().join(",")
-      approverSSOs = approverMap.keySet().join(",")
-    }
-    if (envConfig.watcherRole) {
-      def watcherMap = getRoleBasedUsersList(envConfig.watcherRole)
-      logger "watcherMap: ${watcherMap.toMapString()}"
-      watcherEmails = watcherMap.values().join(",")
-    }
+  def approverIds
+  if (envConfig.approvers) {
+    approverIds = envConfig.approvers
+	} else if (envConfig.approverRoles) { // requires role
+    approverIds = getRoleBasedUserIds(envConfig.approverRoles)
   }
 
   // IF AND ONLY IF APPROVAL IS REQUIRED, ASK FOR IT
-  if (approverEmails && approverSSOs) {
-    // notify approvers via email that there is a deployment
-    // requested and provide an input step
+  if (approverIds != null) {
+    // 1. notify approvers
+    // 2. request and provide an input step
     BanzaiGitOpsInputCfg inputCfg = cfg.gitOps.inputCfg ?: new BanzaiGitOpsInputCfg()
-    stage ("Approve Deployment to '${ENV}'") {
+    String stageName = "Approve Deployment to '${ENV}'"
+    stage (stageName) {
+      // build approval notification
+      String serviceVersions = buildProposedVersionsString(cfg)
+      String approvalMsg =
+      """
+      Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested with the following verisions:
+      ${serviceVersions}
+      """.stripMargin().stripIndent()
+      notify(cfg, [
+          scope: BanzaiEvent.Scope.GITOPS,
+          status: BanzaiEvent.Status.APPROVAL,
+          stage: stageName,
+          message: approvalMsg
+      ])
+
       timeout(time: inputCfg.approvalTimeoutDays, unit: 'DAYS') {
-        def msg = "Deploy to '${ENV}'"
         script {
           try {
-            // build approval email
-            def proposedServiceVersions = buildProposedVersionsBody(cfg)
-            def approvalSubject = "Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested"
-            def approvalMsg = "${approvalSubject} with the following verisions:"
-            def approvalBody = "${approvalMsg}\n${proposedServiceVersions}"
-            sendEmail('admin@jenkins.com', approverEmails, approvalSubject, approvalBody, null)
-
             // present input steps
-            def approverId = input message: msg,
+            def approverId = input message: "Deploy to '${ENV}'",
               ok: 'Approve',
-              submitter: approverSSOs,
+              submitter: approverIds.join(','),
               submitterParameter: 'submitter'
 
-            // build approved email
+            // build approved notification
             String approverName = Jenkins.instance.getUser(approverId).getDisplayName()
-            String subject = "Deployment of the '${STACK}' Stack to the '${ENV}' Environment is approved"
-            String approvedMsg = "${subject} by ${approverName} with the following versions:"
-            String approvedBody = "${approvedMsg}\n${proposedServiceVersions}"
-            sendEmail('admin@jenkins.com', [approverEmails, watcherEmails].join(','), subject, approvedBody, null)
+            String approvalMsg =
+            """
+            Deployment of the '${STACK}' Stack to the '${ENV}' Environment is approved \
+            by ${approverName} with the following versions:
+            ${serviceVersions}
+            """.stripMargin().stripIndent()
+            notify(cfg, [
+                scope: BanzaiEvent.Scope.GITOPS,
+                status: BanzaiEvent.Status.APPROVED,
+                stage: stageName,
+                message: approvalMsg
+            ])
             
             // Finalize!
             finalizeDeployment(cfg)
           } catch (err) {
             logger err.message
-            String deniedSubject = "Deployment of '${STACK}' to '${ENV}' denied"
-            String deniedMsg = "${deniedSubject} by ${err.getCauses()[0].getUser()}"
+            String deniedMsg = 
+            """
+            Deployment of '${STACK}' to '${ENV}' denied by ${err.getCauses()[0].getUser()}"
+            """.stripMargin().stripIndent()
+
             logger deniedMsg
             currentBuild.result = 'ABORTED'
-            sendEmail('admin@jenkins.com', [approverEmails, watcherEmails].join(','), deniedSubject, deniedMsg, null)
+            notify(cfg, [
+                scope: BanzaiEvent.Scope.GITOPS,
+                status: BanzaiEvent.Status.ABORTED,
+                stage: stageName,
+                message: deniedMsg
+            ])
           }
         }
       }

@@ -5,13 +5,16 @@ class BanzaiEvent {
         PIPELINE,
         STAGE,
         VULNERABILITY,
-        QUALITY
+        QUALITY,
+        GITOPS
     }
     static final enum Status {
         PENDING,
         SUCCESS,
         FAILURE,
-        ABORTED
+        ABORTED,
+        APPROVAL,
+        APPROVED
     }
     
     BanzaiEvent.Scope scope
