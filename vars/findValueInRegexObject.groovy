@@ -1,12 +1,12 @@
 /*
  return the value in object where the key (regex)
- matches the given patter
+ matches the given targetString string
 */
-def call(Map<String, Object> regexObj, pattern) {
+def call(Map<String, Object> regexObj, String targetString) {
     if (regexObj == null) {
         return regexObj
     }
 
-    def key = regexObj.keySet().find { pattern ==~ it }
+    def key = regexObj.keySet().find { targetString ==~ it }
     return key ? regexObj[key] : null
 }

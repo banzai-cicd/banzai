@@ -208,8 +208,7 @@ banzai([
       envs: [
         'dev' : [:],
         'qa' : [
-            approvers: ['<jenkins-id>'],
-            watchers: ['<jenkins-id>']
+            approversIds: ['<jenkins-id>']
         ]
       ]
     ],
@@ -573,12 +572,12 @@ gitOps: [
     envs: [
         'dev' : [:],
         'qa' : [
-            approvers: ['212589146'],
-            watchers: ['212589146']
+            approverIds: ['212589146']
         ]
     ]
 ]
 ```
+*Note: the optional 'approverRoles' property of the [BanzaiGitOpsEnvCfg](src/com/github/banzaicicd/cfg/BanzaiGitOpsEnvCfg,groovy) requires the [Role Strategy Plugin](https://plugins.jenkins.io/role-strategy) be installed and configured*
 
 ### stages
 **List<[BanzaiStageCfg](src/com/github/banzaicicd/cfg/BanzaiStageCfg.groovy)>**  
@@ -612,7 +611,7 @@ stages: [
 ### hooks
 **[BanzaiHooksCfg](src/com/github/banzaicicd/cfg/BanzaiHooksCfg.groovy)**  
 Hooks are designed to provide an opportunity at certain points during the pipeline execution to run arbitrarty code. Currently, the only hooks supported are the `hooks.stages.pre` and `hooks.stages.post`. These hooks wrap the main pipeline stages (`pre` runs just after `scm` but before `filterSecrets`. `post` runs after `gitOptsTrigger` and before `downstreamBuilds`)  
-ex) *note: the closures that you provide recieve an instance of your entire BanzaiCfg as an argument.
+ex) *Note: the closures that you provide recieve an instance of your entire BanzaiCfg as an argument.
 ```
 hooks: [
     stages: [
