@@ -1,7 +1,8 @@
 package com.github.banzaicicd;
 
-import com.github.banzaicicd.cfg.BanzaiCfg
 import com.github.banzaicicd.BanzaiEvent
+import com.github.banzaicicd.cfg.BanzaiCfg
+import com.github.banzaicicd.cfg.BanzaiNotificationsEmailCfg
 
 class BanzaiEmailUtil {
 
@@ -9,7 +10,7 @@ class BanzaiEmailUtil {
         determine if there are groups or individuals configured with a regex
         pattern matching this event
     */
-    static Set<String> getAddressesForEvent(BanzaiCfg cfg, BanzaiEvent event) {
+    static Set<String> getAddressesForEvent(BanzaiCfg cfg, BanzaiNotificationsEmailCfg emailCfg, BanzaiEvent event) {
         String currentEvent = event.getEventLabel()
         Set<String> addresses = []
         if (emailCfg.groups) {
