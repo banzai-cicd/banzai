@@ -24,7 +24,6 @@ class BanzaiEmailUtil {
                 if (!cfg.email?.addresses || !cfg.email.addresses[it]) {
                     throw new Exception("No user '${it}' found in the cfg.email.addresses configuration")
                 }
-                
                 emailIds.each { addresses.add(cfg.email.addresses[it]) }
             }
         }
