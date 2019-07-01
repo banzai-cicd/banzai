@@ -7,7 +7,7 @@ import com.github.banzaicicd.cfg.BanzaiNotificationsEmailCfg
 
 void call(BanzaiCfg cfg, BanzaiEvent event) {
     logger "notifyEmail"
-    if ((!cfg.email?.addresses && !cfg.email?.groups) || !cfg.notifications?.email) {
+    if (!cfg.email || !cfg.notifications?.email) {
         return
     }
     // determine if there is an email config for this branch
