@@ -21,6 +21,10 @@ class BanzaiEmailUtil {
             
             groupIds.each { groupId ->
                 List<String> emailIds = cfg.email.groups[groupId]
+                if (!cfg.email?.addresses || !cfg.email.addresses[it]) {
+                    throw new Exception("No user '${it}' found in the cfg.email.addresses configuration")
+                }
+                
                 emailIds.each { addresses.add(cfg.email.addresses[it]) }
             }
         }
@@ -28,7 +32,10 @@ class BanzaiEmailUtil {
             Set<String> emailIds = emailCfg.individuals.keySet().findAll { emailId ->
                 emailCfg.individuals[emailId].find { regex -> currentEvent ==~ regex }
             }
-
+            
+            if (!cfg.email?.addresses || !cfg.email.addresses[it]) {
+                throw new Exception("No user '${it}' found in the cfg.email.addresses configuration")
+            }
             emailIds.each { addresses.add(cfg.email.addresses[it]) }
         }
 
