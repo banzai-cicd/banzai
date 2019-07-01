@@ -171,6 +171,8 @@ def call(BanzaiCfg cfg) {
                 stage: stageName,
                 message: deniedMsg
             ])
+
+            throw err
           }
         }
       }
