@@ -510,22 +510,22 @@ downstreamBuilds: [
 
 ### gitOpsTrigger and gitOps
 ****
-Banzai supports [GitOps-style](https://www.xenonstack.com/insights/what-is-gitops/) deployments. GitOps allows you to back your environments and handle their deployments from a single repository as well as decouple CI from CD (good for security). Once configured, your Service repositories will complete all CI Banzai Pipeline steps. If Banzai determines that a new version has been created or a deployment should take place it will trigger a new Banzai Pipeline that builds your GitOps repository. The GitOps repository is responsible for recording all versions of each Service and updating your 'Stacks' with the correct versions in each environment. [You can view an example GitOps repo here](https://githubcom/banzai-cicd/GitOps). For our purposes, a 'Stack' is merely a collection of indvidual Services that should be deployed together.
+Banzai supports [GitOps-style](https://www.xenonstack.com/insights/what-is-gitops/) deployments. GitOps allows you to back your environments and handle their deployments from a single repository as well as decouple CI from CD (good for security). Once configured, your Service repositories will complete all CI Banzai Pipeline steps. If Banzai determines that a new version has been created or a deployment should take place it will trigger a new Banzai Pipeline that builds your GitOps repository. The GitOps repository is responsible for recording all versions of each Service and updating your 'Stacks' with the correct versions in each environment. [You can view an example GitOps repo here](https://github.com/banzai-cicd/gitops). For our purposes, a 'Stack' is merely a collection of indvidual Services that should be deployed together.
 
 There are 2 methods of deployment via Banzai GitOps.
 1. automatic deployment
-  - the .banzai of your GitOps repo can be configured to automatically trigger a deployment based on the git branch of the upstream Service that triggered the GitOps job
+    1. the Jenkinsfile of your GitOps repo can be configured to automatically trigger a deployment based on the git branch of the upstream Service that triggered the GitOps job
 2. manual deployment
-  1. A user manually runs 'Build With Parameters' on the GitOps master job manually from with-in Jenkins. 
-  2. The user will be presented with a series of user-input stages.
-  3. The user can choose between 3 different styles of deployment
-    1. 'Select Specific Versions' - The user will provide the version for each Service that should be deployed
-    2. 'Promote Stack From Another Environment' - The versions from one environment will be copied to another
-    3. 'Rollback Stack' - select a previous deployment to re-assign to an environment
+    1. A user manually runs 'Build With Parameters' on the GitOps master job manually from with-in Jenkins. 
+    2. The user will be presented with a series of user-input stages.
+    3. The user can choose between 3 different styles of deployment
+        1. 'Select Specific Versions' - The user will provide the version for each Service that should be deployed
+        2. 'Promote Stack From Another Environment' - The versions from one environment will be copied to another
+        3. 'Rollback Stack' - select a previous deployment to re-assign to an environment
 
 #### GitOps Configuration
 
-1. update the .banzai file in the repository of each Service that you would like to trigger a GitOps job with an instance of **Map<String, [BanzaiGitOpsTriggerCfg](src/com/github/banzaicicd/cfg/BanzaiGitOpsTriggerCfg.groovy)>**  
+1. update the Jenkinsfile file in the repository of each Service that you would like to trigger a GitOps job with an instance of **Map<String, [BanzaiGitOpsTriggerCfg](src/com/github/banzaicicd/cfg/BanzaiGitOpsTriggerCfg.groovy)>**  
 
 ex)
 ```
@@ -557,10 +557,10 @@ This information will be passed to your GitOps pipeline so that it is aware of w
 **Your GitOps Repo Must Contain**  
 - `envs` - directory with sub-directories for each environment
 - `services` - directory (this is where the available versions of each service will be stored)
-- `.banzai` - file with a `gitOps` section
+- `Jenkinsfile` - file with a `gitOps` section
 - `deployScript.sh` - will be called for each deployment as passed arguments containing the stack and service versions to deploy
 
-3a. ensure your .banzai file in the GitOps repo includes an instance of **[BanzaiGitOpsCfg](src/com/github/banzaicicd/cfg/BanzaiGitOpsCfg.groovy)**  
+3a. ensure your Jenkinsfile file in the GitOps repo includes an instance of **[BanzaiGitOpsCfg](src/com/github/banzaicicd/cfg/BanzaiGitOpsCfg.groovy)**  
 ex) *in the following example, GitOps will automatically re-deploy any project thats 'develop' branch triggered the GitOps build to the 'dev' environment*
 ```
 gitOps: [
@@ -697,7 +697,7 @@ notifications: [
   ]
 ]
 ```
-As shown above, event's can be bound to in the format '${BanzaiEvent.SCOPE}:${BanzaiEvent.STATUS}'. Please see the [BanzaiEvent](src/com/github/banzaicicd/BanzaiEvent.groovy) to determine the available event combinations. *Note* for `BanzaiEvent.scopes.VULNERABILTY` and `BanzaiEvent.scopes.QUALITY` only the statues `SUCCESS` and `FAILURE` are reported. For more examples of notification cofigurations please see [TestMavenBuild](https://github.com/banzai-cicd/TestMavenBuild/blob/master/.banzai) and [TestDownstreamBuild](https://github.com/banzai-cicd/TestDownstreamBuild/blob/master/.banzai)
+As shown above, event's can be bound to in the format '${BanzaiEvent.SCOPE}:${BanzaiEvent.STATUS}'. Please see the [BanzaiEvent](src/com/github/banzaicicd/BanzaiEvent.groovy) to determine the available event combinations. *Note* for `BanzaiEvent.scopes.VULNERABILTY` and `BanzaiEvent.scopes.QUALITY` only the statues `SUCCESS` and `FAILURE` are reported. For more examples of notification cofigurations please see [TestMavenBuild](https://github.com/banzai-cicd/TestMavenBuild/blob/master/Jenkinsfile) and [TestDownstreamBuild](https://github.com/banzai-cicd/TestDownstreamBuild/blob/master/Jenkinsfile)
 
 ## Proxies
 Operating a Jenkins pipeline behind a corporate firewall can be somewhat tricky due to the different levels in-which a proxy must be configured. For instance, `Manage Jenkins -> Manage Plugins -> Advanced` allows you to set the proxy with-in the Jenkins instance and most plugins used by the pipeline will honor this setting. However, there are instances in Banzai where features are implemented via shell commands and
