@@ -551,12 +551,12 @@ gitOpsTrigger: [
 ```
 This information will be passed to your GitOps pipeline so that it is aware of what services should be updated
 
-3. Create a GitOps repo. You can use the [GitOps-starter](https://github.com/banzai-cicdtarter) to speed things up.  
+3. Create a GitOps repo. You can use the [GitOps-starter](https://github.com/banzai-cicd/gitops-starter) to speed things up.  
 **Your GitOps Repo Must Contain**  
 - `envs` - directory with sub-directories for each environment
 - `services` - directory (this is where the available versions of each service will be stored)
 - `Jenkinsfile` - file with a `gitOps` section
-- `deploy.sh` - will be called for each deployment as passed arguments containing the stack and service versions to deploy
+- `deploy.sh` - will be called for each deployment and passed 2 arguments, the environment and stack to deploy (both as strings). [see this gitops example](https://github.com/banzai-cicd/gitops/deploy.sh)
 
 3a. ensure your Jenkinsfile file in the GitOps repo includes an instance of **[BanzaiGitOpsCfg](src/com/github/banzaicicd/cfg/BanzaiGitOpsCfg.groovy)**  
 ex) *in the following example, GitOps will automatically re-deploy any project thats 'develop' branch triggered the GitOps build to the 'dev' environment*
