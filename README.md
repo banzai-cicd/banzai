@@ -536,7 +536,7 @@ gitOpsTrigger: [
   ]
 ]
 ```
-2. At some point during your pipeline, write a `BanzaiUserData.[yaml/json]` (see [BanzaiUserData](#banzaiuserdata) for more) to the root of your project WORKSPACE like the following
+2. At some point during your pipeline, write a `BanzaiUserData.[yaml/json]` (see [BanzaiUserData](#banzaiuserdata) for more) to the root of your project WORKSPACE like the following: *Note: this would usually be done in your publish stage*
 ```
 "gitOps": {
   "versions": {
