@@ -1,5 +1,3 @@
-![Banzai](https://i.imgur.com/QKdnoZ4.png)
-
 Banzai
 ========
 Banzai started as one team's solution to CICD and has grown to a full-featured CICD offering. All of Banazai's features are implemented with genericity and flexibility in mind so if something does not meet your needs please open a Git issue and let us know!
