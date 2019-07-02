@@ -542,12 +542,12 @@ gitOpsTrigger: [
 ```
 "gitOps": {
   "versions": {
-      "test-maven" : {          // add an entry for each service in a GitOps stack that should update its version
-          "version": "1.0.0",
-          "meta": {
-              "some": "example meta"
-          }
+    "test-maven" : {          // add an entry for each service in a GitOps stack that should update its version
+      "version": "1.0.0",
+      "meta": { // arbitraty metadata to associate with this version. will be stored in the /services/test-maven.yml of the GitOps project and can be referenced during execution of your deploy.sh
+        "some": "example meta"
       }
+    }
   }
 }
 ```
