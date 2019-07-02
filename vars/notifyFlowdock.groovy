@@ -44,17 +44,6 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
 
       def threadId = "${cfg.appName}+${env.BRANCH_NAME}"
       def title = "${cfg.appName} : ${env.BRANCH_NAME}"
-      // if (!BRANCH_NAME.startsWith('PR-')) {
-      //   title = "${title} : merge"
-      // } else {
-      //   if (!flowdockCfg.notifyPRs && event.message != "githubdown") {
-      //     // by default, we don't want to bug people in flowdock with PR's
-      //     return
-      //   }
-
-      //   threadId = "${threadId}+pr"
-      // }
-
       // if the pipline has been marked as a failure, every subsequent message should
       // mark the thread as failed
       String threadStatus = cfg.internal.PIPELINE_FAILED
