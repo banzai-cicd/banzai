@@ -529,8 +529,6 @@ There are 2 methods of deployment via Banzai GitOps.
 
 ex)
 ```
-# ensure that 'deploy' is removed then add:
-
 gitOpsTrigger: [
   /develop|tag-*/ : [
     jenkinsJob: '/Banzai/GitOps/master', # the path to the GitOps master job in jenkins
@@ -558,7 +556,7 @@ This information will be passed to your GitOps pipeline so that it is aware of w
 - `envs` - directory with sub-directories for each environment
 - `services` - directory (this is where the available versions of each service will be stored)
 - `Jenkinsfile` - file with a `gitOps` section
-- `deployScript.sh` - will be called for each deployment as passed arguments containing the stack and service versions to deploy
+- `deploy.sh` - will be called for each deployment as passed arguments containing the stack and service versions to deploy
 
 3a. ensure your Jenkinsfile file in the GitOps repo includes an instance of **[BanzaiGitOpsCfg](src/com/github/banzaicicd/cfg/BanzaiGitOpsCfg.groovy)**  
 ex) *in the following example, GitOps will automatically re-deploy any project thats 'develop' branch triggered the GitOps build to the 'dev' environment*
