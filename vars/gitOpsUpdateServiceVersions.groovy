@@ -111,7 +111,8 @@ def call(BanzaiCfg cfg) {
 
 		// if this is an autoDeploy
 		// update the services versions that we will eventually update in the env/stack if approval passes
-		if (cfg.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE) {
+		if (cfg.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE != null) {
+			logger "staging service '${id}' with version '${data.version}' for '${cfg.internal.gitOps.TARGET_STACK}' stack update in '${cfg.internal.gitOps.TARGET_ENV}'"
 			cfg.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE[id] = data.version
 		}
 	}

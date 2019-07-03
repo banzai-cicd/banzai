@@ -55,6 +55,7 @@ def finalizeDeployment(BanzaiCfg cfg) {
     // 4. commit updates
     dir (WORKSPACE) {
       def gitStatus = sh(returnStdout: true, script: 'git status')
+      logger gitStatus
       if (!gitStatus.contains('nothing to commit')) {
         sh "git add . && git commit -m 'Updating the following Stack: ${ENV}/${STACK}'"
         sh "git pull && git push origin master"
