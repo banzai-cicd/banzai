@@ -699,3 +699,6 @@ As shown above, event's can be bound to in the format '${BanzaiEvent.SCOPE}:${Ba
 
 ## Proxies
 Operating a Jenkins pipeline behind a corporate firewall can be somewhat tricky due to the different levels in-which a proxy must be configured. For instance, `Manage Jenkins -> Manage Plugins -> Advanced` allows you to set the proxy with-in the Jenkins instance and most plugins used by the pipeline will honor this setting. However, there are instances in Banzai where features are implemented via shell commands and
+
+## License
+MIT © [stowns](https://github.com/stowns)
