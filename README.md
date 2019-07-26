@@ -3,6 +3,7 @@ Banzai
 Banzai started as one team's solution to CICD and has grown to a full-featured CICD offering. All of Banazai's features are implemented with genericity and flexibility in mind so if something does not meet your needs please open a Git issue and let us know!
 
 * [Configuration Overview](#configuration-overview)
+* [Required Plugins](#required-plugins)
 * [BanzaiCfg](#banzaicfg)
   * [appName](#appName)
   * [sshCreds](#sshCreds)
@@ -229,6 +230,12 @@ banzai([
   ]
 ])
 ```
+## Plugins
+- **Required**
+  - pipeline-utility-steps
+  - ssh-agent
+- **Optional**
+  - throttle-concurrents
 
 ## BanzaiCfg
 The BanzaiCfg is the object passed to the `banzai()` entrypoint in your Jenkinsfile. The Map that you pass in is mapped to typed [BanzaiCfg](src/com/github/banzaicicd/cfg/BanzaiCfg.groovy) objects. The BanzaiCfg properties are referenced throughout the following documentation.
