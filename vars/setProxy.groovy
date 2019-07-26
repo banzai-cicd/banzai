@@ -8,7 +8,7 @@ def call(BanzaiCfg cfg) {
         if (j.proxy == null) {
             // attempt setting proxy via env vars
             String envProxy = env.http_proxy ?: env.HTTP_PROXY
-            if (envString != null) {
+            if (envProxy != null) {
                 logger "Setting proxy from env vars"
                 String[] hostAndPort = envProxy.tokenize(":")
                 cfg.proxy = [
