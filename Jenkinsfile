@@ -6,6 +6,9 @@ banzai([
     pre: true
   ],
   gitTokenId: 'git-token-user-pass',
+  build: [
+    /.*/ : [:]
+  ],
   downstreamBuilds: [
     /PR-.*/: [
       [
