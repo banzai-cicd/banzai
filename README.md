@@ -287,7 +287,7 @@ When true, adds additional logs to Jenkins console
 
 ### gitTokenId
 **String** <span style="color:red">*</span>  
-The id of a Jenkins Credential of type 'secret' containing a Github Personal Access Token. Currently used for updating PR statuses and by the [downstreamBuilds](#downstreamBuilds) feature. The token must include at a minimum the entire `repo` scope. 
+The id of a Jenkins Credential of type 'username and password'. The username should be the user of the git account that owns the token, the password should be the token. Currently used for updating PR statuses and by the [downstreamBuilds](#downstreamBuilds) feature. The token must include at a minimum the entire `repo` scope. 
 
 ### proxy
 **[BanzaiProxyCfg](src/com/github/banzaicicd/cfg/BanzaiProxyCfg.groovy)**  

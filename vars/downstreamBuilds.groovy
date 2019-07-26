@@ -49,7 +49,7 @@ Map findAndValidateTargetBuild(id, List<BanzaiDownstreamBuildCfg> downstreamBuil
 // get a list of all the buildIds after checking if optional builds are specified by github pr labels
 List<String> getBuildIdsWithOptional(BanzaiCfg cfg, List<BanzaiDownstreamBuildCfg> downstreamBuildsDefinitions) {
     logger "Evaluating Github PR Labels..."
-    withCredentials([string(credentialsId: cfg.gitTokenId, variable: 'TOKEN')]) {
+    withCredentials([usernamePassword(credentialsId: cfg.gitTokenId, usernameVariable: 'USERNAME', passwordVariable: 'TOKEN')]) {
         // determine base repo/branch git url info
         String url = scm.getUserRemoteConfigs()[0].getUrl()
         String hostName = getHostName(url)
