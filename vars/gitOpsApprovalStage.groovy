@@ -55,9 +55,9 @@ def finalizeDeployment(BanzaiCfg cfg) {
     // 4. commit updates
     dir (WORKSPACE) {
 	    
-      if (GIT_AUTHOR_NAME && GIT_AUTHOR_EMAIL) {
-	logger "git config user.name '${GIT_AUTHOR_NAME}' && git config user.email '${GIT_AUTHOR_EMAIL}'"
-	sh "git config user.name '${GIT_AUTHOR_NAME}' && git config user.email '${GIT_AUTHOR_EMAIL}'"
+      if (cfg.gitOps.gitUser && cfg.gitOps.gitEmail) {
+	      logger "git config user.name '${cfg.gitOps.gitUser}' && git config user.email '${cfg.gitOps.gitEmail}'"
+	      sh "git config user.name '${cfg.gitOps.gitUser}' && git config user.email '${cfg.gitOps.gitEmail}'"
       }
 	    
       def gitStatus = sh(returnStdout: true, script: 'git status')
