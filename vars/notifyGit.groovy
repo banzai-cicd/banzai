@@ -37,7 +37,7 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
 
   if (findValueInRegexObject(DEFAULT_EVENT_MAP, "${event.scope}:${event.status}")) {
     logger "githubNotify ${event.stage} : ${event.message} : ${event.stage} "
-    githubNotify description: "${event.stage}: ${event.message}", context: "Banzai", status: "${event.status}", gitApiUrl: GITHUB_API_URL
+    githubNotify description: "${event.stage}: ${event.message}", context: "Banzai", status: "${event.status}", gitApiUrl: GITHUB_API_URL, credentialsId: cfg.gitTokenId
   }
 }
 
