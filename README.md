@@ -201,6 +201,7 @@ banzai([
       ]
     ],
     gitOps: [
+      sshCreds: ['git-ssh'], // required to make commits to the GitOps repo
       autoDeploy: [
         /develop/ : 'dev'
       ],
@@ -569,8 +570,9 @@ This information will be passed to your GitOps pipeline so that it is aware of w
 ex) *in the following example, GitOps will automatically re-deploy any project thats 'develop' branch triggered the GitOps build to the 'dev' environment*
 ```
 gitOps: [
+    sshCreds: ['git-ssh'], // required to make commits to the GitOps repo
     autoDeploy: [
-        /develop/ : 'dev'  // <-- if the triggering project's branch matches 'develop' then re-deploy the 'dev' env.
+        /develop/ : 'dev'  // if the triggering project's branch matches 'develop' then re-deploy the 'dev' env.
     ],
     envs: [
         'dev' : [:],

@@ -118,11 +118,6 @@ def call(BanzaiCfg cfg) {
 
 	// commit service updates
 	dir (WORKSPACE) {
-		if (cfg.gitOps.gitUser && cfg.gitOps.gitEmail) {
-	      logger "git config user.name '${cfg.gitOps.gitUser}' && git config user.email '${cfg.gitOps.gitEmail}'"
-	      sh "git config user.name '${cfg.gitOps.gitUser}' && git config user.email '${cfg.gitOps.gitEmail}'"
-      	}
-		
 		def gitStatus = sh(returnStdout: true, script: 'git status')
 		if (!gitStatus.contains('nothing to commit')) {
 			sh "git add . && git commit -m 'Updating the following Services ${serviceIdsAndVersions}'"
