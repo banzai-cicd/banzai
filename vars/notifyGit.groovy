@@ -22,7 +22,7 @@ String getHostName(String url) {
 void call(BanzaiCfg cfg, BanzaiEvent event) {
   logger "notifyGit called"
   String hostName = getHostName(scm.getUserRemoteConfigs()[0].getUrl())
-  String GITHUB_API_URL = "https://${hostName}/api/v3"
+  String GITHUB_API_URL = "https://${hostName}/api/v3/"
   logger "notifiyGit url: ${GITHUB_API_URL}"
   /*
     Stage Events that reach github: PENDING, FAILURE, ABORTED
@@ -37,8 +37,8 @@ void call(BanzaiCfg cfg, BanzaiEvent event) {
 
   if (findValueInRegexObject(DEFAULT_EVENT_MAP, "${event.scope}:${event.status}")) {
     logger "githubNotify ${event.stage} : ${event.message} : ${event.stage} "
-    githubNotify description: "${event.stage}: ${event.message}", context: "Banzai", status: "${event.status}", credentialsId: cfg.gitTokenId
-    //githubNotify description: "${event.stage}: ${event.message}", context: "Banzai", status: "${event.status}", gitApiUrl: GITHUB_API_URL, credentialsId: cfg.gitTokenId
+    //githubNotify description: "${event.stage}: ${event.message}", context: "Banzai", status: "${event.status}", credentialsId: cfg.gitTokenId
+    githubNotify description: "${event.stage}: ${event.message}", context: "Banzai", status: "${event.status}", gitApiUrl: GITHUB_API_URL, credentialsId: cfg.gitTokenId
   }
 }
 
