@@ -5,7 +5,7 @@ banzai([
   cleanWorkspace: [
     pre: true
   ],
-  gitTokenId: 'git-token-user-pass',
+  gitTokenId: 'banzai-git-token-user-pass',
   build: [
     /.*/ : [:]
   ],
