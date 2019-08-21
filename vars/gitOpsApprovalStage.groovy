@@ -9,6 +9,8 @@ import com.github.banzaicicd.cfg.BanzaiGitOpsInputCfg
 List<String> getRoleBasedUserIds(List<String> roles) {
   logger "Retrieving users for roles '${roles}'"
   def users = []
+  logger "Checking Auth Strategy used in Jenkins"
+  logger "Jenkins.instance: ${Jenkins.instance}"
   def authStrategy = Jenkins.instance.getAuthorizationStrategy()
   logger "Auth Strategy ${authStrategy} had been used in Jenkins"
   if (authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy) {
