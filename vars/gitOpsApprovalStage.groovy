@@ -8,8 +8,8 @@ import com.github.banzaicicd.cfg.BanzaiGitOpsInputCfg
 @NonCPS
 def getUserIdsForRole(List<String> roles) {
   try {
-      logger "getUserIdsForRole(): Retrieving users for roles '${roles}'"      
       logger "Checking Auth Strategy used in Jenkins"
+      logger "getUserIdsForRole() Retrieving users for roles '${roles}'"
       //def users = []
       logger "Jenkins.instance: ${Jenkins.instance}"
       def authStrategy = Jenkins.instance.getAuthorizationStrategy()
@@ -28,7 +28,7 @@ def getUserIdsForRole(List<String> roles) {
       logger "Retrieved Approver userIds : '${users}'"
       return users.size() > 0 ? users : null
     } catch (e) {
-        logger "Caught: ${e}" 
+        logger "Caught: ${e}"
         logger "Caught: ${e.toString()}"
         logger "Caught: ${e.getMessage()}"
         logger "Caught: ${e.getStackTrace()}"
