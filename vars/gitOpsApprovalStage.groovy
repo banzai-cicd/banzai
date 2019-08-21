@@ -18,7 +18,7 @@ List<String> getRoleBasedUserIds(List<String> roles) {
   } else {
     throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
   }
-
+  logger "Retrieved Approver userIds : '${users}'"
   return users.size() > 0 ? users : null
 }
 
@@ -106,8 +106,10 @@ def call(BanzaiCfg cfg) {
   def approverIds
   if (envConfig.approverIds) {
     approverIds = envConfig.approverIds
-	} else if (envConfig.approverRoles) { // requires role
+    logger "Retrieved Approvers '${approverIds}' based on approverIds "
+  } else if (envConfig.approverRoles) { // requires role
     approverIds = getRoleBasedUserIds(envConfig.approverRoles)
+    logger "Retrieved Approvers '${approverIds}' based on approverRoles '${envConfig.approverRoles}'"
   }
 
   // IF AND ONLY IF APPROVAL IS REQUIRED, ASK FOR IT
@@ -121,7 +123,7 @@ def call(BanzaiCfg cfg) {
       String serviceVersions = buildProposedVersionsString(cfg)
       String approvalMsg =
       """
-      Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested with the following verisions:
+      Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested with the following versions:
       ${serviceVersions}
       """.stripMargin().stripIndent()
       notify(cfg, [
