@@ -9,11 +9,11 @@ import com.github.banzaicicd.cfg.BanzaiGitOpsInputCfg
 def getUserIdsForRole(List<String> roles) {
   try {
       logger "Checking Auth Strategy used in Jenkins"
-      logger "getUserIdsForRole() Retrieving users for roles '${roles}'"
-      //def users = []
       logger "Jenkins.instance: ${Jenkins.instance}"
       def authStrategy = Jenkins.instance.getAuthorizationStrategy()
       logger "Auth Strategy ${authStrategy} had been used in Jenkins"
+      logger "getUserIdsForRole() Retrieving users for roles"
+      
       if (authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy) {
         roles.each { role ->
           logger "Fetching users for role ${role}"
@@ -25,6 +25,7 @@ def getUserIdsForRole(List<String> roles) {
       } else {
         throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
       }
+      //def users = []
       logger "Retrieved Approver userIds : '${users}'"
       return users.size() > 0 ? users : null
     } catch (e) {
