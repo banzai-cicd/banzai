@@ -6,7 +6,7 @@ import com.github.banzaicicd.cfg.BanzaiCfg
 import com.github.banzaicicd.cfg.BanzaiGitOpsInputCfg
 
 @NonCPS
-List<String> getRoleBasedUserIds(List<String> roles) {
+List<String> getUserIdsForRole(List<String> roles) {
   logger "Retrieving users for roles '${roles}'"
   //def users = []
   logger "Checking Auth Strategy used in Jenkins"
@@ -114,7 +114,7 @@ def call(BanzaiCfg cfg) {
     approverIds = envConfig.approverIds
     logger "Retrieved Approvers '${approverIds}' based on approverIds "
   } else if (envConfig.approverRoles) { // requires role
-    approverIds = getRoleBasedUserIds(envConfig.approverRoles)
+    approverIds = getUserIdsForRole(envConfig.approverRoles)
     logger "Retrieved Approvers '${approverIds}' based on approverRoles '${envConfig.approverRoles}'"
   }
 
