@@ -10,10 +10,14 @@ List<String> getRoleBasedUserIds(List<String> roles) {
   logger "Retrieving users for roles '${roles}'"
   def users = []
   def authStrategy = Jenkins.instance.getAuthorizationStrategy()
+  logger "Auth Strategy ${authStrategy} had been used in Jenkins"
   if (authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy) {
     roles.each { role ->
+      logger "Fetching users for role ${role}"
       def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
+      logger "Fetched users ${sids} for role ${role}"
       users = users + sids
+      logger "Aggregated Users List ${users}"
     }
   } else {
     throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
