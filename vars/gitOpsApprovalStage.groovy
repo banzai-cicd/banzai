@@ -7,7 +7,7 @@ import com.github.banzaicicd.cfg.BanzaiGitOpsInputCfg
 
 @NonCPS
 def getUserIdsForRole(List<String> roles) {
-  logger "Retrieving users for roles '${roles}'"
+  logger "getUserIdsForRole(): Retrieving users for roles '${roles}'"
   //def users = []
   logger "Checking Auth Strategy used in Jenkins"
   logger "Jenkins.instance: ${Jenkins.instance}"
