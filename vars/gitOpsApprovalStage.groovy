@@ -7,25 +7,32 @@ import com.github.banzaicicd.cfg.BanzaiGitOpsInputCfg
 
 @NonCPS
 def getUserIdsForRole(List<String> roles) {
-  logger "getUserIdsForRole(): Retrieving users for roles '${roles}'"
-  //def users = []
-  logger "Checking Auth Strategy used in Jenkins"
-  logger "Jenkins.instance: ${Jenkins.instance}"
-  def authStrategy = Jenkins.instance.getAuthorizationStrategy()
-  logger "Auth Strategy ${authStrategy} had been used in Jenkins"
-  if (authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy) {
-    roles.each { role ->
-      logger "Fetching users for role ${role}"
-      def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
-      logger "Fetched users ${sids} for role ${role}"
-      users = users + sids
-      logger "Aggregated Users List ${users}"
+  try {
+      logger "getUserIdsForRole(): Retrieving users for roles '${roles}'"      
+      logger "Checking Auth Strategy used in Jenkins"
+      //def users = []
+      logger "Jenkins.instance: ${Jenkins.instance}"
+      def authStrategy = Jenkins.instance.getAuthorizationStrategy()
+      logger "Auth Strategy ${authStrategy} had been used in Jenkins"
+      if (authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy) {
+        roles.each { role ->
+          logger "Fetching users for role ${role}"
+          def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
+          logger "Fetched users ${sids} for role ${role}"
+          users = users + sids
+          logger "Aggregated Users List ${users}"
+        }
+      } else {
+        throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
+      }
+      logger "Retrieved Approver userIds : '${users}'"
+      return users.size() > 0 ? users : null
+    } catch (e) {
+        logger "Caught: ${e}" 
+        logger "Caught: ${e.toString()}"
+        logger "Caught: ${e.getMessage()}"
+        logger "Caught: ${e.getStackTrace()}"
     }
-  } else {
-    throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
-  }
-  logger "Retrieved Approver userIds : '${users}'"
-  return users.size() > 0 ? users : null
 }
 
 def finalizeDeployment(BanzaiCfg cfg) {
