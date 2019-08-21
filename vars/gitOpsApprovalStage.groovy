@@ -8,31 +8,30 @@ import com.github.banzaicicd.cfg.BanzaiGitOpsInputCfg
 @NonCPS
 def getUserIdsForRole(List<String> roles) {
   try {
-      logger "Checking Auth Strategy used in Jenkins"
-      logger "Jenkins.instance: ${Jenkins.instance}"
+      echo "Checking Auth Strategy used in Jenkins"
+      echo "Jenkins.instance: ${Jenkins.instance}"
       def authStrategy = Jenkins.instance.getAuthorizationStrategy()
-      logger "Auth Strategy ${authStrategy} had been used in Jenkins"
-      logger "getUserIdsForRole() Retrieving users for roles"
-      
+      echo "Auth Strategy ${authStrategy} had been used in Jenkins"
+      echo "getUserIdsForRole() Retrieving users for roles"
+      def users = []
       if (authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy) {
         roles.each { role ->
-          logger "Fetching users for role ${role}"
+          echo "Fetching users for role ${role}"
           def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
-          logger "Fetched users ${sids} for role ${role}"
+          echo "Fetched users ${sids} for role ${role}"
           users = users + sids
-          logger "Aggregated Users List ${users}"
+          echo "Aggregated Users List ${users}"
         }
       } else {
         throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
-      }
-      //def users = []
-      logger "Retrieved Approver userIds : '${users}'"
+      }      
+      echo "Retrieved Approver userIds : '${users}'"
       return users.size() > 0 ? users : null
     } catch (e) {
-        logger "Caught: ${e}"
-        logger "Caught: ${e.toString()}"
-        logger "Caught: ${e.getMessage()}"
-        logger "Caught: ${e.getStackTrace()}"
+        echo "Caught: ${e}"
+        echo "Caught: ${e.toString()}"
+        echo "Caught: ${e.getMessage()}"
+        echo "Caught: ${e.getStackTrace()}"
     }
 }
 
