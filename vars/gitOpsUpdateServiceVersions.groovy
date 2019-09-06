@@ -31,7 +31,7 @@ def call(BanzaiCfg cfg) {
 			cfg.internal.gitOps.TARGET_ENV = autoDepoyEnv
 			cfg.internal.gitOps.TARGET_STACK = params.gitOpsStackId
 			cfg.internal.gitOps.SERVICE_VERSIONS_TO_UPDATE = [:]
-			cfg.internal.gitOps.DEPLOYMENT_ID = OffsetDateTime.now(ZoneOffset.UTC) as String
+			cfg.internal.gitOps.DEPLOYMENT_ID = (OffsetDateTime.now(ZoneOffset.UTC) as String).replaceAll(":","")
 		}
 	}
 
