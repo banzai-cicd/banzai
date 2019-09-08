@@ -135,10 +135,10 @@ def call(BanzaiCfg cfg) {
       // build approval notification
       String serviceVersions = buildProposedVersionsString(cfg)
       String approvalMsg =
-      """
-      Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested with the following versions:
-      ${serviceVersions}
-      """.stripMargin().stripIndent()
+"""
+Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested with the following versions:
+${serviceVersions}
+""".stripMargin().stripIndent()
       notify(cfg, [
           scope: BanzaiEvent.Scope.GITOPS,
           status: BanzaiEvent.Status.APPROVAL,
