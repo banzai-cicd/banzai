@@ -158,10 +158,10 @@ ${serviceVersions}
             // build approved notification
             String approverName = Jenkins.instance.getUser(approverId).getDisplayName()
             String approvedMsg =
-            """
-            Deployment of the '${STACK}' Stack to the '${ENV}' Environment approved by ${approverName} with the following versions:
-            ${serviceVersions}
-            """.stripMargin().stripIndent()
+"""
+Deployment of the '${STACK}' Stack to the '${ENV}' Environment approved by ${approverName} with the following versions:
+${serviceVersions}
+""".stripMargin().stripIndent()
             notify(cfg, [
                 scope: BanzaiEvent.Scope.GITOPS,
                 status: BanzaiEvent.Status.APPROVED,
