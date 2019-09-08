@@ -255,7 +255,7 @@ def call(config) {
           ok: 'Next Step',
           parameters: [
             [$class: 'StringParameterDefinition', 
-              defaultValue: OffsetDateTime.now(ZoneOffset.UTC) as String,
+              defaultValue: (OffsetDateTime.now(ZoneOffset.UTC) as String).replaceAll(":",""),
               description: "ex) '11-2-2018-blue'. The ID will be scoped to the '${targetStack}' stack in the '${targetEnvironment}' environment and therefor does not need to contain this information. ID's containing spaces or special characters (other than '-' or '.') will have them removed.", 
               name: 'Deployment ID'
             ]
