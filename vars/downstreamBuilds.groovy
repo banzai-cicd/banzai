@@ -67,7 +67,7 @@ List<String> getBuildIdsWithOptional(BanzaiCfg cfg, List<BanzaiDownstreamBuildCf
         String prListUrl = "https://${hostName}/api/v3/repos/${orgName}/${repoName}/pulls?state=closed"
         def prListResponse = httpRequest(url: prListUrl, customHeaders: [[maskValue: false, name: 'Authorization', value: "token ${TOKEN}"]])
         def prList = readJSON(text: prListResponse.content)
-        String targetPr = prList.find { it.merge_commit_sha == latestCommit }
+        def targetPr = prList.find { it.merge_commit_sha == latestCommit }
         if (targetPr == null) {
             logger "No PRs found matching ${latestCommit}"
             return []

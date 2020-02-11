@@ -16,12 +16,12 @@ def call(BanzaiCfg cfg) {
 
   banzaiStage.validate {
     if (cfg.gitOps) {
-      if (!cfg.internal.gitOps.DEPLOY) {
+      if (!cfg.internal?.gitOps?.DEPLOY) {
         // if this is a GitOps repo then cfg.internal.gitOps.DEPLOY must be set
         return "${BRANCH_NAME} does not qualify for GitOps deployment. Skipping ${stageName}"
       }
 
-      deployCfg = new BanzaiStepCfg()
+      deployCfg = cfg.deploy ? findValueInRegexObject(cfg.deploy, BRANCH_NAME) : new BanzaiStepCfg()
     } else {
       // see if this is a project repo with a deployment configuration
       deployCfg = findValueInRegexObject(cfg.deploy, BRANCH_NAME)

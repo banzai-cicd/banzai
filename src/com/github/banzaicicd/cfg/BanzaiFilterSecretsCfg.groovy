@@ -1,7 +1,7 @@
 package com.github.banzaicicd.cfg;
 
+import com.github.banzaicicd.cfg.BanzaiFilterSecretCfg
+
 class BanzaiFilterSecretsCfg {
-    String file
-    String label
-    String secretId
+    List<BanzaiFilterSecretCfg> secrets
 }

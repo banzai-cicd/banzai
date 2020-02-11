@@ -1,4 +1,4 @@
-library "BanzaiOS@${BRANCH_NAME}"
+library "BanzaiCICD@${BRANCH_NAME}"
 
 banzai([
   appName: 'banzai',
