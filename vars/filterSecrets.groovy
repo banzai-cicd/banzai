@@ -1,13 +1,14 @@
 #!/usr/bin/env groovy
 import com.github.banzaicicd.cfg.BanzaiFilterSecretsCfg
+import com.github.banzaicicd.cfg.BanzaiFilterSecretCfg
 
-def call(BanzaiFilterSecretsCfg secretsCfg) {
+void processSecret(BanzaiFilterSecretCfg secretCfg) {
 
-    logger "Filtering Secret: ${secretsCfg.secretId}"
-    logger secretsCfg
+    logger "Filtering Secret: ${secretCfg.secretId}"
+    logger secretCfg
 
     // sanitize the filename
-    String file = secretsCfg.file
+    String file = secretCfg.file
     if (file.contains('..')) {
         error("Secret.file may not contain '..' and should be defined relative to the Jenkins Workspace")
         return
@@ -16,10 +17,21 @@ def call(BanzaiFilterSecretsCfg secretsCfg) {
     // copy target file to temp
     String filePath = "${env.WORKSPACE}/${file}"
     // filter and replace deleted original file
-    withCredentials([string(credentialsId: secretsCfg.secretId, variable: 'SECRET')]) {
+    withCredentials([string(credentialsId: secretCfg.secretId, variable: 'SECRET')]) {
         sh "touch ${filePath}"
-        String replace = /\[banzai:${secretsCfg.label}\]/
+        String replace = /\[banzai:${secretCfg.label}\]/
         sh "sed -i -e 's/${replace}/${SECRET}/g' ${filePath}"
     }
+
+}
+
+def call(BanzaiFilterSecretsCfg secretsCfg) {
+
+    logger "Filtering Secrets"
+    logger secretsCfg
+    logger secretsCfg.getClass()
+    secretsCfg.secrets.each { secret ->
+        BanzaiFilterSecretCfg secretInst = secret
+        processSecret(secretInst) }
 
 }

@@ -380,14 +380,14 @@ flowdock: [
     author: [
       name: 'Banzai',
       avatarUrl: 'https://github.com/avatars/u/55576?s=400&u=700c7e70356d1f5a679908c1d7c7e5bf8e2beab6',
-      email: 'banzai@banzai.com'
+      email: 'banzaicicd@gmail.com'
     ]
   ]
 ],
 email: [
   addresses: [
     tom: 'tom@jerry.com',
-    banzai: 'banzai@banzai.com'
+    banzai: 'banzaicicd@gmail.com'
   ],
   groups: [
     everyone: ['tom', 'banzai'],
@@ -677,7 +677,7 @@ flowdock: [
     author: [
       name: 'Banzai',
       avatarUrl: 'https://github.com/avatars/u/55576?s=400&u=700c7e70356d1f5a679908c1d7c7e5bf8e2beab6',
-      email: 'banzai@banzai.com'
+      email: 'banzaicicd@gmail.com'
     ]
   ]
 ],

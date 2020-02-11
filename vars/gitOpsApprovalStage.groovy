@@ -6,20 +6,33 @@ import com.github.banzaicicd.cfg.BanzaiCfg
 import com.github.banzaicicd.cfg.BanzaiGitOpsInputCfg
 
 @NonCPS
-List<String> getRoleBasedUserIds(List<String> roles) {
-  logger "Retrieving users for roles '${roles}'"
-  def users = []
-  def authStrategy = Jenkins.instance.getAuthorizationStrategy()
-  if (authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy) {
-    roles.each { role ->
-      def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
-      users = users + sids
+def getUserIdsForRole(List<String> roles) {
+  try {
+      echo "Checking Auth Strategy used in Jenkins"
+      echo "Jenkins.instance: ${Jenkins.instance}"
+      def authStrategy = Jenkins.instance.getAuthorizationStrategy()
+      echo "Auth Strategy ${authStrategy} had been used in Jenkins"
+      echo "getUserIdsForRole() Retrieving users for roles"
+      def users = []
+      if (authStrategy instanceof com.michelin.cio.hudson.plugins.rolestrategy.RoleBasedAuthorizationStrategy) {
+        roles.each { role ->
+          echo "Fetching users for role ${role}"
+          def sids = authStrategy.roleMaps.globalRoles.getSidsForRole(role)
+          echo "Fetched users ${sids} for role ${role}"
+          users = users + sids
+          echo "Aggregated Users List ${users}"
+        }
+      } else {
+        throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
+      }      
+      echo "Retrieved Approver userIds : '${users}'"
+      return users.size() > 0 ? users : null
+    } catch (e) {
+        echo "Caught: ${e}"
+        echo "Caught: ${e.toString()}"
+        echo "Caught: ${e.getMessage()}"
+        echo "Caught: ${e.getStackTrace()}"
     }
-  } else {
-    throw new Exception("Role Strategy Plugin not in use.  Please enable to retrieve users for a role")
-  }
-
-  return users.size() > 0 ? users : null
 }
 
 def finalizeDeployment(BanzaiCfg cfg) {
@@ -60,6 +73,7 @@ def finalizeDeployment(BanzaiCfg cfg) {
       }
       
       def gitStatus = sh(returnStdout: true, script: 'git status')
+      logger gitStatus
       if (!gitStatus.contains('nothing to commit')) {
         sh "git add . && git commit -m 'Updating the following Stack: ${ENV}/${STACK}'"
         sh "git pull && git push origin master"
@@ -110,8 +124,10 @@ def call(BanzaiCfg cfg) {
   def approverIds
   if (envConfig.approverIds) {
     approverIds = envConfig.approverIds
-	} else if (envConfig.approverRoles) { // requires role
-    approverIds = getRoleBasedUserIds(envConfig.approverRoles)
+    logger "Retrieved Approvers '${approverIds}' based on approverIds "
+  } else if (envConfig.approverRoles) { // requires role
+    approverIds = getUserIdsForRole(envConfig.approverRoles)
+    logger "Retrieved Approvers '${approverIds}' based on approverRoles '${envConfig.approverRoles}'"
   }
 
   // IF AND ONLY IF APPROVAL IS REQUIRED, ASK FOR IT
@@ -124,10 +140,10 @@ def call(BanzaiCfg cfg) {
       // build approval notification
       String serviceVersions = buildProposedVersionsString(cfg)
       String approvalMsg =
-      """
-      Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested with the following verisions:
-      ${serviceVersions}
-      """.stripMargin().stripIndent()
+"""
+Deployment of the '${STACK}' Stack to the '${ENV}' Environment is requested with the following versions:
+${serviceVersions}
+""".stripMargin().stripIndent()
       notify(cfg, [
           scope: BanzaiEvent.Scope.GITOPS,
           status: BanzaiEvent.Status.APPROVAL,
@@ -147,10 +163,10 @@ def call(BanzaiCfg cfg) {
             // build approved notification
             String approverName = Jenkins.instance.getUser(approverId).getDisplayName()
             String approvedMsg =
-            """
-            Deployment of the '${STACK}' Stack to the '${ENV}' Environment approved by ${approverName} with the following versions:
-            ${serviceVersions}
-            """.stripMargin().stripIndent()
+"""
+Deployment of the '${STACK}' Stack to the '${ENV}' Environment approved by ${approverName} with the following versions:
+${serviceVersions}
+""".stripMargin().stripIndent()
             notify(cfg, [
                 scope: BanzaiEvent.Scope.GITOPS,
                 status: BanzaiEvent.Status.APPROVED,
