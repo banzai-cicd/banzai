@@ -3,7 +3,7 @@ package com.github.banzaicicd.cfg;
 class BanzaiCfg {
     String appName
     BanzaiToolsCfg tools
-    String throttle
+    List<String> throttle
     int timeout = 30
     List<String> sshCreds = []
     Boolean debug
