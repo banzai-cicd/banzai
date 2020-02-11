@@ -2,7 +2,7 @@
 import com.github.banzaicicd.cfg.BanzaiFilterSecretsCfg
 import com.github.banzaicicd.cfg.BanzaiFilterSecretCfg
 
-void test(String x ) {
+void test( x ) {
     logger "testing ${x}"
 }
 
@@ -34,11 +34,16 @@ def call(BanzaiFilterSecretsCfg secretsCfg) {
     logger "Filtering Secrets"
     logger secretsCfg
     logger secretsCfg.getClass()
-    secretsCfg.secrets.each { BanzaiFilterSecretCfg secret ->
+    secretsCfg.secrets.each { secret ->
         logger secret
         logger secret.getClass()
-        test('Test')
-        test(secret.file)
-        processSecret(secret) }
+
+        BanzaiFilterSecretCfg secretInst = secret
+
+        logger secretInst
+        logger secretInst.getClass()
+        test(secretInst.file)
+
+        processSecret(secretInst) }
 
 }
