@@ -2,13 +2,6 @@
 import com.github.banzaicicd.cfg.BanzaiFilterSecretsCfg
 import com.github.banzaicicd.cfg.BanzaiFilterSecretCfg
 
-def call(BanzaiFilterSecretsCfg secretsCfg) {
-
-    logger "Filtering Secrets"
-    secretsCfg.secrets.each {secret -> processSecret(secret)}
-
-}
-
 def processSecret(BanzaiFilterSecretCfg secretCfg) {
 
     logger "Filtering Secret: ${secretCfg.secretId}"
@@ -29,5 +22,12 @@ def processSecret(BanzaiFilterSecretCfg secretCfg) {
         String replace = /\[banzai:${secretCfg.label}\]/
         sh "sed -i -e 's/${replace}/${SECRET}/g' ${filePath}"
     }
+
+}
+
+def call(BanzaiFilterSecretsCfg secretsCfg) {
+
+    logger "Filtering Secrets"
+    secretsCfg.secrets.each {secret -> processSecret(secret)}
 
 }
