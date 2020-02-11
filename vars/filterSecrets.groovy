@@ -2,8 +2,7 @@
 import com.github.banzaicicd.cfg.BanzaiFilterSecretsCfg
 import com.github.banzaicicd.cfg.BanzaiFilterSecretCfg
 
-@NonCPS
-def processSecret(BanzaiFilterSecretCfg secretCfg) {
+void processSecret(BanzaiFilterSecretCfg secretCfg) {
 
     logger "Filtering Secret: ${secretCfg.secretId}"
     logger secretCfg
@@ -29,6 +28,9 @@ def processSecret(BanzaiFilterSecretCfg secretCfg) {
 def call(BanzaiFilterSecretsCfg secretsCfg) {
 
     logger "Filtering Secrets"
-    secretsCfg.secrets.each { BanzaiFilterSecretCfg secret -> processSecret(secret) }
+    secretsCfg.secrets.each { BanzaiFilterSecretCfg secret ->
+        logger secret
+        logger secret.getClass
+        processSecret(secret) }
 
 }
