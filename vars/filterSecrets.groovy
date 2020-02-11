@@ -4,7 +4,7 @@ import com.github.banzaicicd.cfg.BanzaiFilterSecretsCfg
 def call(BanzaiFilterSecretsCfg secretsCfg) {
 
     logger "Filtering Secrets"
-    secretsCfg.secrets.each( secret -> processSecret(secret))
+    secretsCfg.secrets.each {secret -> processSecret(secret)}
 
 }
 
