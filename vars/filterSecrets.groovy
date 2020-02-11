@@ -1,5 +1,6 @@
 #!/usr/bin/env groovy
 import com.github.banzaicicd.cfg.BanzaiFilterSecretsCfg
+import com.github.banzaicicd.cfg.BanzaiFilterSecretCfg
 
 def call(BanzaiFilterSecretsCfg secretsCfg) {
 
