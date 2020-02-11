@@ -31,7 +31,7 @@ def call(BanzaiFilterSecretsCfg secretsCfg) {
     logger secretsCfg
     secretsCfg.secrets.each { BanzaiFilterSecretCfg secret ->
         logger secret
-        logger secret.getClass
+        logger secret.getClass()
         processSecret(secret) }
 
 }
