@@ -2,6 +2,7 @@
 import com.github.banzaicicd.cfg.BanzaiFilterSecretsCfg
 import com.github.banzaicicd.cfg.BanzaiFilterSecretCfg
 
+@NonCPS
 def processSecret(BanzaiFilterSecretCfg secretCfg) {
 
     logger "Filtering Secret: ${secretCfg.secretId}"
